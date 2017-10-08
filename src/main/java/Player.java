@@ -28,17 +28,9 @@ public class Player {
     }
 
     private String name;
-    private Map<PokerResult, Integer> winResult = new HashMap<PokerResult, Integer>();
 
     Player(String name) {
         this.name = name;
-    }
-
-
-    public void initiateWinResultMap() {
-        for (PokerResult pokerResult:PokerResult.values()) {
-            this.winResult.put(pokerResult, 0);
-        }
     }
 
     public void addPrivateCards(List<Card> newCards) {
@@ -61,23 +53,6 @@ public class Player {
 
     public String getName() {
         return this.name;
-    }
-
-    public void addWin(PokerResult pokerResult) {
-        int previousNumberOfWins = winResult.get(pokerResult);
-        this.winResult.replace(pokerResult, previousNumberOfWins +1);
-    }
-
-    public int getNumberOfWins() {
-        int result = 0;
-        for (PokerResult pokerResult:PokerResult.values()) {
-            result = result + this.winResult.get(pokerResult);
-        }
-        return result;
-    }
-
-    public int getNumberOfWinsPerPokerResult(PokerResult pokerResult) {
-        return winResult.get(pokerResult);
     }
 
     @Override

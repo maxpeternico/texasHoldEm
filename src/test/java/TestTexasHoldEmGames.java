@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,33 +8,24 @@ public class TestTexasHoldEmGames {
 
     private static final Logger logger = LogManager.getLogger(TestTexasHoldEmGames.class.getName());
 
-    //    @Before
-    //    public void configureLogger() {
-    //        BasicConfigurator.resetConfiguration();
-    //        BasicConfigurator.configure();
-    //    }
-
     @Test
     public void playNormal() {
         Dealer dealer = Dealer.getInstance();
-        dealer.registerPlayer("Peter");
-//        dealer.registerPlayer("Thomas");
-//        dealer.registerPlayer("J�rn");
-//        dealer.registerPlayer("Anders");
-        for (int i = 0; i < 1000; i++) {
+        dealer.registerPlayer("Thomas");
+        dealer.registerPlayer("Jörn");
+        dealer.registerPlayer("Anders");
+     //   dealer.registerPlayer("Peter");
+        for (int i = 0; i < 900; i++) {
             dealer.play();
             findTheWinner(dealer);
             putCardsBackIntoDeck(dealer);
         }
-        for (Player player : dealer.getPlayers()) {
-            logger.info("[" + player.getName() + "] won [" + player.getNumberOfWins() + "] times on ["
-                    + printAllWinResults(player) + "]");
-        }
+        dealer.printWinStatistics();
     }
 
     private void putCardsBackIntoDeck(Dealer dealer) {
         for (Player player2 : dealer.getPlayers()) {
-            dealer.putCardsInHandToDeck(player2.getPrivateHand());            
+            dealer.putCardsInHandToDeck(player2.getPrivateHand());
         }
         dealer.putCardsInHandToDeck(dealer.getCommonHand());
         dealer.putCardsInHandToDeck(dealer.getSkippedCards());
@@ -50,7 +38,7 @@ public class TestTexasHoldEmGames {
         Dealer dealer = Dealer.getInstance();
         Player peter = dealer.registerPlayer("Peter");
         Player thomas = dealer.registerPlayer("Thomas");
-        Player jorn = dealer.registerPlayer("J�rn");
+        Player jorn = dealer.registerPlayer("Jörn");
         Player anders = dealer.registerPlayer("Anders");
         for (int i = 0; i < 1000; i++) {
             EvaluationHandler.initStatistics();
@@ -58,7 +46,7 @@ public class TestTexasHoldEmGames {
             //            privateHand.add(new Card(Color.hearts, Ordinal.ace));
             //            privateHand.add(new Card(Color.hearts, Ordinal.six));
             privateHand.add(new Card(Color.hearts, Ordinal.ace));
-            privateHand.add(new Card(Color.diamonds, Ordinal.two));
+            privateHand.add(new Card(Color.hearts, Ordinal.king));
             dealer.setPrivateHand(peter, privateHand);
             dealer.playPrivateHand(thomas);
             dealer.playPrivateHand(jorn);
@@ -72,53 +60,31 @@ public class TestTexasHoldEmGames {
                 dealer.playBigBlind(player);
             }
             dealer.drawLastDeal();
-            Player player = findTheWinner(dealer);
+            findTheWinner(dealer);
             putCardsBackIntoDeck(dealer);
         }
-        for (Player player2 : dealer.getPlayers()) {
-            logger.info("[" + player2.getName() + "] won [" + player2.getNumberOfWins() + "] times on ["
-                    + printAllWinResults(player2) + "]");
-        }
-
+        dealer.printWinStatistics();
     }
 
-    private String printAllWinResults(Player player) {
-        StringBuilder result = new StringBuilder();
-        for (PokerResult pokerResult : PokerResult.values()) {
-            if (player.getNumberOfWinsPerPokerResult(pokerResult) != 0) {
-                result.append(" ").append(player.getNumberOfWinsPerPokerResult(pokerResult)).append(" ")
-                        .append(pokerResult.toString());
-            }
-        }
-        return result.toString();
-    }
-
-    private Player findTheWinner(Dealer dealer) {
-//        Player winner = null;
-        String winnerName = null;
+    private void findTheWinner(Dealer dealer) {
+        Player winner = null;
         Map<Card, PokerResult> highScore = new HashMap<Card, PokerResult>();
         highScore.put(EvaluationHandler.getLeastValueableCard(), PokerResult.NO_RESULT);
         for (Player player : dealer.getPlayers()) {
             Map<Card, PokerResult> result = dealer.playLastDeal(player);
-            logger.info("[" + player.toString() + "] got [" + EvaluationHandler.getResultFromCardPokerResultMap(result)
+            logger.debug("[" + player.toString() + "] got [" + EvaluationHandler.getResultFromCardPokerResultMap(result)
                     + "] with top card [" + EvaluationHandler.getTopCardFromResult(result) + "]");
-            logger.debug(" from hand:[" + EvaluationHandler.printHand(player.getPrivateHand()) + "]");
-            logger.debug("Highscore is:[" + highScore.toString() + "]");
+            logger.trace(" from hand:[" + EvaluationHandler.printHand(player.getPrivateHand()) + "]");
+            logger.trace("Highscore is:[" + highScore.toString() + "]");
             if (EvaluationHandler.isResultFromLatestPlayerHigherThanHighScore(result, highScore)) {
                 highScore.clear();
                 highScore.putAll(result);
-                //winner = player;
-                winnerName = player.getName();
+                winner = player;
             }
         }
-        Player winner = dealer.getPlayer(winnerName);
+        dealer.updateWinStatistics(winner, highScore);
         logger.info(
-                "And the winner is:[" + winnerName + "] with highscore :[" + printPokerResult(highScore) + "]");
-        int i = winner.getInt();
-        winner.setInt();
-        winner.addWin(EvaluationHandler.getResultFromCardPokerResultMap(highScore));
-        //dealer.addWin(winner, EvaluationHandler.getResultFromCardPokerResultMap(highScore));
-        return winner;
+                "And the winner is:[" + winner.getName() + "] with highscore :[" + printPokerResult(highScore) + "]");
     }
 
     private String printPokerResult(Map<Card, PokerResult> highScore) {

@@ -29,7 +29,12 @@ public class EvaluationHandler {
     public static Map<Card, PokerResult> evaluateHand(String name, List<Card> cardsInHand) {
         Map<Card, PokerResult> result = new HashMap<Card, PokerResult>();
         Card highestCard = findHighestCardByColor(cardsInHand);
-        if (isStraightFlush(cardsInHand)) {
+        if (isRoyalStraightFlush(cardsInHand)) {
+            logger.debug("[" + name + "] got a royal straight flush! [" + printCards(cardsInHand) + "]");
+            Integer numberOfTimes = statistics.get(PokerResult.ROYAL_STRAIGHT_FLUSH);
+            statistics.put(PokerResult.ROYAL_STRAIGHT_FLUSH, ++numberOfTimes);
+            result.put(highestCard, PokerResult.ROYAL_STRAIGHT_FLUSH);
+        } else if (isStraightFlush(cardsInHand)) {
             logger.debug("[" + name + "] got a straight flush! [" + printCards(cardsInHand) + "]");
             Integer numberOfTimes = statistics.get(PokerResult.STRAIGHT_FLUSH);
             statistics.put(PokerResult.STRAIGHT_FLUSH, ++numberOfTimes);
@@ -76,6 +81,15 @@ public class EvaluationHandler {
             result.put(highestCard, PokerResult.NO_RESULT);
         }
         return result;
+    }
+
+    private static boolean isRoyalStraightFlush(List<Card> cardsInHand) {
+        if (isFlush(cardsInHand) && cardsInHand.get(0).getColor().equals(Color.hearts) &&
+                isStraight(cardsInHand) && highestCardFromStraight(cardsInHand).equals(new Card(Color.hearts, Ordinal.ace))) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private static Card highestCardFromStraight(List<Card> cardsInHand) {

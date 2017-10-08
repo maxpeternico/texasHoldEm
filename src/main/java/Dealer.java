@@ -1,10 +1,10 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.logging.log4j.Logger;
 
 import org.apache.logging.log4j.LogManager;
+
+import static javax.swing.UIManager.get;
 
 
 public class Dealer {
@@ -27,6 +27,7 @@ public class Dealer {
     private static final int NUMBER_OF_CARD_FOR_FINAL_BLIND = 1;
     private static final int SKIP_CARD = 1;
     private static final int NUMBER_OF_CARDS_IN_DECK = 52;
+    private Map<Player, List<PokerResult>> winStatistics = new HashMap<Player, List<PokerResult>>();
 
     public static Dealer getInstance() {
         return dealer;
@@ -50,6 +51,7 @@ public class Dealer {
     public Player registerPlayer(String name) {
         Player player = new Player(name);
         players.add(player);
+        winStatistics.put(player, new ArrayList<PokerResult>());
         return player;
     }
 
@@ -157,7 +159,6 @@ public class Dealer {
 
     public void play() {
         for (Player player : players) {
-            player.initiateWinResultMap();
             playPrivateHand(player);
         }
         drawLittleBlind();
@@ -230,7 +231,57 @@ public class Dealer {
         return null;
     }
 
-    public void addWin(Player winner, PokerResult result) {
-        winner.addWin(result);
+    public void updateWinStatistics(Player winner, Map<Card, PokerResult> highScore) {
+        List<PokerResult> pokerResults = winStatistics.get(winner);
+        pokerResults.add(EvaluationHandler.getResultFromCardPokerResultMap(highScore));
+        winStatistics.put(winner, pokerResults);
+    }
+
+    public void printWinStatistics() {
+        int numberOfPairs = 0;
+        Map<PokerResult, Integer> allPlayerWinStatistics = initAllPlayerWinStatistics();
+        Set<Player> playerSet = winStatistics.keySet();
+        Iterator<Player> players = playerSet.iterator();
+        while (players.hasNext()) {
+            Player player = players.next();
+            List<PokerResult> resultStatistics = winStatistics.get(player);
+            logger.info("[" + player.getName() + "] won [" + resultStatistics.size() + "] number of times on [");
+            for (PokerResult pokerResult:PokerResult.values()) {
+                int numberOfMatches = getNumberOfPokerResults(pokerResult, resultStatistics);
+                if (numberOfMatches > 0) {
+                    logger.info(pokerResult.toString() + ": [" + numberOfMatches + "] times.");
+                    Integer allPlayerNumberOfMatches = allPlayerWinStatistics.get(pokerResult);
+                    allPlayerNumberOfMatches = allPlayerNumberOfMatches + numberOfMatches;
+                    allPlayerWinStatistics.put(pokerResult, allPlayerNumberOfMatches);
+                }
+            }
+        }
+        printAllPlayerStatistics(allPlayerWinStatistics);
+    }
+
+    private void printAllPlayerStatistics(Map<PokerResult, Integer> allPlayerWinStatistics) {
+        logger.info("Total game statistics for all players:");
+        for (PokerResult pokerResult:PokerResult.values()) {
+            logger.info("Number of wins on :[" + pokerResult.toString() + "] : [" + allPlayerWinStatistics.get(pokerResult) + "]");
+        }
+    }
+
+
+    private Map<PokerResult, Integer> initAllPlayerWinStatistics() {
+        Map<PokerResult, Integer> allPlayerWinStatistics = new HashMap<PokerResult, Integer>();
+        for (PokerResult pokerResult:PokerResult.values()) {
+            allPlayerWinStatistics.put(pokerResult, 0);
+        }
+        return allPlayerWinStatistics;
+    }
+
+    private int getNumberOfPokerResults(PokerResult result, List<PokerResult> pokerResultList) {
+        int numberOfMatches = 0;
+        for (PokerResult pokerResult:pokerResultList) {
+            if (result.equals(pokerResult)) {
+                numberOfMatches++;
+            }
+        }
+        return numberOfMatches;
     }
 }
