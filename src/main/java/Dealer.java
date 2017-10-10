@@ -34,8 +34,6 @@ public class Dealer {
     }
 
     private Dealer() {
-//        BasicConfigurator.resetConfiguration();
-//        BasicConfigurator.configure();
         populateDeck();
         EvaluationHandler.initStatistics();
     }
@@ -158,6 +156,7 @@ public class Dealer {
     }
 
     public void play() {
+        rotateDealer();
         for (Player player : players) {
             playPrivateHand(player);
         }
@@ -173,6 +172,12 @@ public class Dealer {
         for (Player player : players) {
             playLastDeal(player);
         }
+    }
+
+    private void rotateDealer() {
+        Player playerToRotate = players.get(0);
+        players.remove(0);
+        players.add(playerToRotate);
     }
 
     public void setPrivateHand(Player player, List<Card> privateHand) {

@@ -86,7 +86,7 @@ class Card {
             logger.trace("[" + this.toString() + "] is higher.");
             isColorHigher = true;
         } else if (this.color.getValue() == otherCard.getColor().getValue()) {
-            logger.info("Card was compared to itself");
+            logger.trace("Card was compared to itself");
         } else {
             logger.trace("[" + otherCard.toString() + "] is higher.");
             isColorHigher = false;

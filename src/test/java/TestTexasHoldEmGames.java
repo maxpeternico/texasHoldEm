@@ -8,14 +8,13 @@ public class TestTexasHoldEmGames {
 
     private static final Logger logger = LogManager.getLogger(TestTexasHoldEmGames.class.getName());
 
-    @Test
     public void playNormal() {
         Dealer dealer = Dealer.getInstance();
         dealer.registerPlayer("Thomas");
         dealer.registerPlayer("Jörn");
         dealer.registerPlayer("Anders");
-     //   dealer.registerPlayer("Peter");
-        for (int i = 0; i < 900; i++) {
+        dealer.registerPlayer("Peter");
+        for (int i = 0; i < 10000; i++) {
             dealer.play();
             findTheWinner(dealer);
             putCardsBackIntoDeck(dealer);
@@ -43,14 +42,43 @@ public class TestTexasHoldEmGames {
         for (int i = 0; i < 1000; i++) {
             EvaluationHandler.initStatistics();
             List<Card> privateHand = new ArrayList<Card>();
-            //            privateHand.add(new Card(Color.hearts, Ordinal.ace));
-            //            privateHand.add(new Card(Color.hearts, Ordinal.six));
             privateHand.add(new Card(Color.hearts, Ordinal.ace));
-            privateHand.add(new Card(Color.hearts, Ordinal.king));
+            privateHand.add(new Card(Color.clubs, Ordinal.three));
             dealer.setPrivateHand(peter, privateHand);
             dealer.playPrivateHand(thomas);
             dealer.playPrivateHand(jorn);
             dealer.playPrivateHand(anders);
+            dealer.drawLittleBlind();
+            for (Player player : dealer.getPlayers()) {
+                dealer.playLittleBlind(player);
+            }
+            dealer.drawBigBlind();
+            for (Player player : dealer.getPlayers()) {
+                dealer.playBigBlind(player);
+            }
+            dealer.drawLastDeal();
+            findTheWinner(dealer);
+            putCardsBackIntoDeck(dealer);
+        }
+        dealer.printWinStatistics();
+    }
+
+    @Test
+    public void testWinWithPair() {
+        Dealer dealer = Dealer.getInstance();
+        Player peter = dealer.registerPlayer("Peter");
+        Player thomas = dealer.registerPlayer("Thomas");
+//        Player jorn = dealer.registerPlayer("Jörn");
+//        Player anders = dealer.registerPlayer("Anders");
+        for (int i = 0; i < 1000; i++) {
+            EvaluationHandler.initStatistics();
+            List<Card> privateHand = new ArrayList<Card>();
+            privateHand.add(new Card(Color.hearts, Ordinal.ace));
+            privateHand.add(new Card(Color.clubs, Ordinal.ace));
+            dealer.setPrivateHand(peter, privateHand);
+            dealer.playPrivateHand(thomas);
+//            dealer.playPrivateHand(jorn);
+ //           dealer.playPrivateHand(anders);
             dealer.drawLittleBlind();
             for (Player player : dealer.getPlayers()) {
                 dealer.playLittleBlind(player);

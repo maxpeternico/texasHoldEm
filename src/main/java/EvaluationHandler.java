@@ -18,8 +18,6 @@ public class EvaluationHandler {
     static Map<PokerResult, Integer> statistics = new HashMap<PokerResult, Integer>();
 
     static void initStatistics() {
-//        BasicConfigurator.configure();
-//        BasicConfigurator.resetConfiguration();
         PokerResult[] values = PokerResult.values();
         for (PokerResult value : values) {
             statistics.put(value, 0);
