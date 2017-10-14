@@ -14,13 +14,15 @@ public class EvaluationHandler {
     private static final Logger logger = LogManager.getLogger(EvaluationHandler.class.getName());
     private static final Integer ACE_VALUE_ONE = 1;
     private static final int NUMBER_OF_CARDS_IN_HAND = 5;
+    private static final String NO_FLUSH_FOUND = "No flush found.";
 
-    static Map<PokerResult, Integer> statistics = new HashMap<PokerResult, Integer>();
+    static Map<Card, Integer> cardStatistics = new HashMap<Card, Integer>();
 
     static void initStatistics() {
-        PokerResult[] values = PokerResult.values();
-        for (PokerResult value : values) {
-            statistics.put(value, 0);
+        for (Color color:Color.values()) {
+            for (Ordinal ordinal:Ordinal.values()) {
+                cardStatistics.put(new Card(color, ordinal), 0);
+            }
         }
     }
 
@@ -29,68 +31,60 @@ public class EvaluationHandler {
         Card highestCard = findHighestCardByColor(cardsInHand);
         if (isRoyalStraightFlush(cardsInHand)) {
             logger.debug("[" + name + "] got a royal straight flush! [" + printCards(cardsInHand) + "]");
-            Integer numberOfTimes = statistics.get(PokerResult.ROYAL_STRAIGHT_FLUSH);
-            statistics.put(PokerResult.ROYAL_STRAIGHT_FLUSH, ++numberOfTimes);
             result.put(highestCard, PokerResult.ROYAL_STRAIGHT_FLUSH);
         } else if (isStraightFlush(cardsInHand)) {
             logger.debug("[" + name + "] got a straight flush! [" + printCards(cardsInHand) + "]");
-            Integer numberOfTimes = statistics.get(PokerResult.STRAIGHT_FLUSH);
-            statistics.put(PokerResult.STRAIGHT_FLUSH, ++numberOfTimes);
             result.put(highestCard, PokerResult.STRAIGHT_FLUSH);
         } else if (isFour(cardsInHand)) {
             logger.debug("[" + name + "] got a fours! [" + printCards(cardsInHand) + "]");
-            Integer numberOfTimes = statistics.get(PokerResult.FOURS);
-            statistics.put(PokerResult.FOURS, ++numberOfTimes);
             result.put(highestCard, PokerResult.FOURS);
         } else if (isFullHouse(cardsInHand)) {
             logger.debug("[" + name + "] got a full house! [" + printCards(cardsInHand) + "]");
-            Integer numberOfTimes = statistics.get(PokerResult.FULL_HOUSE);
-            statistics.put(PokerResult.FULL_HOUSE, ++numberOfTimes);
             result.put(highestCard, PokerResult.FULL_HOUSE);
         } else if (isFlush(cardsInHand)) {
             logger.debug("[" + name + "] got a flush! [" + printCards(cardsInHand) + "]");
-            Integer numberOfTimes = statistics.get(PokerResult.FLUSH);
-            statistics.put(PokerResult.FLUSH, ++numberOfTimes);
             result.put(highestCard, PokerResult.FLUSH);
         } else if (isStraight(cardsInHand)) {
             logger.debug("[" + name + "] got a straight! [" + printCards(cardsInHand) + "]");
-            Integer numberOfTimes = statistics.get(PokerResult.STRAIGHT);
-            statistics.put(PokerResult.STRAIGHT, ++numberOfTimes);
             result.put(highestCardFromStraight(cardsInHand), PokerResult.STRAIGHT);
         } else if (isTripple(cardsInHand)) {
             logger.debug("[" + name + "] got a threes! [" + printCards(cardsInHand) + "]");
-            Integer numberOfTimes = statistics.get(PokerResult.THREES);
-            statistics.put(PokerResult.THREES, ++numberOfTimes);
             result.put(highestCard, PokerResult.THREES);
         } else if (isTwoPair(cardsInHand)) {
             logger.debug("[" + name + "] got two pair! [" + printCards(cardsInHand) + "]");
-            Integer numberOfTimes = statistics.get(PokerResult.TWO_PAIR);
-            statistics.put(PokerResult.TWO_PAIR, ++numberOfTimes);
             result.put(highestCard, PokerResult.TWO_PAIR);
         } else if (isOnePair(cardsInHand)) {
             logger.debug("[" + name + "] got a pair! [" + printCards(cardsInHand) + "]");
-            Integer numberOfTimes = statistics.get(PokerResult.PAIR);
-            statistics.put(PokerResult.PAIR, ++numberOfTimes);
             result.put(highestCard, PokerResult.PAIR);
         } else {
             logger.debug("[" + name + "]:s hand [" + printCards(cardsInHand) + "] did not give any money");
-            Integer numberOfTimes = statistics.get(PokerResult.NO_RESULT);
-            statistics.put(PokerResult.NO_RESULT, ++numberOfTimes);
             result.put(highestCard, PokerResult.NO_RESULT);
         }
         return result;
     }
 
-    private static boolean isRoyalStraightFlush(List<Card> cardsInHand) {
-        if (isFlush(cardsInHand) && cardsInHand.get(0).getColor().equals(Color.hearts) &&
-                isStraight(cardsInHand) && highestCardFromStraight(cardsInHand).equals(new Card(Color.hearts, Ordinal.ace))) {
+    static boolean isRoyalStraightFlush(List<Card> cardsInHand)  {
+        if (isStraightFlush(cardsInHand) && isFlushOf(cardsInHand, Color.hearts) &&
+                highestCardFromStraight(cardsInHand).equals(new Card(Color.hearts, Ordinal.ace))) {
             return true;
         } else {
             return false;
         }
     }
 
-    private static Card highestCardFromStraight(List<Card> cardsInHand) {
+    private static boolean isFlushOf(List<Card> cardsInHand, Color color) {
+        boolean isFlushOf = false;
+        try {
+            if (returnFlushColor(cardsInHand).equals(color)) {
+                isFlushOf = true;
+            }
+        } catch (Exception e) {
+            checkExceptionMessage(e);
+        }
+        return isFlushOf;
+    }
+
+    static Card highestCardFromStraight(List<Card> cardsInHand) {
         List<Integer> valueList = new ArrayList<Integer>();
         int highestOrdinalValue = 0;
 
@@ -102,21 +96,24 @@ public class EvaluationHandler {
             valueList.add(card.getOrdinal().getValue());
         }
         Collections.sort(valueList);
-        int oldValue = valueList.get(0) - 1;
-        int straightCounter = 0;
+        int oldValue = 99;
+        int straightCounter = 1;
         for (Integer value : valueList) {
-            logger.trace("checking if value:[" + value + "] is part of a straight.");
+            logger.info("checking if value:[" + value + "] is part of a straight.");
             if (value == (oldValue + 1)) {
                 straightCounter++;
-                logger.trace("Value:[" + value + "] could be part of a possible straight. Straight counter:[" + straightCounter + "]");
+                highestOrdinalValue = value;
+                logger.info("Value:[" + value + "] could be part of a possible straight. Straight counter:[" + straightCounter + "]");
+                if (straightCounter >= NUMBER_OF_CARDS_IN_HAND) {
+                    logger.info("Highest ordinal in straight:[" + value + "]");
+                }
+            } else if (value == oldValue) {
+                // Do nothing
             } else {
-                logger.trace("Value:[" + value + "] could be the lowest card in a straight.");
+                logger.info("Value:[" + value + "] could be the lowest card in a straight.");
                 straightCounter = 1;
             }
             oldValue = value;
-            if (straightCounter >= NUMBER_OF_CARDS_IN_HAND) {
-                highestOrdinalValue = value;
-            }
         }
         Card highestCard = null;
         for (Card card:cardsInHand) {
@@ -203,6 +200,27 @@ public class EvaluationHandler {
 
     static boolean isFlush(List<Card> cardsInHand) {
         boolean isFlush = false;
+        try {
+            Color flushColor = returnFlushColor(cardsInHand);
+            if (flushColor != null) {
+                isFlush = true;
+            }
+        } catch (Exception e) {
+            checkExceptionMessage(e);
+        }
+        return isFlush;
+    }
+
+    private static void checkExceptionMessage(Exception e) {
+        if (e.getMessage().equals(NO_FLUSH_FOUND)) {
+            logger.trace(NO_FLUSH_FOUND);
+        } else {
+            throw new RuntimeException("Unexcpected exception received from returnFlushColor");
+        }
+    }
+
+    static Color returnFlushColor(List<Card> cardsInHand) throws Exception {
+        Color flushColor = null;
         if (cardsInHand.size() >= NUMBER_OF_CARDS_IN_HAND) {
             Map<Color, Integer> flushChecker = new HashMap<Color, Integer>();
             initFlushChecker(flushChecker);
@@ -211,18 +229,19 @@ public class EvaluationHandler {
                 flushChecker.put(card.getColor(), ++oldValue);
                 logger.trace("FlushCheck:[" + card.getColor().toString() + "] no:[" + oldValue + "]");
             }
-            for (Color color:Color.values()) {
+            for (Color color : Color.values()) {
                 if (flushChecker.get(color) == NUMBER_OF_CARDS_IN_HAND) {
-                    isFlush = true;
+                    flushColor = color;
                     logger.debug("Got a flush of:[" + color + "]");
                 }
             }
-        } else {
-            isFlush = false;
+            if (flushColor == null) {
+                throw new Exception("No flush found.");
+            }
         }
-
-        return isFlush;
+        return flushColor;
     }
+
 
     private static void initFlushChecker(Map<Color, Integer> flushChecker) {
         for (Color color:Color.values()) {
@@ -281,7 +300,7 @@ public class EvaluationHandler {
         return hasMultiple;
     }
 
-    static boolean isStraightFlush(List<Card> cardsInHand) {
+    static boolean isStraightFlush(List<Card> cardsInHand)  {
         if (isStraight(cardsInHand) && isFlush(cardsInHand) && (cardsInHand.size() >= NUMBER_OF_CARDS_IN_HAND)) {
             return true;
         } else {
@@ -413,5 +432,36 @@ public class EvaluationHandler {
         Card topCard = getTopCardFromResult(result);
         PokerResult pokerResult = result.get(topCard);
         return pokerResult;
+    }
+
+    public static int getNumberOfDraws() {
+        int numberOfCards = 0;
+        for (Color color:Color.values()) {
+            for (Ordinal ordinal:Ordinal.values()) {
+                numberOfCards +=cardStatistics.get(new Card(color, ordinal));
+            }
+        }
+        return numberOfCards;
+    }
+
+    public static int getNumberOfColor(Color requestedColor) {
+        int numberOfColor = 0;
+        for (Ordinal ordinal:Ordinal.values()) {
+            numberOfColor +=cardStatistics.get(new Card(requestedColor, ordinal));
+        }
+        return numberOfColor;
+    }
+
+    public static void addCardToStatistics(Card drawnCard) {
+        int numberOfDrawnTimes = cardStatistics.get(drawnCard);
+        cardStatistics.put(drawnCard, ++numberOfDrawnTimes);
+    }
+
+    public static int getNumberOfOrdinal(Ordinal requestedOrdinal) {
+        int numberOfOrdinal = 0;
+        for (Color color:Color.values()) {
+            numberOfOrdinal +=cardStatistics.get(new Card(color, requestedOrdinal));
+        }
+        return numberOfOrdinal;
     }
 }

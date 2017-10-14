@@ -108,5 +108,61 @@ public class UnitTests {
         assertFalse(resultFromLatestPlayerHigherThanHighScore);
     }
 
+    @Test
+    public void testRoyalStraightFlush() {
+        List<Card> cardsOnHand = new ArrayList<Card>();
+        cardsOnHand.add(new Card(Color.spades, Ordinal.five));
+        cardsOnHand.add(new Card(Color.hearts, Ordinal.king));
+        cardsOnHand.add(new Card(Color.hearts, Ordinal.queen));
+        cardsOnHand.add(new Card(Color.diamonds, Ordinal.two));
+        cardsOnHand.add(new Card(Color.hearts, Ordinal.knight));
+        cardsOnHand.add(new Card(Color.hearts, Ordinal.ace));
+        cardsOnHand.add(new Card(Color.hearts, Ordinal.ten));
+        Map<Card, PokerResult> evaluateHand = EvaluationHandler.evaluateHand("test", cardsOnHand);
+        assertEquals(PokerResult.ROYAL_STRAIGHT_FLUSH, evaluateHand.get(new Card(Color.hearts, Ordinal.ace)));
+    }
+
+    @Test
+    public void testRoyalStraightFlushNegative() throws Exception {
+        List<Card> cardsOnHand = new ArrayList<Card>();
+        cardsOnHand.add(new Card(Color.hearts, Ordinal.nine));
+        cardsOnHand.add(new Card(Color.hearts, Ordinal.king));
+        cardsOnHand.add(new Card(Color.hearts, Ordinal.queen));
+        cardsOnHand.add(new Card(Color.clubs, Ordinal.nine));
+        cardsOnHand.add(new Card(Color.hearts, Ordinal.knight));
+        cardsOnHand.add(new Card(Color.spades, Ordinal.ace));
+        cardsOnHand.add(new Card(Color.hearts, Ordinal.ten));
+        Map<Card, PokerResult> evaluateHand = EvaluationHandler.evaluateHand("test", cardsOnHand);
+        assertEquals(PokerResult.STRAIGHT_FLUSH, evaluateHand.get(new Card(Color.spades, Ordinal.ace)));
+    }
+
+    @Test
+    public void highestCardFromStraight() {
+        List<Card> cardsOnHand = new ArrayList<Card>();
+        cardsOnHand.add(new Card(Color.hearts, Ordinal.ace));
+        cardsOnHand.add(new Card(Color.spades, Ordinal.knight));
+        cardsOnHand.add(new Card(Color.hearts, Ordinal.king));
+        cardsOnHand.add(new Card(Color.hearts, Ordinal.queen));
+        cardsOnHand.add(new Card(Color.clubs, Ordinal.nine));
+        cardsOnHand.add(new Card(Color.hearts, Ordinal.knight));
+        cardsOnHand.add(new Card(Color.hearts, Ordinal.ten));
+        Card card = EvaluationHandler.highestCardFromStraight(cardsOnHand);
+        assertEquals(card, new Card(Color.hearts, Ordinal.ace));
+    }
+
+    @Test
+    public void testEvaluateHand() {
+        List<Card> cardsOnHand = new ArrayList<Card>();
+        cardsOnHand.add(new Card(Color.spades, Ordinal.five));
+        cardsOnHand.add(new Card(Color.hearts, Ordinal.king));
+        cardsOnHand.add(new Card(Color.hearts, Ordinal.queen));
+        cardsOnHand.add(new Card(Color.diamonds, Ordinal.two));
+        cardsOnHand.add(new Card(Color.hearts, Ordinal.knight));
+        cardsOnHand.add(new Card(Color.hearts, Ordinal.ace));
+        cardsOnHand.add(new Card(Color.hearts, Ordinal.ten));
+        Map<Card, PokerResult> evaluateHand = EvaluationHandler.evaluateHand("kalle", cardsOnHand);
+        PokerResult resultFromCardPokerResultMap = EvaluationHandler.getResultFromCardPokerResultMap(evaluateHand);
+        assertEquals(resultFromCardPokerResultMap, PokerResult.ROYAL_STRAIGHT_FLUSH);
+    }
 }
 

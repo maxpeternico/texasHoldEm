@@ -1,10 +1,7 @@
-import java.util.*;
-
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import org.apache.logging.log4j.LogManager;
-
-import static javax.swing.UIManager.get;
+import java.util.*;
 
 
 public class Dealer {
@@ -65,16 +62,20 @@ public class Dealer {
             } while (!deck.contains(drawnCard));
             logger.trace("Drawing card:" + drawnCard.toString() + "]");
             cardsInHand.add(drawnCard);
+            EvaluationHandler.addCardToStatistics(drawnCard);
             boolean isCardRemovedFromDeck = deck.remove(drawnCard);
             if (!isCardRemovedFromDeck) {
                 throw new RuntimeException("Card was not removed from deck!");
+            }
+            if (drawnCard.getColor().equals(Color.hearts) && drawnCard.getOrdinal().equals(Ordinal.ace)) {
+                logger.info("Go it");
             }
         }
         return cardsInHand;
     }
 
     private Ordinal getRandomOrdinal() {
-        int randomOrdinalValue = getRandomNumberUpToValue(ordinals.length - OFFSET_TWO) + OFFSET_TWO;
+        int randomOrdinalValue = getRandomNumberUpToValue(ordinals.length) + 2;
         Ordinal[] ordinals = Ordinal.values();
         Ordinal ordinalValueMatch = null;
         for (Ordinal ordinal : ordinals) {
@@ -113,20 +114,20 @@ public class Dealer {
         commonHand.addAll(drawnCards);
     }
 
-    void playPrivateHand(Player player) {
+    void playPrivateHand(Player player) throws Exception {
         player.addPrivateCards(getPrivateHand());
         player.evaluateHand(commonHand);
     }
 
-    void playLittleBlind(Player player) {
+    void playLittleBlind(Player player) throws Exception {
         player.evaluateHand(commonHand);
     }
 
-    void playBigBlind(Player player) {
+    void playBigBlind(Player player) throws Exception {
         player.evaluateHand(commonHand);
     }
 
-    Map<Card, PokerResult> playLastDeal(Player player) {
+    Map<Card, PokerResult> playLastDeal(Player player) throws Exception {
         return player.evaluateHand(commonHand);
     }
 
@@ -155,7 +156,7 @@ public class Dealer {
         return dealer.deal(NUMBER_OF_CARDS_ON_PRIVATE_HAND);
     }
 
-    public void play() {
+    public void play() throws Exception {
         rotateDealer();
         for (Player player : players) {
             playPrivateHand(player);
