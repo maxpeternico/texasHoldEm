@@ -10,7 +10,6 @@ public class TestTexasHoldEmGames {
 
     private static final Logger logger = LogManager.getLogger(TestTexasHoldEmGames.class.getName());
 
-    @Test
     public void playNormal() throws Exception {
         Dealer dealer = Dealer.getInstance();
         dealer.registerPlayer("Thomas");
@@ -90,37 +89,41 @@ public class TestTexasHoldEmGames {
         dealer.printWinStatistics();
     }
 
-    public void testWinWithPair() throws Exception {
+    @Test
+    public void testWinWithPair() {
         Dealer dealer = Dealer.getInstance();
         Player peter = dealer.registerPlayer("Peter");
         Player thomas = dealer.registerPlayer("Thomas");
-//        Player jorn = dealer.registerPlayer("Jörn");
-//        Player anders = dealer.registerPlayer("Anders");
-        for (int i = 0; i < 1000; i++) {
-            EvaluationHandler.initStatistics();
-            List<Card> privateHand = new ArrayList<Card>();
-            privateHand.add(new Card(Color.hearts, Ordinal.ace));
-            privateHand.add(new Card(Color.clubs, Ordinal.ace));
-            dealer.setPrivateHand(peter, privateHand);
-            dealer.playPrivateHand(thomas);
-//            dealer.playPrivateHand(jorn);
- //           dealer.playPrivateHand(anders);
-            dealer.drawLittleBlind();
-            for (Player player : dealer.getPlayers()) {
-                dealer.playLittleBlind(player);
+        Player jorn = dealer.registerPlayer("Jörn");
+        Player anders = dealer.registerPlayer("Anders");
+        for (Ordinal ordinal:Ordinal.values()) {
+            logger.info("Checking statistics when peter gets pair of:[" + ordinal.toString() + "]");
+            for (int i = 0; i < 10000; i++) {
+                EvaluationHandler.initStatistics();
+                List<Card> privateHand = new ArrayList<Card>();
+                privateHand.add(new Card(Color.hearts, ordinal));
+                privateHand.add(new Card(Color.clubs, ordinal));
+                dealer.setPrivateHand(peter, privateHand);
+                dealer.playPrivateHand(thomas);
+                dealer.playPrivateHand(jorn);
+                dealer.playPrivateHand(anders);
+                dealer.drawLittleBlind();
+                for (Player player : dealer.getPlayers()) {
+                    dealer.playLittleBlind(player);
+                }
+                dealer.drawBigBlind();
+                for (Player player : dealer.getPlayers()) {
+                    dealer.playBigBlind(player);
+                }
+                dealer.drawLastDeal();
+                findTheWinner(dealer);
+                putCardsBackIntoDeck(dealer);
             }
-            dealer.drawBigBlind();
-            for (Player player : dealer.getPlayers()) {
-                dealer.playBigBlind(player);
-            }
-            dealer.drawLastDeal();
-            findTheWinner(dealer);
-            putCardsBackIntoDeck(dealer);
+            dealer.printWinStatistics();
         }
-        dealer.printWinStatistics();
     }
 
-    private void findTheWinner(Dealer dealer) throws Exception {
+    private void findTheWinner(Dealer dealer) {
         Player winner = null;
         Map<Card, PokerResult> highScore = new HashMap<Card, PokerResult>();
         highScore.put(EvaluationHandler.getLeastValueableCard(), PokerResult.NO_RESULT);
@@ -137,7 +140,7 @@ public class TestTexasHoldEmGames {
             }
         }
         dealer.updateWinStatistics(winner, highScore);
-        logger.info(
+        logger.debug(
                 "And the winner is:[" + winner.getName() + "] with highscore :[" + printPokerResult(highScore) + "]");
     }
 

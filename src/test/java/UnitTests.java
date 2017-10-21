@@ -57,6 +57,9 @@ public class UnitTests {
         cardsOnHand.add(new Card(Color.clubs, Ordinal.four));
         Map<Card, PokerResult> evaluateHand = EvaluationHandler.evaluateHand("test", cardsOnHand);
         assertEquals(PokerResult.STRAIGHT, evaluateHand.get(new Card(Color.spades, Ordinal.eight)));
+        Card topCard = new Card(Color.spades, Ordinal.eight);
+        assertEquals(topCard, EvaluationHandler.getTopCardFromResult(evaluateHand));
+
     }
 
     @Test

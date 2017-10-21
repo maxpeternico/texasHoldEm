@@ -9,7 +9,6 @@ class Card {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-//        result = prime * result + getOuterType().hashCode();
         result = prime * result + ((color == null) ? 0 : color.hashCode());
         result = prime * result + ordinal.hashCode();
         return result;
@@ -21,15 +20,7 @@ class Card {
             return true;
         if (obj == null)
             return false;
-        //            if (getClass() != obj.getClass())
-        //                return false;
-        //            Card other = (Card) obj;
-        //            if (!getOuterType().equals(other.getOuterType()))
-        //                return false;
-        //            if (color != other.color)
-        //                return false;
-        //            if (ordinal != other.ordinal)
-        //                return false;
+
         if ((this.getColor() == ((Card) obj).getColor()) && (this.getOrdinal() == ((Card) obj).getOrdinal())) {
             return true;
         }
@@ -42,8 +33,7 @@ class Card {
     public Card(Color color, Ordinal ordinal) {
         this.color = color;
         this.ordinal = ordinal;
-//        BasicConfigurator.resetConfiguration();
-//        BasicConfigurator.configure();
+
     }
 
     public Color getColor() {

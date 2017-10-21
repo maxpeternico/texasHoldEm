@@ -67,9 +67,6 @@ public class Dealer {
             if (!isCardRemovedFromDeck) {
                 throw new RuntimeException("Card was not removed from deck!");
             }
-            if (drawnCard.getColor().equals(Color.hearts) && drawnCard.getOrdinal().equals(Ordinal.ace)) {
-                logger.info("Go it");
-            }
         }
         return cardsInHand;
     }
@@ -114,20 +111,20 @@ public class Dealer {
         commonHand.addAll(drawnCards);
     }
 
-    void playPrivateHand(Player player) throws Exception {
+    void playPrivateHand(Player player) {
         player.addPrivateCards(getPrivateHand());
         player.evaluateHand(commonHand);
     }
 
-    void playLittleBlind(Player player) throws Exception {
+    void playLittleBlind(Player player) {
         player.evaluateHand(commonHand);
     }
 
-    void playBigBlind(Player player) throws Exception {
+    void playBigBlind(Player player) {
         player.evaluateHand(commonHand);
     }
 
-    Map<Card, PokerResult> playLastDeal(Player player) throws Exception {
+    Map<Card, PokerResult> playLastDeal(Player player) {
         return player.evaluateHand(commonHand);
     }
 
@@ -156,23 +153,15 @@ public class Dealer {
         return dealer.deal(NUMBER_OF_CARDS_ON_PRIVATE_HAND);
     }
 
-    public void play() throws Exception {
+    public void play() {
         rotateDealer();
-        for (Player player : players) {
-            playPrivateHand(player);
-        }
+        players.stream().forEach(e->playPrivateHand(e));
         drawLittleBlind();
-        for (Player player : players) {
-            playLittleBlind(player);
-        }
+        players.stream().forEach(e->playLittleBlind(e));
         drawBigBlind();
-        for (Player player : players) {
-            playBigBlind(player);
-        }
+        players.stream().forEach(e->playBigBlind(e));
         drawLastDeal();
-        for (Player player : players) {
-            playLastDeal(player);
-        }
+        players.stream().forEach(e->playLastDeal(e));
     }
 
     private void rotateDealer() {
@@ -267,17 +256,13 @@ public class Dealer {
 
     private void printAllPlayerStatistics(Map<PokerResult, Integer> allPlayerWinStatistics) {
         logger.info("Total game statistics for all players:");
-        for (PokerResult pokerResult:PokerResult.values()) {
-            logger.info("Number of wins on :[" + pokerResult.toString() + "] : [" + allPlayerWinStatistics.get(pokerResult) + "]");
-        }
+        Arrays.stream(PokerResult.values()).forEach(e->logger.info("Number of wins on :[" + e.toString() + "] : [" + allPlayerWinStatistics.get(e) + "]"));
     }
 
 
     private Map<PokerResult, Integer> initAllPlayerWinStatistics() {
         Map<PokerResult, Integer> allPlayerWinStatistics = new HashMap<PokerResult, Integer>();
-        for (PokerResult pokerResult:PokerResult.values()) {
-            allPlayerWinStatistics.put(pokerResult, 0);
-        }
+        Arrays.stream(PokerResult.values()).forEach(e->allPlayerWinStatistics.put(e, 0));
         return allPlayerWinStatistics;
     }
 

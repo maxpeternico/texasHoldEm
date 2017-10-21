@@ -1,10 +1,4 @@
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -34,7 +28,7 @@ public class EvaluationHandler {
             result.put(highestCard, PokerResult.ROYAL_STRAIGHT_FLUSH);
         } else if (isStraightFlush(cardsInHand)) {
             logger.debug("[" + name + "] got a straight flush! [" + printCards(cardsInHand) + "]");
-            result.put(highestCard, PokerResult.STRAIGHT_FLUSH);
+            result.put(highestCardFromStraight(cardsInHand), PokerResult.STRAIGHT_FLUSH);
         } else if (isFour(cardsInHand)) {
             logger.debug("[" + name + "] got a fours! [" + printCards(cardsInHand) + "]");
             result.put(highestCard, PokerResult.FOURS);
@@ -99,18 +93,18 @@ public class EvaluationHandler {
         int oldValue = 99;
         int straightCounter = 1;
         for (Integer value : valueList) {
-            logger.info("checking if value:[" + value + "] is part of a straight.");
+            logger.trace("checking if value:[" + value + "] is part of a straight.");
             if (value == (oldValue + 1)) {
                 straightCounter++;
                 highestOrdinalValue = value;
-                logger.info("Value:[" + value + "] could be part of a possible straight. Straight counter:[" + straightCounter + "]");
+                logger.trace("Value:[" + value + "] could be part of a possible straight. Straight counter:[" + straightCounter + "]");
                 if (straightCounter >= NUMBER_OF_CARDS_IN_HAND) {
-                    logger.info("Highest ordinal in straight:[" + value + "]");
+                    logger.debug("Highest ordinal in straight:[" + value + "]");
                 }
             } else if (value == oldValue) {
                 // Do nothing
             } else {
-                logger.info("Value:[" + value + "] could be the lowest card in a straight.");
+                logger.trace("Value:[" + value + "] could be the lowest card in a straight.");
                 straightCounter = 1;
             }
             oldValue = value;
@@ -244,10 +238,7 @@ public class EvaluationHandler {
 
 
     private static void initFlushChecker(Map<Color, Integer> flushChecker) {
-        for (Color color:Color.values()) {
-            flushChecker.put(color, 0);
-        }
-
+        Arrays.stream(Color.values()).forEach(e->flushChecker.put(e, 0));
     }
 
     static boolean isTwoPair(List<Card> cardsInHand) {
@@ -368,17 +359,13 @@ public class EvaluationHandler {
 
     private static Map<Integer, Integer> initPossiblePairMap(List<Card> cardsInHand) {
         Map<Integer, Integer> possiblePairMap = new HashMap<Integer, Integer>();
-        for (Card card : cardsInHand) {
-            possiblePairMap.put(card.getOrdinal().getValue(), 1);
-        }
+        cardsInHand.stream().forEach(e->possiblePairMap.put(e.getOrdinal().getValue(), 1));
         return possiblePairMap;
     }
 
     public static String printHand(List<Card> privateHand) {
         StringBuilder hand = new StringBuilder();
-        for (Card card:privateHand) {
-            hand.append(card.toString());
-        }
+        privateHand.stream().forEach(e->hand.append(e.toString()));
         return hand.toString();
     }
 

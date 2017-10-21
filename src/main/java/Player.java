@@ -38,7 +38,7 @@ public class Player {
 
     }
 
-    public Map<Card, PokerResult> evaluateHand(List<Card> commonHand) throws Exception {
+    public Map<Card, PokerResult> evaluateHand(List<Card> commonHand) {
         List<Card> totalHand = new ArrayList<Card>();
         totalHand.addAll(cardsOnHand);
         totalHand.addAll(commonHand);
