@@ -10,12 +10,12 @@ public class EvaluationHandler {
     private static final int NUMBER_OF_CARDS_IN_HAND = 5;
     private static final String NO_FLUSH_FOUND = "No flush found.";
 
-    static Map<Card, Integer> cardStatistics = new HashMap<Card, Integer>();
+    static Map<Card, Integer> drawnCardStatistics = new HashMap<Card, Integer>();
 
-    static void initStatistics() {
+    static void initDrawnCardStatistics() {
         for (Color color:Color.values()) {
             for (Ordinal ordinal:Ordinal.values()) {
-                cardStatistics.put(new Card(color, ordinal), 0);
+                drawnCardStatistics.put(new Card(color, ordinal), 0);
             }
         }
     }
@@ -421,33 +421,33 @@ public class EvaluationHandler {
         return pokerResult;
     }
 
-    public static int getNumberOfDraws() {
+    public static int getNumberOfDrawnCardsWithOrdinal() {
         int numberOfCards = 0;
         for (Color color:Color.values()) {
             for (Ordinal ordinal:Ordinal.values()) {
-                numberOfCards +=cardStatistics.get(new Card(color, ordinal));
+                numberOfCards += drawnCardStatistics.get(new Card(color, ordinal));
             }
         }
         return numberOfCards;
     }
 
-    public static int getNumberOfColor(Color requestedColor) {
+    public static int getNumberOfDrawnCardsWithColor(Color requestedColor) {
         int numberOfColor = 0;
         for (Ordinal ordinal:Ordinal.values()) {
-            numberOfColor +=cardStatistics.get(new Card(requestedColor, ordinal));
+            numberOfColor += drawnCardStatistics.get(new Card(requestedColor, ordinal));
         }
         return numberOfColor;
     }
 
-    public static void addCardToStatistics(Card drawnCard) {
-        int numberOfDrawnTimes = cardStatistics.get(drawnCard);
-        cardStatistics.put(drawnCard, ++numberOfDrawnTimes);
+    public static void updateDrawnCardStatistics(Card drawnCard) {
+        int numberOfDrawnTimes = drawnCardStatistics.get(drawnCard);
+        drawnCardStatistics.put(drawnCard, ++numberOfDrawnTimes);
     }
 
     public static int getNumberOfOrdinal(Ordinal requestedOrdinal) {
         int numberOfOrdinal = 0;
         for (Color color:Color.values()) {
-            numberOfOrdinal +=cardStatistics.get(new Card(color, requestedOrdinal));
+            numberOfOrdinal += drawnCardStatistics.get(new Card(color, requestedOrdinal));
         }
         return numberOfOrdinal;
     }

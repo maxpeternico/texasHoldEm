@@ -14,7 +14,7 @@ public class UnitTests {
 
     @Before
     public void init() {
-        EvaluationHandler.initStatistics();
+        EvaluationHandler.initDrawnCardStatistics();
     }
 
     @Test

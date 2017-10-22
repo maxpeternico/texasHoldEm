@@ -32,7 +32,7 @@ public class Dealer {
 
     private Dealer() {
         populateDeck();
-        EvaluationHandler.initStatistics();
+        EvaluationHandler.initDrawnCardStatistics();
     }
 
     private void populateDeck() {
@@ -62,7 +62,7 @@ public class Dealer {
             } while (!deck.contains(drawnCard));
             logger.trace("Drawing card:" + drawnCard.toString() + "]");
             cardsInHand.add(drawnCard);
-            EvaluationHandler.addCardToStatistics(drawnCard);
+            EvaluationHandler.updateDrawnCardStatistics(drawnCard);
             boolean isCardRemovedFromDeck = deck.remove(drawnCard);
             if (!isCardRemovedFromDeck) {
                 throw new RuntimeException("Card was not removed from deck!");
@@ -250,12 +250,13 @@ public class Dealer {
                     allPlayerWinStatistics.put(pokerResult, allPlayerNumberOfMatches);
                 }
             }
+            winStatistics.put(player, new ArrayList<PokerResult>());
         }
         printAllPlayerStatistics(allPlayerWinStatistics);
     }
 
     private void printAllPlayerStatistics(Map<PokerResult, Integer> allPlayerWinStatistics) {
-        logger.info("Total game statistics for all players:");
+        logger.info("Total game statistics for this round for all players:");
         Arrays.stream(PokerResult.values()).forEach(e->logger.info("Number of wins on :[" + e.toString() + "] : [" + allPlayerWinStatistics.get(e) + "]"));
     }
 

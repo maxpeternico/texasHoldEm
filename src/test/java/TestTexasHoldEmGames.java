@@ -26,10 +26,10 @@ public class TestTexasHoldEmGames {
     }
 
     private void verifyDrawCardStatistics() {
-        int totalNumberOfDraws = EvaluationHandler.getNumberOfDraws();
+        int totalNumberOfDraws = EvaluationHandler.getNumberOfDrawnCardsWithOrdinal();
         logger.debug("totalNumberOfDraws: " + totalNumberOfDraws);
         for (Color color:Color.values()) {
-            int numberOfColor = EvaluationHandler.getNumberOfColor(color);
+            int numberOfColor = EvaluationHandler.getNumberOfDrawnCardsWithColor(color);
             logger.debug("number of "  + color.toString() + " " + numberOfColor);
             if ((numberOfColor < 0.24*totalNumberOfDraws) || (numberOfColor > 0.26*totalNumberOfDraws)) {
                 assertTrue("Color :[" + color + "] occured [" + (float)numberOfColor / totalNumberOfDraws + "] of the times when it should be around 25%.", false);
@@ -64,7 +64,7 @@ public class TestTexasHoldEmGames {
 //        Player jorn = dealer.registerPlayer("Jörn");
 //        Player anders = dealer.registerPlayer("Anders");
         for (int i = 0; i < 10000; i++) {
-            EvaluationHandler.initStatistics();
+            EvaluationHandler.initDrawnCardStatistics();
             List<Card> privateHand = new ArrayList<Card>();
             privateHand.add(new Card(Color.hearts, Ordinal.ace));
             privateHand.add(new Card(Color.hearts, Ordinal.queen));
@@ -98,8 +98,7 @@ public class TestTexasHoldEmGames {
         Player anders = dealer.registerPlayer("Anders");
         for (Ordinal ordinal:Ordinal.values()) {
             logger.info("Checking statistics when peter gets pair of:[" + ordinal.toString() + "]");
-            for (int i = 0; i < 10000; i++) {
-                EvaluationHandler.initStatistics();
+            for (int i = 0; i < 100; i++) {
                 List<Card> privateHand = new ArrayList<Card>();
                 privateHand.add(new Card(Color.hearts, ordinal));
                 privateHand.add(new Card(Color.clubs, ordinal));
@@ -129,10 +128,7 @@ public class TestTexasHoldEmGames {
         highScore.put(EvaluationHandler.getLeastValueableCard(), PokerResult.NO_RESULT);
         for (Player player : dealer.getPlayers()) {
             Map<Card, PokerResult> result = dealer.playLastDeal(player);
-            logger.debug("[" + player.toString() + "] got [" + EvaluationHandler.getResultFromCardPokerResultMap(result)
-                    + "] with top card [" + EvaluationHandler.getTopCardFromResult(result) + "]");
-            logger.trace(" from hand:[" + EvaluationHandler.printHand(player.getPrivateHand()) + "]");
-            logger.trace("Highscore is:[" + highScore.toString() + "]");
+            logResult(player, result, highScore);
             if (EvaluationHandler.isResultFromLatestPlayerHigherThanHighScore(result, highScore)) {
                 highScore.clear();
                 highScore.putAll(result);
@@ -142,6 +138,13 @@ public class TestTexasHoldEmGames {
         dealer.updateWinStatistics(winner, highScore);
         logger.debug(
                 "And the winner is:[" + winner.getName() + "] with highscore :[" + printPokerResult(highScore) + "]");
+    }
+
+    private void logResult(Player player, Map<Card, PokerResult> result, Map<Card, PokerResult> highScore) {
+        logger.debug("[" + player.toString() + "] got [" + EvaluationHandler.getResultFromCardPokerResultMap(result)
+                + "] with top card [" + EvaluationHandler.getTopCardFromResult(result) + "]");
+        logger.trace(" from hand:[" + EvaluationHandler.printHand(player.getPrivateHand()) + "]");
+        logger.trace("Highscore is:[" + highScore.toString() + "]");
     }
 
     private String printPokerResult(Map<Card, PokerResult> highScore) {
