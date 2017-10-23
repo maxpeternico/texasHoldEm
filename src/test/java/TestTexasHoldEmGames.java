@@ -47,9 +47,7 @@ public class TestTexasHoldEmGames {
     }
 
     private void putCardsBackIntoDeck(Dealer dealer) {
-        for (Player player2 : dealer.getPlayers()) {
-            dealer.putCardsInHandToDeck(player2.getPrivateHand());
-        }
+        dealer.getPlayers().stream().forEach(e->dealer.putCardsInHandToDeck(e.getPrivateHand()));
         dealer.putCardsInHandToDeck(dealer.getCommonHand());
         dealer.putCardsInHandToDeck(dealer.getSkippedCards());
         if (!dealer.isDeckFull()) {
@@ -57,36 +55,43 @@ public class TestTexasHoldEmGames {
         }
     }
 
-    public void testWinWithAce() throws Exception {
+    public void testWinWithTopCard() throws Exception {
         Dealer dealer = Dealer.getInstance();
         Player peter = dealer.registerPlayer("Peter");
-//        Player thomas = dealer.registerPlayer("Thomas");
-//        Player jorn = dealer.registerPlayer("Jörn");
-//        Player anders = dealer.registerPlayer("Anders");
-        for (int i = 0; i < 10000; i++) {
-            EvaluationHandler.initDrawnCardStatistics();
-            List<Card> privateHand = new ArrayList<Card>();
-            privateHand.add(new Card(Color.hearts, Ordinal.ace));
-            privateHand.add(new Card(Color.hearts, Ordinal.queen));
-            dealer.setPrivateHand(peter, privateHand);
-/*
-            dealer.playPrivateHand(thomas);
-            dealer.playPrivateHand(jorn);
-            dealer.playPrivateHand(anders);
-*/
-            dealer.drawLittleBlind();
-            for (Player player : dealer.getPlayers()) {
-                dealer.playLittleBlind(player);
+
+        //Player thomas = dealer.registerPlayer("Thomas");
+        //Player jorn = dealer.registerPlayer("Jörn");
+        Player anders = dealer.registerPlayer("Anders");
+        EvaluationHandler.initDrawnCardStatistics();
+
+        for (Ordinal ordinal : Ordinal.values()) {
+            if (ordinal.getValue() > ordinal.six.getValue()) {
+                logger.info("Checking statistics when peter gets the card of:[" + ordinal.toString() + "]");
+                for (int i = 0; i < 10000; i++) {
+                    List<Card> privateHand = new ArrayList<Card>();
+                    privateHand.add(new Card(Color.hearts, ordinal));
+                    privateHand.add(new Card(Color.spades, Shuffle.getRandomOrdinal()));
+                    dealer.setPrivateHand(peter, privateHand);
+
+          //          dealer.playPrivateHand(thomas);
+          //          dealer.playPrivateHand(jorn);
+                    dealer.playPrivateHand(anders);
+
+                    dealer.drawLittleBlind();
+                    for (Player player : dealer.getPlayers()) {
+                        dealer.playLittleBlind(player);
+                    }
+                    dealer.drawBigBlind();
+                    for (Player player : dealer.getPlayers()) {
+                        dealer.playBigBlind(player);
+                    }
+                    dealer.drawLastDeal();
+                    findTheWinner(dealer);
+                    putCardsBackIntoDeck(dealer);
+                }
+                dealer.printWinStatistics();
             }
-            dealer.drawBigBlind();
-            for (Player player : dealer.getPlayers()) {
-                dealer.playBigBlind(player);
-            }
-            dealer.drawLastDeal();
-            findTheWinner(dealer);
-            putCardsBackIntoDeck(dealer);
         }
-        dealer.printWinStatistics();
     }
 
     @Test
@@ -98,7 +103,7 @@ public class TestTexasHoldEmGames {
         Player anders = dealer.registerPlayer("Anders");
         for (Ordinal ordinal:Ordinal.values()) {
             logger.info("Checking statistics when peter gets pair of:[" + ordinal.toString() + "]");
-            for (int i = 0; i < 100; i++) {
+            for (int i = 0; i < 10000; i++) {
                 List<Card> privateHand = new ArrayList<Card>();
                 privateHand.add(new Card(Color.hearts, ordinal));
                 privateHand.add(new Card(Color.clubs, ordinal));

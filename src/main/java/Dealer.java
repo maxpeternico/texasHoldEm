@@ -3,30 +3,31 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
+import static java.util.Arrays.*;
 
-public class Dealer {
+
+class Dealer {
 
     private static final Logger logger = LogManager.getLogger(Dealer.class.getName());
     private static final Dealer dealer = new Dealer();
-    private List<Player> players = new ArrayList<Player>();
-    private List<Card> deck = new ArrayList<Card>();
+    private List<Player> players = new ArrayList<>();
+    private List<Card> deck = new ArrayList<>();
     private final Color[] colors = { Color.hearts, Color.spades, Color.clubs, Color.diamonds };
     private final Ordinal[] ordinals = { Ordinal.two, Ordinal.three, Ordinal.four, Ordinal.five, Ordinal.six,
             Ordinal.seven, Ordinal.eight, Ordinal.nine, Ordinal.ten, Ordinal.knight, Ordinal.queen, Ordinal.king,
             Ordinal.ace };
 
-    private List<Card> commonHand = new ArrayList<Card>();
-    private List<Card> skippedCards = new ArrayList<Card>();
-    private static final int OFFSET_TWO = 2;
+    private List<Card> commonHand = new ArrayList<>();
+    private List<Card> skippedCards = new ArrayList<>();
     private static final int NUMBER_OF_CARDS_ON_PRIVATE_HAND = 2;
     private static final int NUMBER_OF_CARD_FOR_LITTLE_BLIND = 3;
     private static final int NUMBER_OF_CARD_FOR_BIG_BLIND = 1;
     private static final int NUMBER_OF_CARD_FOR_FINAL_BLIND = 1;
     private static final int SKIP_CARD = 1;
     private static final int NUMBER_OF_CARDS_IN_DECK = 52;
-    private Map<Player, List<PokerResult>> winStatistics = new HashMap<Player, List<PokerResult>>();
+    private Map<Player, List<PokerResult>> winStatistics = new HashMap<>();
 
-    public static Dealer getInstance() {
+    static Dealer getInstance() {
         return dealer;
     }
 
@@ -43,21 +44,21 @@ public class Dealer {
         }
     }
 
-    public Player registerPlayer(String name) {
+    Player registerPlayer(String name) {
         Player player = new Player(name);
         players.add(player);
-        winStatistics.put(player, new ArrayList<PokerResult>());
+        winStatistics.put(player, new ArrayList<>());
         return player;
     }
 
-    public List<Card> deal(int numberOfDesiredCards) {
-        List<Card> cardsInHand = new ArrayList<Card>();
+    private List<Card> deal(int numberOfDesiredCards) {
+        List<Card> cardsInHand = new ArrayList<>();
 
         while (cardsInHand.size() < numberOfDesiredCards) {
-            Card drawnCard = null;
+            Card drawnCard;
             do {
-                Color color = getRandomColor();
-                Ordinal ordinal = getRandomOrdinal();
+                Color color = Shuffle.getRandomColor();
+                Ordinal ordinal = Shuffle.getRandomOrdinal();
                 drawnCard = new Card(color, ordinal);
             } while (!deck.contains(drawnCard));
             logger.trace("Drawing card:" + drawnCard.toString() + "]");
@@ -71,42 +72,7 @@ public class Dealer {
         return cardsInHand;
     }
 
-    private Ordinal getRandomOrdinal() {
-        int randomOrdinalValue = getRandomNumberUpToValue(ordinals.length) + 2;
-        Ordinal[] ordinals = Ordinal.values();
-        Ordinal ordinalValueMatch = null;
-        for (Ordinal ordinal : ordinals) {
-            if (ordinal.getValue() == randomOrdinalValue) {
-                ordinalValueMatch = ordinal;
-            }
-        }
-        if (ordinalValueMatch == null) {
-            throw new RuntimeException("No ordinal matches random ordinal:[" + randomOrdinalValue + "]");
-        }
-        return ordinalValueMatch;
-    }
-
-    Color getRandomColor() {
-        int randomColorValue = getRandomNumberUpToValue(colors.length);
-        Color[] colorValues = Color.values();
-        Color colorValueMatch = null;
-        for (Color colorValue : colorValues) {
-            if (colorValue.getValue() == randomColorValue) {
-                colorValueMatch = colorValue;
-            }
-        }
-        if (colorValueMatch == null) {
-            throw new RuntimeException("No colorvalue matches random number:[" + randomColorValue + "]");
-        }
-        return colorValueMatch;
-    }
-
-    int getRandomNumberUpToValue(int limit) {
-        double randomNo = Math.random() * limit;
-        return Double.valueOf(randomNo).intValue();
-    }
-
-    public void dealCommon(int numberOfCards) {
+    private void dealCommon(int numberOfCards) {
         List<Card> drawnCards = deal(numberOfCards);
         commonHand.addAll(drawnCards);
     }
@@ -153,7 +119,7 @@ public class Dealer {
         return dealer.deal(NUMBER_OF_CARDS_ON_PRIVATE_HAND);
     }
 
-    public void play() {
+    void play() {
         rotateDealer();
         players.stream().forEach(e->playPrivateHand(e));
         drawLittleBlind();
@@ -170,8 +136,8 @@ public class Dealer {
         players.add(playerToRotate);
     }
 
-    public void setPrivateHand(Player player, List<Card> privateHand) {
-        List<Card> cardsInHand = new ArrayList<Card>();
+    void setPrivateHand(Player player, List<Card> privateHand) {
+        List<Card> cardsInHand = new ArrayList<>();
         for (Card card : privateHand) {
             if (!deck.contains(card)) {
                 throw new RuntimeException("Card [" + card.toString() + "] is not present in the Deck!");
@@ -186,11 +152,11 @@ public class Dealer {
         player.addPrivateCards(cardsInHand);
     }
 
-    public List<Player> getPlayers() {
+    List<Player> getPlayers() {
         return players;
     }
 
-    public void putCardsInHandToDeck(List<Card> cardsInHand) {
+    void putCardsInHandToDeck(List<Card> cardsInHand) {
         for (Card card : cardsInHand) {
             if (deck.contains(card)) {
                 throw new RuntimeException("Deck already contains:[" + card.toString() + "]");
@@ -200,15 +166,15 @@ public class Dealer {
         cardsInHand.clear();
     }
 
-    public List<Card> getCommonHand() {
+    List<Card> getCommonHand() {
         return commonHand;
     }
 
-    public List<Card> getSkippedCards() {
+    List<Card> getSkippedCards() {
         return skippedCards;
     }
 
-    public boolean isDeckFull() {
+    boolean isDeckFull() {
         if (deck.size() == NUMBER_OF_CARDS_IN_DECK) {
             return true;
         } else {
@@ -217,22 +183,27 @@ public class Dealer {
         }
     }
 
-    public Player getPlayer(String winnerName) {
+    Player getPlayer(String winnerName) {
+        Player requestedPlayer = null;
         for (Player player:players) {
             if (player.getName().equals(winnerName)) {
-                return player;
+                requestedPlayer = player;
             }
         }
-        return null;
+        if (requestedPlayer == null) {
+            throw new RuntimeException("Could not find player :[" + winnerName + "]");
+        }
+        return requestedPlayer;
     }
 
-    public void updateWinStatistics(Player winner, Map<Card, PokerResult> highScore) {
+    void updateWinStatistics(Player winner, Map<Card, PokerResult> highScore) {
         List<PokerResult> pokerResults = winStatistics.get(winner);
-        pokerResults.add(EvaluationHandler.getResultFromCardPokerResultMap(highScore));
+        PokerResult pokerResult = EvaluationHandler.getResultFromCardPokerResultMap(highScore);
+        pokerResults.add(pokerResult);
         winStatistics.put(winner, pokerResults);
     }
 
-    public void printWinStatistics() {
+    void printWinStatistics() {
         int numberOfPairs = 0;
         Map<PokerResult, Integer> allPlayerWinStatistics = initAllPlayerWinStatistics();
         Set<Player> playerSet = winStatistics.keySet();
@@ -250,20 +221,22 @@ public class Dealer {
                     allPlayerWinStatistics.put(pokerResult, allPlayerNumberOfMatches);
                 }
             }
-            winStatistics.put(player, new ArrayList<PokerResult>());
+            winStatistics.put(player, new ArrayList<>());
         }
         printAllPlayerStatistics(allPlayerWinStatistics);
     }
 
     private void printAllPlayerStatistics(Map<PokerResult, Integer> allPlayerWinStatistics) {
         logger.info("Total game statistics for this round for all players:");
-        Arrays.stream(PokerResult.values()).forEach(e->logger.info("Number of wins on :[" + e.toString() + "] : [" + allPlayerWinStatistics.get(e) + "]"));
+        stream(PokerResult.values()).forEach(e -> {
+            logger.info("Number of wins on :[" + e.toString() + "] : [" + allPlayerWinStatistics.get(e) + "]");
+        });
     }
 
 
     private Map<PokerResult, Integer> initAllPlayerWinStatistics() {
-        Map<PokerResult, Integer> allPlayerWinStatistics = new HashMap<PokerResult, Integer>();
-        Arrays.stream(PokerResult.values()).forEach(e->allPlayerWinStatistics.put(e, 0));
+        Map<PokerResult, Integer> allPlayerWinStatistics = new HashMap<>();
+        stream(PokerResult.values()).forEach(e->allPlayerWinStatistics.put(e, 0));
         return allPlayerWinStatistics;
     }
 
