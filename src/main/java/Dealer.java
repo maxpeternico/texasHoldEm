@@ -3,7 +3,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
-import static java.util.Arrays.*;
+import static java.util.Arrays.stream;
 
 
 class Dealer {
@@ -20,9 +20,9 @@ class Dealer {
     private List<Card> commonHand = new ArrayList<>();
     private List<Card> skippedCards = new ArrayList<>();
     private static final int NUMBER_OF_CARDS_ON_PRIVATE_HAND = 2;
-    private static final int NUMBER_OF_CARD_FOR_LITTLE_BLIND = 3;
-    private static final int NUMBER_OF_CARD_FOR_BIG_BLIND = 1;
-    private static final int NUMBER_OF_CARD_FOR_FINAL_BLIND = 1;
+    private static final int NUMBER_OF_CARD_FOR_FLOP = 3;
+    private static final int NUMBER_OF_CARD_FOR_TURN = 1;
+    private static final int NUMBER_OF_CARD_FOR_RIVER = 1;
     private static final int SKIP_CARD = 1;
     private static final int NUMBER_OF_CARDS_IN_DECK = 52;
     private Map<Player, List<PokerResult>> winStatistics = new HashMap<>();
@@ -51,83 +51,102 @@ class Dealer {
         return player;
     }
 
-    private List<Card> deal(int numberOfDesiredCards) {
+    private List<Card> dealRandomCard(int numberOfDesiredCards) {
         List<Card> cardsInHand = new ArrayList<>();
 
         while (cardsInHand.size() < numberOfDesiredCards) {
             Card drawnCard;
             do {
-                Color color = Shuffle.getRandomColor();
-                Ordinal ordinal = Shuffle.getRandomOrdinal();
-                drawnCard = new Card(color, ordinal);
+                drawnCard = getRandomCard();
             } while (!deck.contains(drawnCard));
             logger.trace("Drawing card:" + drawnCard.toString() + "]");
             cardsInHand.add(drawnCard);
             EvaluationHandler.updateDrawnCardStatistics(drawnCard);
-            boolean isCardRemovedFromDeck = deck.remove(drawnCard);
-            if (!isCardRemovedFromDeck) {
-                throw new RuntimeException("Card was not removed from deck!");
-            }
+            removeCardFromDeck(drawnCard);
         }
         return cardsInHand;
     }
 
+    private Card getRandomCard() {
+        Color color = Shuffle.getRandomColor();
+        Ordinal ordinal = Shuffle.getRandomOrdinal();
+        return new Card(color, ordinal);
+    }
+
+    private void removeCardFromDeck(Card drawnCard) {
+        boolean isCardRemovedFromDeck = deck.remove(drawnCard);
+        if (!isCardRemovedFromDeck) {
+            throw new RuntimeException("Card was not removed from deck!");
+        }
+    }
+
     private void dealCommon(int numberOfCards) {
-        List<Card> drawnCards = deal(numberOfCards);
+        List<Card> drawnCards = dealRandomCard(numberOfCards);
         commonHand.addAll(drawnCards);
     }
 
     void playPrivateHand(Player player) {
-        player.addPrivateCards(getPrivateHand());
+        player.addPrivateCards(dealPrivateHand());
         player.evaluateHand(commonHand);
     }
 
-    void playLittleBlind(Player player) {
+    void playFlop(Player player) {
         player.evaluateHand(commonHand);
     }
 
-    void playBigBlind(Player player) {
+    void playTurn(Player player) {
         player.evaluateHand(commonHand);
     }
 
-    Map<Card, PokerResult> playLastDeal(Player player) {
+    Map<Card, PokerResult> playRiver(Player player) {
         return player.evaluateHand(commonHand);
     }
 
-    void drawLastDeal() {
+    void drawRiver() {
         skipCard();
-        dealCommon(NUMBER_OF_CARD_FOR_FINAL_BLIND);
+        dealCommon(NUMBER_OF_CARD_FOR_RIVER);
     }
 
-    void drawBigBlind() {
+    void drawTurn() {
         skipCard();
-        dealCommon(NUMBER_OF_CARD_FOR_BIG_BLIND);
+        dealCommon(NUMBER_OF_CARD_FOR_TURN);
     }
 
     private void skipCard() {
         logger.trace("The card:");
-        skippedCards.addAll(deal(SKIP_CARD));
+        skippedCards.addAll(dealRandomCard(SKIP_CARD));
         logger.trace(" is skipped.");
     }
 
-    void drawLittleBlind() {
+    void drawFlop() {
         skipCard();
-        dealCommon(NUMBER_OF_CARD_FOR_LITTLE_BLIND);
+        dealCommon(NUMBER_OF_CARD_FOR_FLOP - getEventuallyReservedCardsForFlop());
     }
 
-    private List<Card> getPrivateHand() {
-        return dealer.deal(NUMBER_OF_CARDS_ON_PRIVATE_HAND);
+    private int getEventuallyReservedCardsForFlop() {
+        if (commonHand.size() > 3) {
+            throw new RuntimeException("Number of reserved card for flop cannot be higher than 3. Size :[" + commonHand.size() + "]");
+        }
+        return commonHand.size();
+    }
+
+    private List<Card> dealPrivateHand() {
+        return dealer.dealRandomCard(NUMBER_OF_CARDS_ON_PRIVATE_HAND);
     }
 
     void play() {
         rotateDealer();
+        playPrivateHands();
+        drawFlop();
+        players.stream().forEach(e-> playFlop(e));
+        drawTurn();
+        players.stream().forEach(e-> playTurn(e));
+        drawRiver();
+        players.stream().forEach(e-> playRiver(e));
+    }
+
+    void playPrivateHands() {
         players.stream().forEach(e->playPrivateHand(e));
-        drawLittleBlind();
-        players.stream().forEach(e->playLittleBlind(e));
-        drawBigBlind();
-        players.stream().forEach(e->playBigBlind(e));
-        drawLastDeal();
-        players.stream().forEach(e->playLastDeal(e));
     }
 
     private void rotateDealer() {
@@ -248,5 +267,84 @@ class Dealer {
             }
         }
         return numberOfMatches;
+    }
+
+    public void reserveCardToFlop(Color color, Ordinal ordinal) {
+        final Card desiredCard = new Card(color, ordinal);
+        if (!deck.contains(desiredCard)) {
+            throw new RuntimeException("Deck does not contain :[" + desiredCard.toString() + "]");
+        }
+        commonHand.add(desiredCard);
+        removeCardFromDeck(desiredCard);
+    }
+
+    public Ordinal getAnotherOrdinal(Ordinal ordinal) {
+        Card randomCard;
+        boolean hasFoundAnotherOrdinal = true;
+        do {
+            randomCard = getRandomCard();
+            if (randomCard.getOrdinal() == ordinal) {
+                hasFoundAnotherOrdinal = false;
+            } else {
+                hasFoundAnotherOrdinal = true;
+            }
+        } while (!hasFoundAnotherOrdinal);
+        return randomCard.getOrdinal();
+    }
+
+    public List<Card> getPlayerHand(String playerName) {
+        Player player = findPlayer(playerName);
+        return player.getPrivateHand();
+    }
+
+    private Player findPlayer(String playerName) {
+        for (Player player:players) {
+            if (player.getName().equals(playerName)) {
+                return player;
+            }
+        }
+        throw new RuntimeException("Could not find player :[" + playerName + "]");
+    }
+
+    public void findTheWinner() {
+        Player winner = null;
+        Map<Card, PokerResult> highScore = new HashMap<Card, PokerResult>();
+        highScore.put(EvaluationHandler.getLeastValueableCard(), PokerResult.NO_RESULT);
+        for (Player player : dealer.getPlayers()) {
+            Map<Card, PokerResult> result = dealer.playRiver(player);
+            logResult(player, result, highScore);
+            if (EvaluationHandler.isResultFromLatestPlayerHigherThanHighScore(result, highScore)) {
+                highScore.clear();
+                highScore.putAll(result);
+                winner = player;
+            }
+        }
+        dealer.updateWinStatistics(winner, highScore);
+        logger.info(
+                "And the winner is:[" + winner.getName() + "] with highscore :[" + printPokerResult(highScore) + "]");
+    }
+
+    private void logResult(Player player, Map<Card, PokerResult> result, Map<Card, PokerResult> highScore) {
+        logger.debug("[" + player.toString() + "] got [" + EvaluationHandler.getResultFromCardPokerResultMap(result)
+                + "] with top card [" + EvaluationHandler.getTopCardFromResult(result) + "]");
+        logger.trace(" from hand:[" + EvaluationHandler.printHand(player.getPrivateHand()) + "]");
+        logger.trace("Highscore is:[" + highScore.toString() + "]");
+    }
+
+    private String printPokerResult(Map<Card, PokerResult> highScore) {
+        StringBuilder result = new StringBuilder();
+        Card topCardFromResult = EvaluationHandler.getTopCardFromResult(highScore);
+        result.append(highScore.get(topCardFromResult)).append(" top card: ").append(topCardFromResult.toString());
+
+        return result.toString();
+    }
+
+    public void putCardsBackIntoDeck() {
+        dealer.getPlayers().stream().forEach(e->dealer.putCardsInHandToDeck(e.getPrivateHand()));
+        dealer.putCardsInHandToDeck(dealer.getCommonHand());
+        dealer.putCardsInHandToDeck(dealer.getSkippedCards());
+        if (!dealer.isDeckFull()) {
+            throw new RuntimeException("Cards were lost!");
+        }
     }
 }
