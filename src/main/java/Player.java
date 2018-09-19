@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +41,7 @@ public class Player {
         List<Card> totalHand = new ArrayList<Card>();
         totalHand.addAll(cardsOnHand);
         totalHand.addAll(commonHand);
-        logger.trace("[" + name + "]:s total hand is [" + EvaluationHandler.printHand(totalHand) + "]");
+        logger.trace("[" + name + "]:s total hand is [" + EvaluationHandler.getHandAsString(totalHand) + "]");
         Map<Card, PokerResult> result = EvaluationHandler.evaluateHand(name, totalHand);
         return result;
     }

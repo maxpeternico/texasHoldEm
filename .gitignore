@@ -1,7 +1,7 @@
-.idea/uiDesigner.xml
+.idea/
 out/
 out/production/classes/PlayPoker.class
-out/test/classes/PlayTexasHoldem.class
+out/test/classes/SimulateMultipleGames.class
 out/production/classes/Dealer.class
 out/production/classes/Player.class
 

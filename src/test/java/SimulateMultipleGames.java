@@ -6,9 +6,9 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-public class PlayTexasHoldem {
+public class SimulateMultipleGames {
 
-    private static final Logger logger = LogManager.getLogger(PlayTexasHoldem.class.getName());
+    private static final Logger logger = LogManager.getLogger(SimulateMultipleGames.class.getName());
 
     @Test
     public void simulateNormalGame() throws Exception {

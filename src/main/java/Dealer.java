@@ -327,7 +327,7 @@ class Dealer {
     private void logResult(Player player, Map<Card, PokerResult> result, Map<Card, PokerResult> highScore) {
         logger.debug("[" + player.toString() + "] got [" + EvaluationHandler.getResultFromCardPokerResultMap(result)
                 + "] with top card [" + EvaluationHandler.getTopCardFromResult(result) + "]");
-        logger.trace(" from hand:[" + EvaluationHandler.printHand(player.getPrivateHand()) + "]");
+        logger.trace(" from hand:[" + EvaluationHandler.getHandAsString(player.getPrivateHand()) + "]");
         logger.trace("Highscore is:[" + highScore.toString() + "]");
     }
 

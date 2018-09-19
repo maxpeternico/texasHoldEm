@@ -1,9 +1,9 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import com.google.common.collect.Lists;
+
+import java.util.*;
 
 public class PlayPoker {
-    public static void main(String[] args)  {
+    public static void main(String[] args) {
         final PlayPoker playPoker = new PlayPoker();
         playPoker.play();
     }
@@ -13,51 +13,97 @@ public class PlayPoker {
         String playerName = askForInput("Enter your name: ");
         System.out.println("Welcome [" + playerName + "]");
         dealer.registerPlayer(playerName);
-        dealer.registerPlayer("Thomas");
-        dealer.registerPlayer("Jörn");
-        dealer.registerPlayer("Anders");
-        dealer.registerPlayer("Bosse");
-        dealer.registerPlayer("Ingemar");
+        getPlayers(dealer);
         dealer.playPrivateHands();
+
         final List<Card> privateHand = dealer.getPlayerHand(playerName);
-        final String privateHandString = EvaluationHandler.printHand(privateHand);
+        final String privateHandString = EvaluationHandler.getHandAsString(privateHand);
         System.out.println("Private hand: " + privateHandString);
-        EvaluationHandler.evaluateHand(playerName, privateHand);
-        String decision = askForDecision();
+        printCurrentResult(playerName, privateHand);
+        String decision = getCharFromKeyboard(Lists.newArrayList("R", "C", "F"));
         if (evaluate(decision)) return;
 
         dealer.drawFlop();
-        List<Card> totalHand = dealer.getCommonHand();
-        List<Card> totalHandAfterFlop = new ArrayList<Card>(privateHand);
-        totalHandAfterFlop.addAll(totalHand);
-        final String totalHandAfterFlopString = EvaluationHandler.printHand(totalHandAfterFlop);
-        System.out.println("Total hand after flop: " + totalHandAfterFlopString);
-        EvaluationHandler.evaluateHand(playerName, totalHandAfterFlop);
-        decision = askForDecision();
+        System.out.println("Total hand after flop: ");
+        checkTotalHand(dealer, playerName, privateHand);
+        decision = getCharFromKeyboard(Lists.newArrayList("R", "C", "F"));
         if (evaluate(decision)) return;
 
         dealer.drawTurn();
-        totalHand = dealer.getCommonHand();
-        List<Card> totalHandAfterTurn = new ArrayList<Card>(privateHand);
-        totalHandAfterTurn.addAll(totalHand);
-        final String totalHandAfterTurnString = EvaluationHandler.printHand(totalHandAfterTurn);
-        System.out.println("Total hand after turn: " + totalHandAfterTurnString);
-        EvaluationHandler.evaluateHand(playerName, totalHandAfterTurn);
-        decision = askForDecision();
+        System.out.println("Total hand after turn: ");
+        checkTotalHand(dealer, playerName, privateHand);
+        decision = getCharFromKeyboard(Lists.newArrayList("R", "C", "F"));
         if (evaluate(decision)) return;
 
         dealer.drawRiver();
-        totalHand = dealer.getCommonHand();
-        List<Card> totalHandAfterRiver = new ArrayList<Card>(privateHand);
-        totalHandAfterRiver.addAll(totalHand);
-        final String totalHandAfterRiverString = EvaluationHandler.printHand(totalHandAfterRiver);
-        System.out.println("Total hand after river: " + totalHandAfterRiverString);
-        EvaluationHandler.evaluateHand(playerName, totalHandAfterRiver);
-        decision = askForDecision();
+        System.out.println("Total hand after river: ");
+        checkTotalHand(dealer, playerName, privateHand);
+        decision = getCharFromKeyboard(Lists.newArrayList("R", "C", "F"));
         if (evaluate(decision)) return;
 
         dealer.findTheWinner();
         dealer.putCardsBackIntoDeck();
+    }
+
+    private void getPlayers(Dealer dealer) {
+        System.out.println("How many players do you want to play with?");
+        String numberOfPlayers = getCharFromKeyboard(Lists.newArrayList("1", "2", "3", "4", "5", "6"));
+        switch (numberOfPlayers) {
+            case "1":
+                dealer.registerPlayer("Thomas");
+                break;
+            case "2":
+                dealer.registerPlayer("Thomas");
+                dealer.registerPlayer("Jörn");
+                break;
+            case "3":
+                dealer.registerPlayer("Thomas");
+                dealer.registerPlayer("Jörn");
+                dealer.registerPlayer("Anders");
+                break;
+            case "4":
+                dealer.registerPlayer("Thomas");
+                dealer.registerPlayer("Jörn");
+                dealer.registerPlayer("Anders");
+                dealer.registerPlayer("Bosse");
+                break;
+            case "5":
+                dealer.registerPlayer("Thomas");
+                dealer.registerPlayer("Jörn");
+                dealer.registerPlayer("Bosse");
+                dealer.registerPlayer("Anders");
+                dealer.registerPlayer("Ingemar");
+                break;
+            case "6":
+                dealer.registerPlayer("Thomas");
+                dealer.registerPlayer("Jörn");
+                dealer.registerPlayer("Bosse");
+                dealer.registerPlayer("Anders");
+                dealer.registerPlayer("Ingemar");
+                dealer.registerPlayer("Staffan");
+                break;
+            default:
+                throw new RuntimeException("Number of players should be between 1 and 6: " + numberOfPlayers);
+
+        }
+    }
+
+    private void checkTotalHand(Dealer dealer, String playerName, List<Card> privateHand) {
+        List<Card> commonHand = dealer.getCommonHand();
+        List<Card> totalHand = new ArrayList<>(privateHand);
+        totalHand.addAll(commonHand);
+        final String totalHandString = EvaluationHandler.getHandAsString(totalHand);
+        System.out.print(totalHandString + " ");
+        printCurrentResult(playerName, totalHand);
+    }
+
+    private void printCurrentResult(String playerName, List<Card> totalHand) {
+        final Map<Card, PokerResult> cardPokerResultMap = EvaluationHandler.evaluateHand(playerName, totalHand);
+        final Set<Card> cards = cardPokerResultMap.keySet();
+        final Iterator<Card> iterator = cards.iterator();
+        while (iterator.hasNext()) {
+            System.out.println(cardPokerResultMap.get(iterator.next()));
+        }
     }
 
     private boolean evaluate(String decision) {
@@ -68,17 +114,13 @@ public class PlayPoker {
         return false;
     }
 
-    private boolean isRCFpressed(String input) {
-        switch (input) {
-            case "R":
+    private boolean allowedCharacterIsPressed(String input, List<String> allowedCharacters) {
+        for(String allowedCharacter:allowedCharacters) {
+            if (allowedCharacter.equals(input)) {
                 return true;
-            case "C":
-                return true;
-            case "F":
-                return true;
-            default:
-                return false;
+            }
         }
+        return false;
     }
 
     private String askForInput(String message) {
@@ -88,11 +130,11 @@ public class PlayPoker {
         return input;
     }
 
-    private String askForDecision() {
+    private String getCharFromKeyboard(List<String> allowedCharacters) {
         String input = "";
         do {
-            input = askForInput("(R)aise/(C)heck/(F)old:");
-        } while (!isRCFpressed(input));
+            input = askForInput("Select :" + allowedCharacters.toString());
+        } while (!allowedCharacterIsPressed(input, allowedCharacters));
         return input;
     }
 }

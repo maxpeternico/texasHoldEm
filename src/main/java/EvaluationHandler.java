@@ -363,7 +363,7 @@ public class EvaluationHandler {
         return possiblePairMap;
     }
 
-    public static String printHand(List<Card> privateHand) {
+    public static String getHandAsString(List<Card> privateHand) {
         StringBuilder hand = new StringBuilder();
         privateHand.stream().forEach(e->hand.append(e.toString()));
         return hand.toString();
