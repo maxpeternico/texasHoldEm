@@ -1,23 +1,28 @@
 @SuppressWarnings("javadoc")
 public enum PokerResult {
-    ROYAL_STRAIGHT_FLUSH(9),
-    STRAIGHT_FLUSH(8),
-    FOURS(7),
-    FULL_HOUSE(6),
-    FLUSH(5),
-    STRAIGHT(4),
-    THREES(3),
-    TWO_PAIR(2),
-    PAIR(1),
+    ROYAL_STRAIGHT_FLUSH(900),
+    STRAIGHT_FLUSH(800),
+    FOURS(700),
+    FULL_HOUSE(600),
+    FLUSH(500),
+    STRAIGHT(400),
+    THREES(300),
+    TWO_PAIR(200),
+    PAIR(100),
     NO_RESULT(0);
 
     private int value;
+    private int pokerResultPoints;
 
     PokerResult(int value) {
         this.value = value;
     }
 
     public int getValue() {
-        return this.value;
+        return this.value + this.pokerResultPoints;
+    }
+
+    public void setPokerResultPoints(int points) {
+        this.pokerResultPoints = points;
     }
 }

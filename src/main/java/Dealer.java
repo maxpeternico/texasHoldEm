@@ -44,8 +44,7 @@ class Dealer {
         }
     }
 
-    Player registerPlayer(String name) {
-        Player player = new Player(name);
+    Player registerPlayer(Player player) {
         players.add(player);
         winStatistics.put(player, new ArrayList<>());
         return player;
@@ -306,7 +305,7 @@ class Dealer {
         throw new RuntimeException("Could not find player :[" + playerName + "]");
     }
 
-    public void findTheWinner() {
+    public Player findTheWinner() {
         Player winner = null;
         Map<Card, PokerResult> highScore = new HashMap<Card, PokerResult>();
         highScore.put(EvaluationHandler.getLeastValueableCard(), PokerResult.NO_RESULT);
@@ -322,6 +321,7 @@ class Dealer {
         dealer.updateWinStatistics(winner, highScore);
         logger.info(
                 "And the winner is:[" + winner.getName() + "] with highscore :[" + printPokerResult(highScore) + "]");
+        return winner;
     }
 
     private void logResult(Player player, Map<Card, PokerResult> result, Map<Card, PokerResult> highScore) {

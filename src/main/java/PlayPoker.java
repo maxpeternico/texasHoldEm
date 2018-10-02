@@ -3,46 +3,98 @@ import com.google.common.collect.Lists;
 import java.util.*;
 
 public class PlayPoker {
+    private Dealer dealer;
+
     public static void main(String[] args) {
         final PlayPoker playPoker = new PlayPoker();
         playPoker.play();
     }
 
     private void play() {
-        Dealer dealer = Dealer.getInstance();
+        dealer = Dealer.getInstance();
         String playerName = askForInput("Enter your name: ");
         System.out.println("Welcome [" + playerName + "]");
-        dealer.registerPlayer(playerName);
+        final Player player = new Player(playerName);
+        player.setToHuman();
+        dealer.registerPlayer(player);
         getPlayers(dealer);
+        List<Player> remainingPlayersInPlayingOrder = dealer.getPlayers();
         dealer.playPrivateHands();
 
         final List<Card> privateHand = dealer.getPlayerHand(playerName);
         final String privateHandString = EvaluationHandler.getHandAsString(privateHand);
         System.out.println("Private hand: " + privateHandString);
         printCurrentResult(playerName, privateHand);
-        String decision = getCharFromKeyboard(Lists.newArrayList("R", "C", "F"));
-        if (evaluate(decision)) return;
+        decideBet(remainingPlayersInPlayingOrder);
+
+        /********************************* FLOP *************************************************/
 
         dealer.drawFlop();
         System.out.println("Total hand after flop: ");
         checkTotalHand(dealer, playerName, privateHand);
         decision = getCharFromKeyboard(Lists.newArrayList("R", "C", "F"));
-        if (evaluate(decision)) return;
+        if (isFolding(decision)) return;
+
+        /********************************* TURN *************************************************/
 
         dealer.drawTurn();
         System.out.println("Total hand after turn: ");
         checkTotalHand(dealer, playerName, privateHand);
         decision = getCharFromKeyboard(Lists.newArrayList("R", "C", "F"));
-        if (evaluate(decision)) return;
+        if (isFolding(decision)) return;
+
+        /********************************* RIVER *************************************************/
 
         dealer.drawRiver();
         System.out.println("Total hand after river: ");
         checkTotalHand(dealer, playerName, privateHand);
         decision = getCharFromKeyboard(Lists.newArrayList("R", "C", "F"));
-        if (evaluate(decision)) return;
+        if (isFolding(decision)) return;
 
-        dealer.findTheWinner();
+        /********************************* FIND THE WINNER *************************************************/
+
+        final Player theWinner = dealer.findTheWinner();
+        checkTotalHand(dealer, theWinner.getName(), theWinner.getPrivateHand());
         dealer.putCardsBackIntoDeck();
+    }
+
+    private void decideBet(List<Player> remainingPlayers) {
+        for (Player player:remainingPlayers) {
+            if (player.isHuman()) {
+                String decision = getCharFromKeyboard(Lists.newArrayList("R", "C", "F"));
+                if (isFolding(decision)) {
+                    remainingPlayers.remove(player);
+                };
+            } else {
+                evaluateOwnHand(player.getPrivateHand(),  );
+                evaluateRaiseFromOtherPlayers();
+                if (raise) {
+                    decideRaiseAmount();
+                } else if (fold) {
+                    System.out.println("Player " + player.getName() + " fold.");
+                    remainingPlayers.remove(player);
+                    remainingPlayers.remove(player);
+                }
+            }
+        }
+    }
+
+    private void evaluateOwnHand(List<Card> privateHand, Player player) {
+        int privatePoints = calculatePoints(privateHand, player);
+        int commonPoints = calculatePoints(dealer.getCommonHand(), player);
+        if (privatePoints > 10) {
+            // raise or check if someone else has raised
+        } else if (privatePoints > 5) {
+            // check
+        } else {
+            // drop if someone raises more than X
+        }
+
+    }
+
+    private int calculatePoints(List<Card> hand, Player player) {
+        final Map<Card, PokerResult> cardPokerResultMap = EvaluationHandler.evaluateHand(player.getName(), hand);
+        return EvaluationHandler.calculatePointsFromHand(cardPokerResultMap);
     }
 
     private void getPlayers(Dealer dealer) {
@@ -50,37 +102,79 @@ public class PlayPoker {
         String numberOfPlayers = getCharFromKeyboard(Lists.newArrayList("1", "2", "3", "4", "5", "6"));
         switch (numberOfPlayers) {
             case "1":
-                dealer.registerPlayer("Thomas");
+                Player player = new Player("Thomas");
+                player.setToRobot();
+                dealer.registerPlayer(player);
                 break;
             case "2":
-                dealer.registerPlayer("Thomas");
-                dealer.registerPlayer("Jörn");
+                player = new Player("Thomas");
+                player.setToRobot();
+                dealer.registerPlayer(player);
+                player = new Player("Jörn");
+                player.setToRobot();
+                dealer.registerPlayer(player);
                 break;
             case "3":
-                dealer.registerPlayer("Thomas");
-                dealer.registerPlayer("Jörn");
-                dealer.registerPlayer("Anders");
+                player = new Player("Thomas");
+                player.setToRobot();
+                dealer.registerPlayer(player);
+                player = new Player("Jörn");
+                player.setToRobot();
+                dealer.registerPlayer(player);
+                player = new Player("Anders");
+                player.setToRobot();
+                dealer.registerPlayer(player);
                 break;
             case "4":
-                dealer.registerPlayer("Thomas");
-                dealer.registerPlayer("Jörn");
-                dealer.registerPlayer("Anders");
-                dealer.registerPlayer("Bosse");
+                player = new Player("Thomas");
+                player.setToRobot();
+                dealer.registerPlayer(player);
+                player = new Player("Jörn");
+                player.setToRobot();
+                dealer.registerPlayer(player);
+                player = new Player("Anders");
+                player.setToRobot();
+                dealer.registerPlayer(player);
+                player = new Player("Bosse");
+                player.setToRobot();
+                dealer.registerPlayer(player);
                 break;
             case "5":
-                dealer.registerPlayer("Thomas");
-                dealer.registerPlayer("Jörn");
-                dealer.registerPlayer("Bosse");
-                dealer.registerPlayer("Anders");
-                dealer.registerPlayer("Ingemar");
+                player = new Player("Thomas");
+                player.setToRobot();
+                dealer.registerPlayer(player);
+                player = new Player("Jörn");
+                player.setToRobot();
+                dealer.registerPlayer(player);
+                player = new Player("Anders");
+                player.setToRobot();
+                dealer.registerPlayer(player);
+                player = new Player("Bosse");
+                player.setToRobot();
+                dealer.registerPlayer(player);
+                player = new Player("Ingemar");
+                player.setToRobot();
+                dealer.registerPlayer(player);
                 break;
             case "6":
-                dealer.registerPlayer("Thomas");
-                dealer.registerPlayer("Jörn");
-                dealer.registerPlayer("Bosse");
-                dealer.registerPlayer("Anders");
-                dealer.registerPlayer("Ingemar");
-                dealer.registerPlayer("Staffan");
+                player = new Player("Thomas");
+                player.setToRobot();
+                dealer.registerPlayer(player);
+                player = new Player("Jörn");
+                player.setToRobot();
+                dealer.registerPlayer(player);
+                player = new Player("Anders");
+                player.setToRobot();
+                dealer.registerPlayer(player);
+                player = new Player("Bosse");
+                player.setToRobot();
+                dealer.registerPlayer(player);
+                player = new Player("Ingemar");
+                player.setToRobot();
+                dealer.registerPlayer(player);
+                player = new Player("Staffan");
+                player.setToRobot();
+                dealer.registerPlayer(player);
                 break;
             default:
                 throw new RuntimeException("Number of players should be between 1 and 6: " + numberOfPlayers);
@@ -106,7 +200,7 @@ public class PlayPoker {
         }
     }
 
-    private boolean evaluate(String decision) {
+    private boolean isFolding(String decision) {
         if (decision.equals("F")) {
             System.out.println("You fold! Bye");
             return true;

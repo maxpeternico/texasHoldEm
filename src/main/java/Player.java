@@ -12,6 +12,7 @@ public class Player {
 
     private List<Card> cardsOnHand = new ArrayList<Card>();
     private int i =0;
+    private boolean isRobot = false;
 
     public void setInt() {
         this.i++;
@@ -77,5 +78,17 @@ public class Player {
         } else if (!name.equals(other.name))
             return false;
         return true;
+    }
+
+    public void setToRobot() {
+        isRobot = true;
+    }
+
+    public void setToHuman() {
+        isRobot = false;
+    }
+
+    public boolean isHuman() {
+        return !isRobot;
     }
 }

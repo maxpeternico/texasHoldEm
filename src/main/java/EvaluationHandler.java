@@ -13,8 +13,8 @@ public class EvaluationHandler {
     static Map<Card, Integer> drawnCardStatistics = new HashMap<Card, Integer>();
 
     static void initDrawnCardStatistics() {
-        for (Color color:Color.values()) {
-            for (Ordinal ordinal:Ordinal.values()) {
+        for (Color color : Color.values()) {
+            for (Ordinal ordinal : Ordinal.values()) {
                 drawnCardStatistics.put(new Card(color, ordinal), 0);
             }
         }
@@ -57,7 +57,7 @@ public class EvaluationHandler {
         return result;
     }
 
-    static boolean isRoyalStraightFlush(List<Card> cardsInHand)  {
+    static boolean isRoyalStraightFlush(List<Card> cardsInHand) {
         if (isStraightFlush(cardsInHand) && isFlushOf(cardsInHand, Color.hearts) &&
                 highestCardFromStraight(cardsInHand).equals(new Card(Color.hearts, Ordinal.ace))) {
             return true;
@@ -110,7 +110,7 @@ public class EvaluationHandler {
             oldValue = value;
         }
         Card highestCard = null;
-        for (Card card:cardsInHand) {
+        for (Card card : cardsInHand) {
             if (card.getOrdinal().getValue() == highestOrdinalValue) {
                 highestCard = card;
             }
@@ -120,7 +120,7 @@ public class EvaluationHandler {
 
     static Card findHighestCardByColor(List<Card> cardsInHand) {
         Card highestCard = new Card(Color.clubs, Ordinal.two);
-        for (Card card:cardsInHand) {
+        for (Card card : cardsInHand) {
             if (card.getOrdinal().getValue() > highestCard.getOrdinal().getValue()) {
                 highestCard = card;
             } else if (card.getOrdinal().getValue() == highestCard.getOrdinal().getValue()) {
@@ -238,7 +238,7 @@ public class EvaluationHandler {
 
 
     private static void initFlushChecker(Map<Color, Integer> flushChecker) {
-        Arrays.stream(Color.values()).forEach(e->flushChecker.put(e, 0));
+        Arrays.stream(Color.values()).forEach(e -> flushChecker.put(e, 0));
     }
 
     static boolean isTwoPair(List<Card> cardsInHand) {
@@ -291,7 +291,7 @@ public class EvaluationHandler {
         return hasMultiple;
     }
 
-    static boolean isStraightFlush(List<Card> cardsInHand)  {
+    static boolean isStraightFlush(List<Card> cardsInHand) {
         if (isStraight(cardsInHand) && isFlush(cardsInHand) && (cardsInHand.size() >= NUMBER_OF_CARDS_IN_HAND)) {
             return true;
         } else {
@@ -359,13 +359,13 @@ public class EvaluationHandler {
 
     private static Map<Integer, Integer> initPossiblePairMap(List<Card> cardsInHand) {
         Map<Integer, Integer> possiblePairMap = new HashMap<Integer, Integer>();
-        cardsInHand.stream().forEach(e->possiblePairMap.put(e.getOrdinal().getValue(), 1));
+        cardsInHand.stream().forEach(e -> possiblePairMap.put(e.getOrdinal().getValue(), 1));
         return possiblePairMap;
     }
 
     public static String getHandAsString(List<Card> privateHand) {
         StringBuilder hand = new StringBuilder();
-        privateHand.stream().forEach(e->hand.append(e.toString()));
+        privateHand.stream().forEach(e -> hand.append(e.toString()));
         return hand.toString();
     }
 
@@ -423,8 +423,8 @@ public class EvaluationHandler {
 
     public static int getNumberOfDrawnCardsWithOrdinal() {
         int numberOfCards = 0;
-        for (Color color:Color.values()) {
-            for (Ordinal ordinal:Ordinal.values()) {
+        for (Color color : Color.values()) {
+            for (Ordinal ordinal : Ordinal.values()) {
                 numberOfCards += drawnCardStatistics.get(new Card(color, ordinal));
             }
         }
@@ -433,7 +433,7 @@ public class EvaluationHandler {
 
     public static int getNumberOfDrawnCardsWithColor(Color requestedColor) {
         int numberOfColor = 0;
-        for (Ordinal ordinal:Ordinal.values()) {
+        for (Ordinal ordinal : Ordinal.values()) {
             numberOfColor += drawnCardStatistics.get(new Card(requestedColor, ordinal));
         }
         return numberOfColor;
@@ -446,9 +446,19 @@ public class EvaluationHandler {
 
     public static int getNumberOfOrdinal(Ordinal requestedOrdinal) {
         int numberOfOrdinal = 0;
-        for (Color color:Color.values()) {
+        for (Color color : Color.values()) {
             numberOfOrdinal += drawnCardStatistics.get(new Card(color, requestedOrdinal));
         }
         return numberOfOrdinal;
+    }
+
+    public static int calculatePointsFromHand(Map<Card, PokerResult> cardPokerResultMap) {
+        final Set<Card> cardSet = cardPokerResultMap.keySet();
+        if (cardSet.size() != 1) {
+            throw new RuntimeException("cardPokerResultMap should have size of 1");
+        }
+        final Iterator<Card> iterator = cardSet.iterator();
+        final PokerResult pokerResult = cardPokerResultMap.get(iterator.next());
+        return pokerResult.getValue();
     }
 }
