@@ -1,3 +1,5 @@
+package poker;
+
 class Shuffle {
     private static final int OFFSET_TWO = 2;
 

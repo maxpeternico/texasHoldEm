@@ -1,3 +1,5 @@
+package poker;
+
 enum Color {
     hearts(0),
     spades(1),

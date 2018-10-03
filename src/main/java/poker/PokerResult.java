@@ -1,3 +1,5 @@
+package poker;
+
 @SuppressWarnings("javadoc")
 public enum PokerResult {
     ROYAL_STRAIGHT_FLUSH(900),

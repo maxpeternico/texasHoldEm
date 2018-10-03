@@ -1,3 +1,5 @@
+package poker;
+
 import com.google.common.collect.Lists;
 
 import java.util.*;
@@ -32,7 +34,7 @@ public class PlayPoker {
         dealer.drawFlop();
         System.out.println("Total hand after flop: ");
         checkTotalHand(dealer, playerName, privateHand);
-        decision = getCharFromKeyboard(Lists.newArrayList("R", "C", "F"));
+        String decision = getCharFromKeyboard(Lists.newArrayList("R", "C", "F"));
         if (isFolding(decision)) return;
 
         /********************************* TURN *************************************************/
@@ -59,6 +61,7 @@ public class PlayPoker {
     }
 
     private void decideBet(List<Player> remainingPlayers) {
+        List<Player> removePlayers = new ArrayList<>();
         for (Player player:remainingPlayers) {
             if (player.isHuman()) {
                 String decision = getCharFromKeyboard(Lists.newArrayList("R", "C", "F"));
@@ -66,30 +69,59 @@ public class PlayPoker {
                     remainingPlayers.remove(player);
                 };
             } else {
-                evaluateOwnHand(player.getPrivateHand(),  );
-                evaluateRaiseFromOtherPlayers();
-                if (raise) {
-                    decideRaiseAmount();
-                } else if (fold) {
+                int raiseAmount = evaluateOwnHand(player.getPrivateHand(), player );
+                int risk = evaluateRaiseFromOtherPlayers();
+                if (raiseAmount > 10) {
+                    if (risk < 10) {
+                        System.out.println(player.getName() + " raises " + raiseAmount);
+                    }
+                    else {
+                        System.out.println(player.getName() + " checks.");
+                    }
+                } else if (raiseAmount < 5) {
                     System.out.println("Player " + player.getName() + " fold.");
-                    remainingPlayers.remove(player);
-                    remainingPlayers.remove(player);
+                    removePlayers.add(player);
                 }
             }
         }
+        removePlayers.stream().forEach(e-> {
+            if (remainingPlayers.contains(e)) {
+                remainingPlayers.remove(e);
+                dealer.putCardsInHandToDeck(e.getPrivateHand());
+            } else {
+                throw new RuntimeException("Player [" + e.getName() + "] should not be in this game");
+            }
+        });
     }
 
-    private void evaluateOwnHand(List<Card> privateHand, Player player) {
+    private int evaluateRaiseFromOtherPlayers() {
+        return 0;
+    }
+
+
+    private int evaluateOwnHand(List<Card> privateHand, Player player) {
         int privatePoints = calculatePoints(privateHand, player);
         int commonPoints = calculatePoints(dealer.getCommonHand(), player);
         if (privatePoints > 10) {
-            // raise or check if someone else has raised
+            if (commonPoints < 5) {
+                // raise no matter what
+                return 10;
+            } else {
+                // raise only if no other raises
+                return 5;
+            }
         } else if (privatePoints > 5) {
-            // check
+            if (commonPoints < 5) {
+                // raise if no one else has raised
+                return 5;
+            } else {
+                // don't raise, join if blind is cheap otherwise fold
+                return 0;
+            }
         } else {
-            // drop if someone raises more than X
+            // don't raise, join if blind is cheap otherwise fold
+            return 0;
         }
-
     }
 
     private int calculatePoints(List<Card> hand, Player player) {

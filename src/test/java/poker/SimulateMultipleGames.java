@@ -1,3 +1,5 @@
+package poker;
+
 import java.util.*;
 
 import org.apache.logging.log4j.LogManager;
@@ -13,12 +15,12 @@ public class SimulateMultipleGames {
     @Test
     public void simulateNormalGame() throws Exception {
         Dealer dealer = Dealer.getInstance();
-        dealer.registerPlayer("Thomas");
-        dealer.registerPlayer("Jörn");
-        dealer.registerPlayer("Anders");
-        dealer.registerPlayer("Peter");
-        dealer.registerPlayer("Bosse");
-        dealer.registerPlayer("Ingemar");
+        dealer.registerPlayer(new Player("Thomas"));
+        dealer.registerPlayer(new Player("Jörn"));
+        dealer.registerPlayer(new Player("Anders"));
+        dealer.registerPlayer(new Player("Peter"));
+        dealer.registerPlayer(new Player("Bosse"));
+        dealer.registerPlayer(new Player("Ingemar"));
         for (int i = 0; i < 10000; i++) {
             dealer.play();
             dealer.findTheWinner();
@@ -52,13 +54,13 @@ public class SimulateMultipleGames {
     //@Test
     public void testWinWithTopCard() throws Exception {
         Dealer dealer = Dealer.getInstance();
-        Player peter = dealer.registerPlayer("Peter");
+        Player peter = dealer.registerPlayer(new Player("Peter"));
 
-        Player thomas = dealer.registerPlayer("Thomas");
-        Player jorn = dealer.registerPlayer("Jörn");
-        Player anders = dealer.registerPlayer("Anders");
-        Player bosse = dealer.registerPlayer("Bosse");
-        Player ingemar = dealer.registerPlayer("Ingemar");
+        Player thomas = dealer.registerPlayer(new Player("Thomas"));
+        Player jorn = dealer.registerPlayer(new Player("Jörn"));
+        Player anders = dealer.registerPlayer(new Player("Anders"));
+        Player bosse = dealer.registerPlayer(new Player("Bosse"));
+        Player ingemar = dealer.registerPlayer(new Player("Ingemar"));
         EvaluationHandler.initDrawnCardStatistics();
 
         for (Ordinal ordinal : Ordinal.values()) {
@@ -96,12 +98,12 @@ public class SimulateMultipleGames {
    // @Test
     public void testWinWithPairOnHand() {
         Dealer dealer = Dealer.getInstance();
-        Player peter = dealer.registerPlayer("Peter");
-        Player thomas = dealer.registerPlayer("Thomas");
-        Player jorn = dealer.registerPlayer("Jörn");
-        Player anders = dealer.registerPlayer("Anders");
-        Player bosse = dealer.registerPlayer("Bosse");
-        Player ingemar = dealer.registerPlayer("Ingemar");
+        Player peter = dealer.registerPlayer(new Player("Peter"));
+        Player thomas = dealer.registerPlayer(new Player("Thomas"));
+        Player jorn = dealer.registerPlayer(new Player("Jörn"));
+        Player anders = dealer.registerPlayer(new Player("Anders"));
+        Player bosse = dealer.registerPlayer(new Player("Bosse"));
+        Player ingemar = dealer.registerPlayer(new Player("Ingemar"));
         for (Ordinal ordinal:Ordinal.values()) {
             logger.info("Checking statistics when peter gets pair of:[" + ordinal.toString() + "]");
             for (int i = 0; i < 10000; i++) {
@@ -133,12 +135,12 @@ public class SimulateMultipleGames {
     //@Test
     public void testWinWithPairOnFlop() {
         Dealer dealer = Dealer.getInstance();
-        Player peter = dealer.registerPlayer("Peter");
-        Player thomas = dealer.registerPlayer("Thomas");
-        Player jorn = dealer.registerPlayer("Jörn");
-        Player anders = dealer.registerPlayer("Anders");
-        Player bosse = dealer.registerPlayer("Bosse");
-        Player ingemar = dealer.registerPlayer("Ingemar");
+        Player peter = dealer.registerPlayer(new Player("Peter"));
+        Player thomas = dealer.registerPlayer(new Player("Thomas"));
+        Player jorn = dealer.registerPlayer(new Player("Jörn"));
+        Player anders = dealer.registerPlayer(new Player("Anders"));
+        Player bosse = dealer.registerPlayer(new Player("Bosse"));
+        Player ingemar = dealer.registerPlayer(new Player("Ingemar"));
         for (Ordinal ordinal:Ordinal.values()) {
             logger.info("Checking statistics when peter gets pair of:[" + ordinal.toString() + "]");
             for (int i = 0; i < 10000; i++) {
@@ -171,10 +173,10 @@ public class SimulateMultipleGames {
     //@Test
     public void testWinWithTrippleAfterFlop() {
         Dealer dealer = Dealer.getInstance();
-        Player peter = dealer.registerPlayer("Peter");
-        Player thomas = dealer.registerPlayer("Thomas");
-        Player jorn = dealer.registerPlayer("Jörn");
-        Player anders = dealer.registerPlayer("Anders");
+        Player peter = dealer.registerPlayer(new Player("Peter"));
+        Player thomas = dealer.registerPlayer(new Player("Thomas"));
+        Player jorn = dealer.registerPlayer(new Player("Jörn"));
+        Player anders = dealer.registerPlayer(new Player("Anders"));
         for (Ordinal ordinal:Ordinal.values()) {
             logger.info("Checking statistics when peter gets a tripple of:[" + ordinal.toString() + "] after flop");
             for (int i = 0; i < 1000; i++) {
@@ -205,10 +207,10 @@ public class SimulateMultipleGames {
     //@Test
     public void testWinWithTrippleAfterFlopPairOnTable() {
         Dealer dealer = Dealer.getInstance();
-        Player peter = dealer.registerPlayer("Peter");
-        Player thomas = dealer.registerPlayer("Thomas");
-        Player jorn = dealer.registerPlayer("Jörn");
-        Player anders = dealer.registerPlayer("Anders");
+        Player peter = dealer.registerPlayer(new Player("Peter"));
+        Player thomas = dealer.registerPlayer(new Player("Thomas"));
+        Player jorn = dealer.registerPlayer(new Player("Jörn"));
+        Player anders = dealer.registerPlayer(new Player("Anders"));
         for (Ordinal ordinal:Ordinal.values()) {
             logger.info("Checking statistics when peter gets a tripple of:[" + ordinal.toString() + "] after flop with pair on the flop.");
             for (int i = 0; i < 1000; i++) {
@@ -240,10 +242,10 @@ public class SimulateMultipleGames {
     //@Test
     public void testWinWithTwoPair() {
         Dealer dealer = Dealer.getInstance();
-        Player peter = dealer.registerPlayer("Peter");
-        Player thomas = dealer.registerPlayer("Thomas");
-        Player jorn = dealer.registerPlayer("Jörn");
-        Player anders = dealer.registerPlayer("Anders");
+        Player peter = dealer.registerPlayer(new Player("Peter"));
+        Player thomas = dealer.registerPlayer(new Player("Thomas"));
+        Player jorn = dealer.registerPlayer(new Player("Jörn"));
+        Player anders = dealer.registerPlayer(new Player("Anders"));
         for (Ordinal ordinal:Ordinal.values()) {
             if (ordinal.getValue() > Ordinal.two.getValue()) { // Don't want to test foursome
                 logger.info("Checking statistics when peter gets two pair of twos and :[" + ordinal.toString() + "].");

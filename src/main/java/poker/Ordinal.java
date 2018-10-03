@@ -1,3 +1,5 @@
+package poker;
+
 enum Ordinal {
     two(2),
     three(3),

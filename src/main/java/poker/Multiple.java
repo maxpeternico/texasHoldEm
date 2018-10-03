@@ -1,3 +1,5 @@
+package poker;
+
 enum Multiple {
     SINGLE(1),
     PAIR(2),
