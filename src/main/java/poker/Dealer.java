@@ -335,7 +335,7 @@ class Dealer {
     private String printPokerResult(Map<Card, PokerResult> highScore) {
         StringBuilder result = new StringBuilder();
         Card topCardFromResult = EvaluationHandler.getTopCardFromResult(highScore);
-        result.append(highScore.get(topCardFromResult)).append(" top card: ").append(topCardFromResult.toString());
+        result.append(highScore.get(topCardFromResult).getPokerHand()).append(" top card: ").append(topCardFromResult.toString());
 
         return result.toString();
     }

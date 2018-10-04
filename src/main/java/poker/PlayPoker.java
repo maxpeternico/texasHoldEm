@@ -239,7 +239,7 @@ public class PlayPoker {
     final Set<Card> cards = cardPokerResultMap.keySet();
     final Iterator<Card> iterator = cards.iterator();
     while (iterator.hasNext()) {
-      System.out.println(cardPokerResultMap.get(iterator.next()));
+      System.out.println(cardPokerResultMap.get(iterator.next()).getPokerHand());
     }
   }
 
