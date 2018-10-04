@@ -1,30 +1,25 @@
 package poker;
 
-@SuppressWarnings("javadoc")
-public enum PokerResult {
-    ROYAL_STRAIGHT_FLUSH(900),
-    STRAIGHT_FLUSH(800),
-    FOURS(700),
-    FULL_HOUSE(600),
-    FLUSH(500),
-    STRAIGHT(400),
-    THREES(300),
-    TWO_PAIR(200),
-    PAIR(100),
-    NO_RESULT(0);
+public class PokerResult {
+  private final PokerHand pokerHand;
+  // Points are only used for rating pair/no_results
+  private int points = 0;
 
-    private int value;
-    private int pokerResultPoints;
+  public PokerResult(PokerHand pokerHand, int points) {
+    this.pokerHand = pokerHand;
+    this.points = points;
+  }
 
-    PokerResult(int value) {
-        this.value = value;
-    }
+  public PokerResult(PokerHand pokerHand) {
+    this.pokerHand = pokerHand;
+    this.points = pokerHand.getValue();
+  }
 
-    public int getValue() {
-        return this.value + this.pokerResultPoints;
-    }
+  public PokerHand getPokerHand() {
+    return pokerHand;
+  }
 
-    public void setPokerResultPoints(int points) {
-        this.pokerResultPoints = points;
-    }
+  public int getPoints() {
+    return pokerHand.getValue() + points;
+  }
 }

@@ -217,28 +217,27 @@ class Dealer {
     }
 
     void updateWinStatistics(Player winner, Map<Card, PokerResult> highScore) {
-        List<PokerResult> pokerResults = winStatistics.get(winner);
+        List<PokerResult> pokerHands = winStatistics.get(winner);
         PokerResult pokerResult = EvaluationHandler.getResultFromCardPokerResultMap(highScore);
-        pokerResults.add(pokerResult);
-        winStatistics.put(winner, pokerResults);
+        pokerHands.add(pokerResult);
+        winStatistics.put(winner, pokerHands);
     }
 
     void printWinStatistics() {
-        int numberOfPairs = 0;
-        Map<PokerResult, Integer> allPlayerWinStatistics = initAllPlayerWinStatistics();
+        Map<PokerHand, Integer> allPlayerWinStatistics = initAllPlayerWinStatistics();
         Set<Player> playerSet = winStatistics.keySet();
         Iterator<Player> players = playerSet.iterator();
         while (players.hasNext()) {
             Player player = players.next();
             List<PokerResult> resultStatistics = winStatistics.get(player);
             logger.info("[" + player.getName() + "] won [" + resultStatistics.size() + "] number of times on [");
-            for (PokerResult pokerResult:PokerResult.values()) {
-                int numberOfMatches = getNumberOfPokerResults(pokerResult, resultStatistics);
+            for (PokerHand pokerHand : PokerHand.values()) {
+                int numberOfMatches = getNumberOfPokerResults(pokerHand, resultStatistics);
                 if (numberOfMatches > 0) {
-                    logger.info(pokerResult.toString() + ": [" + numberOfMatches + "] times.");
-                    Integer allPlayerNumberOfMatches = allPlayerWinStatistics.get(pokerResult);
+                    logger.info(pokerHand.toString() + ": [" + numberOfMatches + "] times.");
+                    Integer allPlayerNumberOfMatches = allPlayerWinStatistics.get(pokerHand);
                     allPlayerNumberOfMatches = allPlayerNumberOfMatches + numberOfMatches;
-                    allPlayerWinStatistics.put(pokerResult, allPlayerNumberOfMatches);
+                    allPlayerWinStatistics.put(pokerHand, allPlayerNumberOfMatches);
                 }
             }
             winStatistics.put(player, new ArrayList<>());
@@ -246,24 +245,24 @@ class Dealer {
         printAllPlayerStatistics(allPlayerWinStatistics);
     }
 
-    private void printAllPlayerStatistics(Map<PokerResult, Integer> allPlayerWinStatistics) {
+    private void printAllPlayerStatistics(Map<PokerHand, Integer> allPlayerWinStatistics) {
         logger.info("Total game statistics for this round for all players:");
-        stream(PokerResult.values()).forEach(e -> {
+        stream(PokerHand.values()).forEach(e -> {
             logger.info("Number of wins on :[" + e.toString() + "] : [" + allPlayerWinStatistics.get(e) + "]");
         });
     }
 
 
-    private Map<PokerResult, Integer> initAllPlayerWinStatistics() {
-        Map<PokerResult, Integer> allPlayerWinStatistics = new HashMap<>();
-        stream(PokerResult.values()).forEach(e->allPlayerWinStatistics.put(e, 0));
+    private Map<PokerHand, Integer> initAllPlayerWinStatistics() {
+        Map<PokerHand, Integer> allPlayerWinStatistics = new HashMap<>();
+        stream(PokerHand.values()).forEach(e->allPlayerWinStatistics.put(e, 0));
         return allPlayerWinStatistics;
     }
 
-    private int getNumberOfPokerResults(PokerResult result, List<PokerResult> pokerResultList) {
+    private int getNumberOfPokerResults(PokerHand result, List<PokerResult> pokerResultList) {
         int numberOfMatches = 0;
-        for (PokerResult pokerResult:pokerResultList) {
-            if (result.equals(pokerResult)) {
+        for (PokerResult pokerResult : pokerResultList) {
+            if (result.equals(pokerResult.getPokerHand())) {
                 numberOfMatches++;
             }
         }
@@ -310,7 +309,7 @@ class Dealer {
     public Player findTheWinner() {
         Player winner = null;
         Map<Card, PokerResult> highScore = new HashMap<Card, PokerResult>();
-        highScore.put(EvaluationHandler.getLeastValueableCard(), PokerResult.NO_RESULT);
+        highScore.put(EvaluationHandler.getLeastValueableCard(), new PokerResult(PokerHand.NO_RESULT));
         for (Player player : dealer.getPlayers()) {
             Map<Card, PokerResult> result = dealer.playRiver(player);
             logResult(player, result, highScore);
