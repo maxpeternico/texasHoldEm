@@ -171,7 +171,7 @@ public class UnitTests {
   }
 
   @Test
-  public void testCalculatePointFromPair() {
+  public void testCalculatePointFromLowPair() {
     List<Card> cardsOnHand = new ArrayList<Card>();
     cardsOnHand.add(new Card(Color.spades, Ordinal.five));
     cardsOnHand.add(new Card(Color.hearts, Ordinal.king));
@@ -186,5 +186,52 @@ public class UnitTests {
     assertEquals(pointsFromHand, valueOfPairOfFives);
   }
 
+  @Test
+  public void testCalculatePointFromHighPair() {
+    List<Card> cardsOnHand = new ArrayList<Card>();
+    cardsOnHand.add(new Card(Color.spades, Ordinal.five));
+    cardsOnHand.add(new Card(Color.hearts, Ordinal.ace));
+    cardsOnHand.add(new Card(Color.hearts, Ordinal.queen));
+    cardsOnHand.add(new Card(Color.diamonds, Ordinal.two));
+    cardsOnHand.add(new Card(Color.hearts, Ordinal.knight));
+    cardsOnHand.add(new Card(Color.clubs, Ordinal.ace));
+    cardsOnHand.add(new Card(Color.hearts, Ordinal.ten));
+    Map<Card, PokerResult> pokerResult = EvaluationHandler.evaluateHand("kalle", cardsOnHand);
+    final int pointsFromHand = EvaluationHandler.calculatePointsFromHand(pokerResult);
+    final int valueOfPairOfFives = new PokerResult(PokerHand.PAIR, 14).getPoints();
+    assertEquals(pointsFromHand, valueOfPairOfFives);
+  }
+
+  @Test
+  public void testCalculatePointFromNoResultHighCard() {
+    List<Card> cardsOnHand = new ArrayList<>();
+    cardsOnHand.add(new Card(Color.spades, Ordinal.five));
+    cardsOnHand.add(new Card(Color.hearts, Ordinal.ace));
+    cardsOnHand.add(new Card(Color.hearts, Ordinal.queen));
+    cardsOnHand.add(new Card(Color.diamonds, Ordinal.two));
+    cardsOnHand.add(new Card(Color.hearts, Ordinal.knight));
+    cardsOnHand.add(new Card(Color.clubs, Ordinal.three));
+    cardsOnHand.add(new Card(Color.hearts, Ordinal.ten));
+    Map<Card, PokerResult> pokerResult = EvaluationHandler.evaluateHand("kalle", cardsOnHand);
+    final int pointsFromHand = EvaluationHandler.calculatePointsFromHand(pokerResult);
+    final int valueOfNoResultAceHigh = new PokerResult(PokerHand.NO_RESULT, 14).getPoints();
+    assertEquals(pointsFromHand, valueOfNoResultAceHigh);
+  }
+
+  @Test
+  public void testCalculatePointFromNoResultLowCard() {
+    List<Card> cardsOnHand = new ArrayList<Card>();
+    cardsOnHand.add(new Card(Color.spades, Ordinal.five));
+    cardsOnHand.add(new Card(Color.hearts, Ordinal.four));
+    cardsOnHand.add(new Card(Color.hearts, Ordinal.seven));
+    cardsOnHand.add(new Card(Color.diamonds, Ordinal.two));
+    cardsOnHand.add(new Card(Color.hearts, Ordinal.nine));
+    cardsOnHand.add(new Card(Color.clubs, Ordinal.three));
+    cardsOnHand.add(new Card(Color.hearts, Ordinal.eight));
+    Map<Card, PokerResult> pokerResult = EvaluationHandler.evaluateHand("kalle", cardsOnHand);
+    final int pointsFromHand = EvaluationHandler.calculatePointsFromHand(pokerResult);
+    final int valueOfNoResultNineHigh = new PokerResult(PokerHand.NO_RESULT, 9).getPoints();
+    assertEquals(pointsFromHand, valueOfNoResultNineHigh);
+  }
 }
 

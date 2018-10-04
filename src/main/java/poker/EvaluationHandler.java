@@ -77,8 +77,8 @@ public class EvaluationHandler {
   static int getPokerResultPointsFromPair(List<Card> cardsInHand) {
     // Find value of pair
     for (Card card : cardsInHand) {
-      List<Card> restOfHand = cardsInHand;
-      cardsInHand.remove(card);
+      List<Card> restOfHand = new ArrayList<>(cardsInHand);
+      restOfHand.remove(card);
       for (Card cardFromRestOfHand : restOfHand) {
         if (cardFromRestOfHand.getOrdinal().equals(card.getOrdinal())) {
           return card.getOrdinal().getValue();
