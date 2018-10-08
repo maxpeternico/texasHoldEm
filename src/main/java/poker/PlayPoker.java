@@ -26,6 +26,10 @@ public class PlayPoker {
     return new PlayPoker();
   }
 
+  public void putCardsBackInDeck(List<Card> cardsInHand) {
+    dealer.putCardsInHandToDeck(cardsInHand);
+  }
+
   private void play() {
     blind = increaseBlind();
     String playerName = askForInput("Enter your name: ");
@@ -79,10 +83,12 @@ public class PlayPoker {
     return blind * 2;
   }
 
-  private void decideBet(List<Player> remainingPlayers) {
+  String decideBet(List<Player> remainingPlayers) {
+    StringBuffer result = new StringBuffer();
     int maxRaiseFromOtherplayer = 0;
     List<Player> removePlayers = new ArrayList<>();
     for (Player player : remainingPlayers) {
+      String playerDecision = "";
       if (player.isHuman()) {
         String decision = getCharFromKeyboard(Lists.newArrayList("R", "C", "F"));
         if (isFolding(decision)) {
@@ -92,19 +98,23 @@ public class PlayPoker {
         int raiseAmount = evaluateOwnHand(player);
         boolean fold = doFold(raiseAmount, maxRaiseFromOtherplayer);
         if (fold) {
-          System.out.println("Player " + player.getName() + " fold.");
+          playerDecision = "Player " + player.getName() + " fold. ";
+          System.out.println(playerDecision);
           removePlayers.add(player);
         } else {
           boolean raise = doRaise(raiseAmount, maxRaiseFromOtherplayer);
           if (raise) {
             int totalRaiseAmount = raiseAmount - maxRaiseFromOtherplayer;
             maxRaiseFromOtherplayer = totalRaiseAmount;
-            System.out.println(player.getName() + " raises " + totalRaiseAmount);
+            playerDecision = "Player " + player.getName() + " raises " + totalRaiseAmount + ". ";
+            System.out.println(playerDecision);
           } else {
-            System.out.println(player.getName() + " checks.");
+            playerDecision = "Player " + player.getName() + " checks. ";
+            System.out.println(playerDecision);
           }
         }
       }
+      result.append(playerDecision);
     }
     removePlayers.stream().forEach(e -> {
       if (remainingPlayers.contains(e)) {
@@ -114,6 +124,7 @@ public class PlayPoker {
         throw new RuntimeException("Player [" + e.getName() + "] should not be in this game");
       }
     });
+    return result.toString();
   }
 
   private boolean doFold(int raiseByEvaluatingOwnHand, int maxRaiseFromOtherplayer) {
@@ -142,7 +153,6 @@ public class PlayPoker {
       return false;
     }
   }
-
 
   int evaluateOwnHand(Player player) {
     int raiseAmount = 0;
