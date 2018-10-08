@@ -9,12 +9,23 @@ import org.apache.logging.log4j.LogManager;
 
 
 public class Player {
+    private String name;
+    private int numberOfMarkers = 0;
 
     private static final Logger logger = LogManager.getLogger(Player.class);
 
     private List<Card> cardsOnHand = new ArrayList<Card>();
     private int i =0;
     private boolean isRobot = false;
+
+    public Player(String playerName, int totalMarkersPerPlayer) {
+        this.name = playerName;
+        this.numberOfMarkers = totalMarkersPerPlayer;
+    }
+
+    Player(String name) {
+        this.name = name;
+    }
 
     public void setInt() {
         this.i++;
@@ -29,11 +40,6 @@ public class Player {
         return "Player [name=" + name + "]";
     }
 
-    private String name;
-
-    Player(String name) {
-        this.name = name;
-    }
 
     public void addPrivateCards(List<Card> newCards) {
         cardsOnHand.addAll(newCards);

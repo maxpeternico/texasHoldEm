@@ -13,13 +13,13 @@ public class TestBetting {
   public void testBetPrivateHands() {
     // User 1 gets pair of aces and raises high
     final PlayPoker playPoker = PlayPoker.getInstance();
-    Player jorn = new Player("Jörn");
+    Player jorn = new Player("Jörn", PlayPoker.TOTAL_MARKERS_PER_PLAYER);
     playPoker.registerRobotPlayer(jorn);
     List<Card> jornsPrivateHand = new ArrayList<>();
     jornsPrivateHand.add(new Card(Color.hearts, Ordinal.ace));
     jornsPrivateHand.add(new Card(Color.spades, Ordinal.ace));
     playPoker.setPrivateHand(jorn, jornsPrivateHand);
-    Player staffan = new Player("Staffan");
+    Player staffan = new Player("Staffan", PlayPoker.TOTAL_MARKERS_PER_PLAYER);
     playPoker.registerRobotPlayer(staffan);
     List<Card> staffansPrivateHand = new ArrayList<>();
     jornsPrivateHand.add(new Card(Color.hearts, Ordinal.king));

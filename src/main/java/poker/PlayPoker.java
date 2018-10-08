@@ -10,6 +10,8 @@ public class PlayPoker {
   private static final int FOLD_LEVEL = -5;
   private Dealer dealer;
   private static final Logger logger = LogManager.getLogger(PlayPoker.class);
+  private int blind = 50;
+  static final int TOTAL_MARKERS_PER_PLAYER = 2500;
 
   public static void main(String[] args) {
     final PlayPoker playPoker = getInstance();
@@ -25,13 +27,16 @@ public class PlayPoker {
   }
 
   private void play() {
+    blind = increaseBlind();
     String playerName = askForInput("Enter your name: ");
     System.out.println("Welcome [" + playerName + "]");
-    final Player player = new Player(playerName);
+    final Player player = new Player(playerName, TOTAL_MARKERS_PER_PLAYER);
     player.setToHuman();
     getPlayers(dealer);
     List<Player> remainingPlayersInPlayingOrder = dealer.getPlayers();
     dealer.playPrivateHands();
+
+    System.out.println("Blind is: [" + blind / 2 + "] resp: [" + blind + "]");
 
     final List<Card> privateHand = dealer.getPlayerHand(playerName);
     final String privateHandString = EvaluationHandler.getHandAsString(privateHand);
@@ -68,6 +73,10 @@ public class PlayPoker {
     final Player theWinner = dealer.findTheWinner();
     checkTotalHand(dealer, theWinner.getName(), theWinner.getPrivateHand());
     dealer.putCardsBackIntoDeck();
+  }
+
+  private int increaseBlind() {
+    return blind * 2;
   }
 
   private void decideBet(List<Player> remainingPlayers) {
