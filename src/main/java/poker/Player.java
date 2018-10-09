@@ -99,4 +99,8 @@ public class Player {
     public boolean isHuman() {
         return !isRobot;
     }
+
+  public int getNumberOfMarkers() {
+      return numberOfMarkers;
+  }
 }

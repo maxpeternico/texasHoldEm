@@ -348,4 +348,10 @@ class Dealer {
             throw new RuntimeException("Cards were lost!");
         }
     }
+
+    void clearGame() {
+        players.clear();
+        deck.clear();
+        populateDeck();
+    }
 }

@@ -26,13 +26,12 @@ public class TestBetting {
     staffansPrivateHand.add(new Card(Color.spades, Ordinal.queen));
     playPoker.setPrivateHand(staffan, staffansPrivateHand);
 
-    final int jornsBet = playPoker.betPrivateHand(jorn);
-    final int staffansBet = playPoker.betPrivateHand(staffan);
+    final int jornsBet = playPoker.betPrivateHand(jorn, 2);
+    final int staffansBet = playPoker.betPrivateHand(staffan, 2);
     assertEquals(jornsBet, 100);
     assertEquals(staffansBet, 10);
 
-    playPoker.putCardsBackInDeck(jornsPrivateHand);
-    playPoker.putCardsBackInDeck(staffansPrivateHand);
+    playPoker.clearGame();
   }
 
   @Test
@@ -65,11 +64,12 @@ public class TestBetting {
     playerList.add(jorn);
     playerList.add(staffan);
     playerList.add(thomas);
-    final String result = playPoker.decideBet(playerList);
+    final String result = playPoker.decideBet(playerList, Turn.BEFORE_FLOP);
     assertEquals("Player Jörn raises 100. Player Staffan fold. Player Thomas checks. ", result);
 
-    playPoker.putCardsBackInDeck(jornsPrivateHand);
-    playPoker.putCardsBackInDeck(thomasPrivateHand);
+    playPoker.clearGame();
+//    playPoker.putCardsBackInDeck(jornsPrivateHand);
+//    playPoker.putCardsBackInDeck(thomasPrivateHand);
     // Players who folds (staffan) are put back in the deck in playpoker
   }
 }

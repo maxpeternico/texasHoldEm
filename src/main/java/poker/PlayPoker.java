@@ -32,6 +32,8 @@ public class PlayPoker {
 
   private void play() {
     blind = increaseBlind();
+    Turn turn = Turn.BEFORE_FLOP;
+    turn = increaseTurn(turn);
     String playerName = askForInput("Enter your name: ");
     System.out.println("Welcome [" + playerName + "]");
     final Player player = new Player(playerName, TOTAL_MARKERS_PER_PLAYER);
@@ -46,7 +48,7 @@ public class PlayPoker {
     final String privateHandString = EvaluationHandler.getHandAsString(privateHand);
     System.out.println("Private hand: " + privateHandString);
     printCurrentResult(playerName, privateHand);
-    decideBet(remainingPlayersInPlayingOrder);
+    decideBet(remainingPlayersInPlayingOrder, turn);
 
     /********************************* FLOP *************************************************/
 
@@ -79,11 +81,30 @@ public class PlayPoker {
     dealer.putCardsBackIntoDeck();
   }
 
+  private Turn increaseTurn(Turn turn) {
+    Turn newTurn = null;
+    switch (turn) {
+      case BEFORE_FLOP:
+        newTurn = Turn.BEFORE_TURN;
+        break;
+      case BEFORE_TURN:
+        newTurn = Turn.BEFORE_RIVER;
+        break;
+      case BEFORE_RIVER:
+        newTurn = Turn.END_GAME;
+        break;
+      case END_GAME:
+        newTurn = Turn.END_GAME;
+        break;
+    }
+    return newTurn;
+  }
+
   private int increaseBlind() {
     return blind * 2;
   }
 
-  String decideBet(List<Player> remainingPlayers) {
+  String decideBet(List<Player> remainingPlayers, Turn turn) {
     StringBuffer result = new StringBuffer();
     int maxRaiseFromOtherplayer = 0;
     List<Player> removePlayers = new ArrayList<>();
@@ -95,7 +116,7 @@ public class PlayPoker {
           removePlayers.add(player);
         }
       } else {
-        int raiseAmount = evaluateOwnHand(player);
+        int raiseAmount = evaluateOwnHand(player, turn, remainingPlayers.size());
         boolean fold = doFold(raiseAmount, maxRaiseFromOtherplayer);
         if (fold) {
           playerDecision = "Player " + player.getName() + " fold. ";
@@ -154,15 +175,21 @@ public class PlayPoker {
     }
   }
 
-  int evaluateOwnHand(Player player) {
+  int evaluateOwnHand(Player player, Turn turn, int numberOfRemainingPlayers) {
     int raiseAmount = 0;
-    int privatePoints = calculatePoints(dealer.getPlayerHand(player.getName()), player);
-    int commonPoints = calculatePoints(dealer.getCommonHand(), player);
-    logger.debug(player.getName() + " private points: " + privatePoints + " common points: " + commonPoints);
-    if (privatePoints > 100) {
+    int commonPoints = 0;
+    int privatePoints = calculatePrivatePoints(dealer.getPlayerHand(player.getName()), player);
+    logger.debug(player.getName() + " private points: " + privatePoints);
+    privatePoints = compensatePrivateHandWithNumberOfPlayers(privatePoints, numberOfRemainingPlayers);
+    if (turn != Turn.BEFORE_FLOP) {
+      commonPoints = calculateCommonPoints(numberOfRemainingPlayers);
+    }
+    logger.debug(player.getName() + " private points compensated: " + privatePoints + " common points compensated: " + commonPoints);
+    calculateLimit(privatePoints, commonPoints, turn, player.getNumberOfMarkers());
+    if (privatePoints > 113) { // Pair of aces and higher
       if (commonPoints < 50) {
         // TODO: calculateRaiseAmount(privatePoints, commonPoints, sizeOfBlind, moneyLeft)
-        // raise no matter what
+        // raise
         raiseAmount = 100;
       } else {
         // raise only if no other raises
@@ -192,7 +219,55 @@ public class PlayPoker {
     return raiseAmount;
   }
 
-  private int calculatePoints(List<Card> hand, Player player) {
+  /**
+   * If lower than 4 players, an average hand may be a real good one
+   */
+  private int compensatePrivateHandWithNumberOfPlayers(int privatePoints, int numberOfRemainingPlayers) {
+    if (numberOfRemainingPlayers == 3) {
+      privatePoints = privatePoints * 2;
+    } else if (numberOfRemainingPlayers == 2) {
+      privatePoints = privatePoints * 3;
+    }
+    return privatePoints;
+  }
+
+  private int calculateCommonPoints(int numberOfRemainingPlayers) {
+    final List<Card> commonHand = dealer.getCommonHand();
+    final Map<Card, PokerResult> commonPointsMap = EvaluationHandler.evaluateHand("common", commonHand);
+    int commonHandPoints = EvaluationHandler.getResultFromCardPokerResultMap(commonPointsMap).getPoints();
+    // less probability that a common hand might fit another players hand
+    if (numberOfRemainingPlayers < 4) {
+      commonHandPoints = commonHandPoints / 2;
+    }
+    return commonHandPoints;
+  }
+
+  /**
+   * Since privatePoints is compensated by the number of players there is no need to consider number of players here
+   */
+  private void calculateLimit(int privatePoints, int commonPoints, Turn turn, int numberOfMarkers) {
+    switch (turn) {
+      case BEFORE_FLOP:
+        // Pair is good, raise or go all in if pott is big
+        // Average cards, join unless too expensive
+        // Bad cards, try to join if cheap otherwise fold
+        break;
+      case BEFORE_TURN:
+        // Pair of aces is good or anything higher, raise or go all in if pott is big
+        // Low pair, join unless too expensive
+        // Bad cards, try to join if cheap otherwise fold
+        break;
+      case BEFORE_RIVER:
+        // Pair of aces is good or anything higher, raise or go all in if pott is big
+        // Low pair, join unless too expensive
+        // Bad cards, try to join if cheap otherwise fold
+        break;
+      case END_GAME:
+        break;
+    }
+  }
+
+  private int calculatePrivatePoints(List<Card> hand, Player player) {
     final Map<Card, PokerResult> cardPokerResultMap = EvaluationHandler.evaluateHand(player.getName(), hand);
     return EvaluationHandler.calculatePointsFromHand(cardPokerResultMap);
   }
@@ -341,7 +416,11 @@ public class PlayPoker {
     dealer.setPrivateHand(player, privateHand);
   }
 
-  public int betPrivateHand(Player player) {
-    return evaluateOwnHand(player);
+  public int betPrivateHand(Player player, int numberOfPlayers) {
+    return evaluateOwnHand(player, Turn.BEFORE_FLOP, numberOfPlayers);
+  }
+
+  public void clearGame() {
+    dealer.clearGame();
   }
 }
