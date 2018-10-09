@@ -126,8 +126,12 @@ public class PlayPoker {
           boolean raise = doRaise(raiseAmount, maxRaiseFromOtherplayer);
           if (raise) {
             int totalRaiseAmount = raiseAmount - maxRaiseFromOtherplayer;
+            if (maxRaiseFromOtherplayer > 0) {
+              playerDecision = "Player " + player.getName() + " checks and raises " + totalRaiseAmount + ". ";
+            } else {
+              playerDecision = "Player " + player.getName() + " raises " + totalRaiseAmount + ". ";
+            }
             maxRaiseFromOtherplayer = totalRaiseAmount;
-            playerDecision = "Player " + player.getName() + " raises " + totalRaiseAmount + ". ";
             System.out.println(playerDecision);
           } else {
             playerDecision = "Player " + player.getName() + " checks. ";
