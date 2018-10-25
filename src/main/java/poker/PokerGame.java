@@ -6,24 +6,24 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
-public class PlayPoker {
+public class PokerGame {
   private static final int FOLD_LEVEL = -5;
   private Dealer dealer;
-  private static final Logger logger = LogManager.getLogger(PlayPoker.class);
+  private static final Logger logger = LogManager.getLogger(PokerGame.class);
   private int blind = 50;
   static final int TOTAL_MARKERS_PER_PLAYER = 2500;
 
   public static void main(String[] args) {
-    final PlayPoker playPoker = getInstance();
-    playPoker.play();
+    final PokerGame pokerGame = getInstance();
+    pokerGame.play();
   }
 
-  public PlayPoker() {
+  public PokerGame() {
     this.dealer = Dealer.getInstance();
   }
 
-  public static PlayPoker getInstance() {
-    return new PlayPoker();
+  public static PokerGame getInstance() {
+    return new PokerGame();
   }
 
   public void putCardsBackInDeck(List<Card> cardsInHand) {
@@ -35,13 +35,13 @@ public class PlayPoker {
     Turn turn = Turn.BEFORE_FLOP;
     turn = increaseTurn(turn);
     createPlayers();
-    List<Player> remainingPlayersInPlayingOrder = dealer.getPlayers();
+    List<Player> players = dealer.getPlayers();
 
     System.out.println("Blind is: [" + blind / 2 + "] resp: [" + blind + "]");
-
+    setBlinds(players);
     dealer.playPrivateHands();
     printHumanHand();
-    decideBet(remainingPlayersInPlayingOrder, turn);
+    decideBet(players, turn);
 
     /********************************* FLOP *************************************************/
 
@@ -72,6 +72,57 @@ public class PlayPoker {
     final Player theWinner = dealer.findTheWinner();
     checkTotalHand(dealer, theWinner.getName(), theWinner.getPrivateHand());
     dealer.putCardsBackIntoDeck();
+  }
+
+  void setBlinds(List<Player> players) {
+    // has any player blinds?
+    if (!noPlayerHasBlind(players)) {
+      players.get(0).setLittleBlind();
+      logger.debug("Set little blind to :[" + players.get(0).getName() + "]");
+      players.get(1).setBigBlind();
+      logger.debug("Set big blind to :[" + players.get(1).getName() + "]");
+    } else {
+      int indexOfLittleBlind = getPlayerWithLittleBlind(players);
+      players.get(indexOfLittleBlind).clearLittleBlind();
+      logger.debug("Clear little blind for :[" + players.get(0).getName() + "]");
+      int indexOfBigBlind = getPlayerWithBigBlind(players);
+      players.get(indexOfBigBlind).clearBigBlind();
+      logger.debug("Clear big blind for :[" + players.get(0).getName() + "]");
+
+      players.get(indexOfLittleBlind+1).setLittleBlind();
+      logger.debug("Set little blind to :[" + players.get(0).getName() + "]");
+      players.get(indexOfBigBlind+1).setBigBlind();
+      logger.debug("Set big blind to :[" + players.get(1).getName() + "]");
+    }
+  }
+
+  private int getPlayerWithLittleBlind(List<Player> players) {
+    for (Player player:players) {
+      if (player.hasLittleBlind()) {
+        return players.indexOf(player);
+      }
+    }
+    throw new RuntimeException("No player has little blind");
+  }
+
+  private int getPlayerWithBigBlind(List<Player> players) {
+    for (Player player:players) {
+      if (player.hasBigBlind()) {
+        return players.indexOf(player);
+      }
+    }
+    throw new RuntimeException("No player has big blind");
+  }
+
+  private boolean noPlayerHasBlind(List<Player> players) {
+    for (Player player:players) {
+      if (player.hasBlind()) {
+        logger.debug("[" + players.get(0).getName() + "] has blind");
+        return true;
+      }
+    }
+    logger.debug("No player has blind");
+    return false;
   }
 
   private void printHumanHand() {
@@ -134,7 +185,7 @@ public class PlayPoker {
 
   String decideBet(List<Player> remainingPlayers, Turn turn) {
     StringBuffer result = new StringBuffer();
-    int maxRaiseFromOtherplayer = 0;
+    int maxRaiseFromOtherplayer = 0 ; // TODO: blind
     List<Player> removePlayers = new ArrayList<>();
     Boolean[] doRaise = new Boolean[remainingPlayers.size()];
     for (int i=0;i<remainingPlayers.size();i++) { doRaise[i] = false; }

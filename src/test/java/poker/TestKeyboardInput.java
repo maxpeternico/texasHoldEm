@@ -11,7 +11,7 @@ public class TestKeyboardInput {
   @Test
   public void testChar() {
     // User 1 gets pair of aces and raises high
-    final PlayPoker playPoker = PlayPoker.getInstance();
+    final PokerGame pokerGame = PokerGame.getInstance();
     List<String> list = Lists.newArrayList();
     list.add("a");
     list.add("b");
@@ -27,7 +27,7 @@ public class TestKeyboardInput {
   @Test
   public void testNumbers() {
     // User 1 gets pair of aces and raises high
-    final PlayPoker playPoker = PlayPoker.getInstance();
+    final PokerGame pokerGame = PokerGame.getInstance();
     List<String> list = Lists.newArrayList();
     list.add("1");
     list.add("2");
@@ -50,7 +50,7 @@ public class TestKeyboardInput {
   @Test
   public void testForbiddenNumbers() {
     // User 1 gets pair of aces and raises high
-    final PlayPoker playPoker = PlayPoker.getInstance();
+    final PokerGame pokerGame = PokerGame.getInstance();
     List<String> list = Lists.newArrayList();
     list.add("0");
     list.add("1");
@@ -61,10 +61,10 @@ public class TestKeyboardInput {
 
   private String getCharFromKeyboard(List<String> allowedCharacters, String askForInput) {
     String input = "";
-    PlayPoker playPoker = new PlayPoker();
+    PokerGame pokerGame = new PokerGame();
     do {
       input = askForInput;
-    } while (!playPoker.allowedCharacterIsPressed(input, allowedCharacters));
+    } while (!pokerGame.allowedCharacterIsPressed(input, allowedCharacters));
     return input;
   }
 

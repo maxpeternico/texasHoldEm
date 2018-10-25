@@ -6,7 +6,7 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Logger name="poker.PlayPoker" level="info" additivity="false">
+        <Logger name="poker.PokerGame" level="debug" additivity="false">
             <AppenderRef ref="Console" />
         </Logger>
         <Logger name="poker.EvaluationHandler" level="info" additivity="false">
