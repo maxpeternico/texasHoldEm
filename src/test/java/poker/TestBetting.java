@@ -67,7 +67,7 @@ public class TestBetting {
     playerList.add(staffan);
     playerList.add(thomas);
     final String result = playPoker.decideBet(playerList, Turn.BEFORE_FLOP);
-    assertEquals("Player Jörn raises 100. Player Staffan fold. Player Thomas checks. ", result);
+    assertEquals("Player Jörn raises 100. Player Staffan fold. Player Thomas checks. Player Jörn checks. Player Thomas checks. ", result);
 
     playPoker.clearGame();
   }
@@ -93,7 +93,33 @@ public class TestBetting {
     playerList.add(peter);
     playerList.add(thomas);
     final String result = playPoker.decideBet(playerList, Turn.BEFORE_FLOP);
-    assertEquals("Player Peter raises 10. Player Thomas checks and raises 90. ", result);
+    assertEquals("Player Peter raises 10. Player Thomas raises 90. Player Peter fold. Player Thomas checks. ", result);
+
+    playPoker.clearGame();
+  }
+
+  @Test
+  public void testBothPlayersRaisesMax() {
+    // User 1 gets pair of aces and raises high
+    final PlayPoker playPoker = PlayPoker.getInstance();
+    Player peter = new Player("Peter", PlayPoker.TOTAL_MARKERS_PER_PLAYER);
+    playPoker.registerRobotPlayer(peter);
+    List<Card> petersPrivateHand = new ArrayList<>();
+    petersPrivateHand.add(new Card(Color.hearts, Ordinal.ace));
+    petersPrivateHand.add(new Card(Color.spades, Ordinal.ace));
+    playPoker.setPrivateHand(peter, petersPrivateHand);
+    Player thomas = new Player("Thomas", PlayPoker.TOTAL_MARKERS_PER_PLAYER);
+    playPoker.registerRobotPlayer(thomas);
+    List<Card> thomasPrivateHand = new ArrayList<>();
+    thomasPrivateHand.add(new Card(Color.diamonds, Ordinal.ace));
+    thomasPrivateHand.add(new Card(Color.clubs, Ordinal.ace));
+    playPoker.setPrivateHand(thomas, thomasPrivateHand);
+
+    List<Player> playerList = new ArrayList<>();
+    playerList.add(peter);
+    playerList.add(thomas);
+    final String result = playPoker.decideBet(playerList, Turn.BEFORE_FLOP);
+    assertEquals("Player Peter raises 100. Player Thomas checks. Player Peter checks. Player Thomas checks. ", result);
 
     playPoker.clearGame();
   }

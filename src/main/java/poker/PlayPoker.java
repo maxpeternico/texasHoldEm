@@ -136,39 +136,43 @@ public class PlayPoker {
     StringBuffer result = new StringBuffer();
     int maxRaiseFromOtherplayer = 0;
     List<Player> removePlayers = new ArrayList<>();
-    boolean doRaise = false;
+    Boolean[] doRaise = new Boolean[remainingPlayers.size()];
+    for (int i=0;i<remainingPlayers.size();i++) { doRaise[i] = false; }
+
     String playerDecision = "";
     do {
       int raiseAmount = 0;
       for (Player player : remainingPlayers) {
         if (isPlayerStillInTheGame(player, removePlayers)) {
-          logger.debug("player :[" + player + "] doRaise: [" + doRaise + "]. maxRaiseFromOtherPlayer:[" + maxRaiseFromOtherplayer + "]");
+          logger.debug("player :[" + player + "] doRaise: [" + doRaise[remainingPlayers.indexOf(player)] + "]. maxRaiseFromOtherPlayer:[" + maxRaiseFromOtherplayer + "]");
+          Boolean isRaise = false;
           if (player.isHuman()) {
             String decision = getCharFromKeyboard(Lists.newArrayList("R", "C", "F"));
             if (isFolding(decision)) {
-              doRaise = false;
+              isRaise = false;
               removePlayers.add(player);
             } else if (isChecking(decision)) {
               // Put player money in pot
-              doRaise = false;
+              isRaise = false;
             } else if (isRaising(decision)) {
-              doRaise = true;
+              isRaise = true;
               raiseAmount = getRaiseAmount();
               int totalRaiseAmount = raiseAmount - maxRaiseFromOtherplayer;
-              maxRaiseFromOtherplayer = totalRaiseAmount;
+              maxRaiseFromOtherplayer += totalRaiseAmount;
             }
           } else {
             raiseAmount = evaluateOwnHand(player, turn, remainingPlayers.size());
             boolean fold = doFold(raiseAmount, maxRaiseFromOtherplayer);
             if (fold) {
+              isRaise = false;
               playerDecision = "Player " + player.getName() + " fold. ";
               System.out.println(playerDecision);
               removePlayers.add(player);
             } else {
-              doRaise = doRaise(raiseAmount, maxRaiseFromOtherplayer);
-              if (doRaise) {
+              isRaise = doRaise(raiseAmount, maxRaiseFromOtherplayer);
+              if (isRaise) {
                 int totalRaiseAmount = raiseAmount - maxRaiseFromOtherplayer;
-                maxRaiseFromOtherplayer = totalRaiseAmount;
+                maxRaiseFromOtherplayer += totalRaiseAmount;
                 playerDecision = "Player " + player.getName() + " raises " + totalRaiseAmount + ". ";
                 System.out.println(playerDecision);
               } else {
@@ -177,10 +181,11 @@ public class PlayPoker {
               }
             }
           }
+          doRaise[remainingPlayers.indexOf(player)] = isRaise;
+          result.append(playerDecision);
         }
       }
-    } while (doRaise);
-    result.append(playerDecision);
+    } while (anyOneIsRaising(doRaise));
     removePlayers.stream().forEach(e -> {
       if (remainingPlayers.contains(e)) {
         remainingPlayers.remove(e);
@@ -191,6 +196,15 @@ public class PlayPoker {
     });
     return result.toString();
 
+  }
+
+  private boolean anyOneIsRaising(Boolean[] doRaise) {
+    for (Boolean b:doRaise) {
+      if (b.equals(true)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private boolean isPlayerStillInTheGame(Player player, List<Player> removePlayers) {
