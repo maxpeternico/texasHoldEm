@@ -466,7 +466,7 @@ public class PlayPoker {
     return false;
   }
 
-  private boolean allowedCharacterIsPressed(String input, List<String> allowedCharacters) {
+  boolean allowedCharacterIsPressed(String input, List<String> allowedCharacters) {
     final char[] inputCharArray = input.toCharArray();
     for (char inputChar : inputCharArray) {
       for (String allowedCharacter : allowedCharacters) {
