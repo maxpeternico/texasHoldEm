@@ -6,12 +6,15 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
+import static poker.Strategy.OFFENSIVE;
+
 public class PokerGame {
   private static final int FOLD_LEVEL = -5;
   private Dealer dealer;
   private static final Logger logger = LogManager.getLogger(PokerGame.class);
   private int blind = 50;
   static final int TOTAL_MARKERS_PER_PLAYER = 2500;
+  private Turn turn;
 
   public static void main(String[] args) {
     final PokerGame pokerGame = getInstance();
@@ -32,7 +35,7 @@ public class PokerGame {
 
   private void play() {
     blind = increaseBlind();
-    Turn turn = Turn.BEFORE_FLOP;
+    turn = Turn.BEFORE_FLOP;
     turn = increaseTurn(turn);
     createPlayers();
     List<Player> players = dealer.getPlayers();
@@ -41,7 +44,7 @@ public class PokerGame {
     setBlinds(players);
     dealer.playPrivateHands();
     printHumanHand();
-    decideBet(players, turn);
+    decideBet(players);
 
     /********************************* FLOP *************************************************/
 
@@ -89,15 +92,15 @@ public class PokerGame {
       players.get(indexOfBigBlind).clearBigBlind();
       logger.debug("Clear big blind for :[" + players.get(0).getName() + "]");
 
-      players.get(indexOfLittleBlind+1).setLittleBlind();
+      players.get(indexOfLittleBlind + 1).setLittleBlind();
       logger.debug("Set little blind to :[" + players.get(0).getName() + "]");
-      players.get(indexOfBigBlind+1).setBigBlind();
+      players.get(indexOfBigBlind + 1).setBigBlind();
       logger.debug("Set big blind to :[" + players.get(1).getName() + "]");
     }
   }
 
   private int getPlayerWithLittleBlind(List<Player> players) {
-    for (Player player:players) {
+    for (Player player : players) {
       if (player.hasLittleBlind()) {
         return players.indexOf(player);
       }
@@ -106,7 +109,7 @@ public class PokerGame {
   }
 
   private int getPlayerWithBigBlind(List<Player> players) {
-    for (Player player:players) {
+    for (Player player : players) {
       if (player.hasBigBlind()) {
         return players.indexOf(player);
       }
@@ -115,7 +118,7 @@ public class PokerGame {
   }
 
   private boolean noPlayerHasBlind(List<Player> players) {
-    for (Player player:players) {
+    for (Player player : players) {
       if (player.hasBlind()) {
         logger.debug("[" + players.get(0).getName() + "] has blind");
         return true;
@@ -128,7 +131,7 @@ public class PokerGame {
   private void printHumanHand() {
     final List<Player> players = dealer.getPlayers();
     String humanPlayer = "";
-    for (Player player:players) {
+    for (Player player : players) {
       if (player.isHuman()) {
         humanPlayer = player.getName();
       }
@@ -183,20 +186,22 @@ public class PokerGame {
     return blind * 2;
   }
 
-  String decideBet(List<Player> remainingPlayers, Turn turn) {
+  String decideBet(List<Player> remainingPlayers) {
     StringBuffer result = new StringBuffer();
-    int maxRaiseFromOtherplayer = 0 ; // TODO: blind
+    int maxRaiseFromOtherplayer = blind;
     List<Player> removePlayers = new ArrayList<>();
-    Boolean[] doRaise = new Boolean[remainingPlayers.size()];
-    for (int i=0;i<remainingPlayers.size();i++) { doRaise[i] = false; }
+    Boolean[] doRaise = initDoRaise(remainingPlayers);
 
-    String playerDecision = "";
+    payBlinds(result, remainingPlayers, removePlayers);
     do {
       int raiseAmount = 0;
+      int pot = 0;
       for (Player player : remainingPlayers) {
         if (isPlayerStillInTheGame(player, removePlayers)) {
           logger.debug("player :[" + player + "] doRaise: [" + doRaise[remainingPlayers.indexOf(player)] + "]. maxRaiseFromOtherPlayer:[" + maxRaiseFromOtherplayer + "]");
           Boolean isRaise = false;
+          String playerDecision = "";
+
           if (player.isHuman()) {
             String decision = getCharFromKeyboard(Lists.newArrayList("R", "C", "F"));
             if (isFolding(decision)) {
@@ -212,7 +217,7 @@ public class PokerGame {
               maxRaiseFromOtherplayer += totalRaiseAmount;
             }
           } else {
-            raiseAmount = evaluateOwnHand(player, turn, remainingPlayers.size());
+            raiseAmount = evaluateOwnHand(player, remainingPlayers.size());
             boolean fold = doFold(raiseAmount, maxRaiseFromOtherplayer);
             if (fold) {
               isRaise = false;
@@ -237,20 +242,74 @@ public class PokerGame {
         }
       }
     } while (anyOneIsRaising(doRaise));
-    removePlayers.stream().forEach(e -> {
-      if (remainingPlayers.contains(e)) {
-        remainingPlayers.remove(e);
-        dealer.putCardsInHandToDeck(e.getPrivateHand()); // TODO: Should be done at end of game
-      } else {
-        throw new RuntimeException("Player [" + e.getName() + "] should not be in this game");
-      }
-    });
+    putCardsFromHandOfRemovedPlayersBackInDeck(remainingPlayers, removePlayers);
     return result.toString();
 
   }
 
+  private void putCardsFromHandOfRemovedPlayersBackInDeck(List<Player> remainingPlayers, List<Player> removePlayers) {
+    removePlayers.stream().forEach(e -> {
+      if (remainingPlayers.contains(e)) {
+        remainingPlayers.remove(e);
+        dealer.putCardsInHandToDeck(e.getPrivateHand());
+      } else {
+        throw new RuntimeException("Player [" + e.getName() + "] should not be in this game");
+      }
+    });
+  }
+
+  private void payBlinds(StringBuffer result, List<Player> remainingPlayers, List<Player> removePlayers) {
+    String playerDecision = "";
+    for (Player player : remainingPlayers) {
+      if (!payEventualBlindMarkers(player)) {
+        playerDecision = fold(player, removePlayers);
+        result.append(playerDecision);
+      }
+    }
+  }
+
+  private Boolean[] initDoRaise(List<Player> remainingPlayers) {
+    Boolean[] doRaise = new Boolean[remainingPlayers.size()];
+    for (int i = 0; i < remainingPlayers.size(); i++) {
+      doRaise[i] = false;
+    }
+    return doRaise;
+  }
+
+  private String fold(Player player, List<Player> removePlayers) {
+    removePlayers.add(player);
+    return "Player " + player + " folds";
+  }
+
+  private boolean payEventualBlindMarkers(Player player) {
+    try {
+      withdrawBlindMarkers(player);
+    } catch (Exception e) {
+      logger.info(e.getMessage());
+      return false;
+    }
+    return true;
+  }
+
+  private void withdrawBlindMarkers(Player player) {
+    int blindPayment = 0;
+    if (player.hasLittleBlind()) {
+      blindPayment = blind / 2;
+    } else if (player.hasBigBlind()) {
+      blindPayment = blind;
+    }
+    if (blindPayment > 0) {
+      if (player.canPay(blindPayment)) {
+        player.decreaseMarkers(blindPayment);
+        logger.info("Player " + player + " pays the blind " + blindPayment);
+      } else {
+        throw new OutOfMarkersException("Player :[" + player.getName() + "] has to fold due to insufficient number of markers. ");
+      }
+    }
+  }
+
   private boolean anyOneIsRaising(Boolean[] doRaise) {
-    for (Boolean b:doRaise) {
+    for (Boolean b : doRaise) {
       if (b.equals(true)) {
         return true;
       }
@@ -309,8 +368,38 @@ public class PokerGame {
     }
   }
 
-  int evaluateOwnHand(Player player, Turn turn, int numberOfRemainingPlayers) {
+  int evaluateOwnHand(Player player, int numberOfRemainingPlayers) {
+    Points points = calculatePoints(player, numberOfRemainingPlayers);
+    Strategy strategy = decideBetStrategy(points, player.getNumberOfMarkers());
+    logger.debug(player.getName() + " has strategy " + strategy.toString());
+    int raiseAmount = decideRaiseAmount(player, strategy);
+    return raiseAmount;
+  }
+
+  private int decideRaiseAmount(Player player, Strategy strategy) {
     int raiseAmount = 0;
+
+    // Depending on strategy, pot and blind
+    // low blind, offensive raises more, the rest joins
+    // medium blind, offensive raises more, join joins, join if cheap drops
+    // high blind offensive sets rise as blind, rest folds
+    switch (strategy) {
+      case OFFENSIVE:
+        // TODO: Ser percentage of number of markers instead
+        raiseAmount = 300;
+        break;
+      case JOIN:
+        raiseAmount = 100;
+        break;
+      case JOIN_IF_CHEAP:
+        raiseAmount = 50;
+        break;
+    }
+    return raiseAmount;
+  }
+
+  private Points calculatePoints(Player player, int numberOfRemainingPlayers) {
+    Points points = new Points();
     int commonPoints = 0;
     int privatePoints = calculatePrivatePoints(dealer.getPlayerHand(player.getName()), player);
     logger.debug(player.getName() + " private points: " + privatePoints);
@@ -319,38 +408,9 @@ public class PokerGame {
       commonPoints = calculateCommonPoints(numberOfRemainingPlayers);
     }
     logger.debug(player.getName() + " private points compensated: " + privatePoints + " common points compensated: " + commonPoints);
-    calculateLimit(privatePoints, commonPoints, turn, player.getNumberOfMarkers());
-    if (privatePoints > 113) { // Pair of aces and higher
-      if (commonPoints < 50) {
-        // TODO: calculateRaiseAmount(privatePoints, commonPoints, sizeOfBlind, moneyLeft)
-        // raise
-        raiseAmount = 100;
-      } else {
-        // raise only if no other raises
-        raiseAmount = 50;
-      }
-    } else if (privatePoints > 10) {
-      if (commonPoints < 5) {
-        // raise if no one else has raised
-        raiseAmount = 10;
-      } else {
-        // don't raise, join if blind is cheap otherwise fold
-        raiseAmount = 5;
-      }
-    } else if (privatePoints > 5) {
-      if (commonPoints < 5) {
-        // raise if no one else has raised
-        raiseAmount = 5;
-      } else {
-        // don't raise, join if blind is cheap otherwise fold
-        raiseAmount = 0;
-      }
-    } else {
-      // don't raise, join if blind is cheap otherwise fold
-      raiseAmount = 0;
-    }
-    logger.debug(player.getName() + " raises " + raiseAmount);
-    return raiseAmount;
+    points.privatePoints = privatePoints;
+    points.commonPoints = commonPoints;
+    return points;
   }
 
   /**
@@ -379,12 +439,19 @@ public class PokerGame {
   /**
    * Since privatePoints is compensated by the number of players there is no need to consider number of players here
    */
-  private void calculateLimit(int privatePoints, int commonPoints, Turn turn, int numberOfMarkers) {
+  private Strategy decideBetStrategy(Points points, int numberOfMarkers) {
     switch (turn) {
       case BEFORE_FLOP:
-        // Pair is good, raise or go all in if pott is big
-        // Average cards, join unless too expensive
-        // Bad cards, try to join if cheap otherwise fold
+        // No common hand to care
+        // Pair is good, raise or go all in if pot is big
+        if (points.privatePoints > 113) {
+          // Pair of aces and higher
+          return OFFENSIVE;
+        }
+        // Pair
+        if (points.privatePoints > 100) {
+          return Strategy.JOIN;
+        }
         break;
       case BEFORE_TURN:
         // Pair of aces is good or anything higher, raise or go all in if pott is big
@@ -399,6 +466,38 @@ public class PokerGame {
       case END_GAME:
         break;
     }
+    return Strategy.JOIN_IF_CHEAP;
+
+//    if (points.privatePoints > 113) { // Pair of aces and higher
+//      if (points.commonPoints < 50) {
+//        // TODO: calculateRaiseAmount(privatePoints, commonPoints, sizeOfBlind, moneyLeft)
+//        // raise
+//        raiseAmount = 100;
+//      } else {
+//        // raise only if no other raises
+//        raiseAmount = 50;
+//      }
+//    } else if (points.privatePoints > 10) {
+//      if (points.commonPoints < 5) {
+//        // raise if no one else has raised
+//        raiseAmount = 10;
+//      } else {
+//        // don't raise, join if blind is cheap otherwise fold
+//        raiseAmount = 5;
+//      }
+//    } else if (points.privatePoints > 5) {
+//      if (points.commonPoints < 5) {
+//        // raise if no one else has raised
+//        raiseAmount = 5;
+//      } else {
+//        // don't raise, join if blind is cheap otherwise fold
+//        raiseAmount = 0;
+//      }
+//    } else {
+//      // don't raise, join if blind is cheap otherwise fold
+//      raiseAmount = 0;
+//    }
+
   }
 
   private int calculatePrivatePoints(List<Card> hand, Player player) {
@@ -554,10 +653,19 @@ public class PokerGame {
   }
 
   public int betPrivateHand(Player player, int numberOfPlayers) {
-    return evaluateOwnHand(player, Turn.BEFORE_FLOP, numberOfPlayers);
+    return evaluateOwnHand(player, numberOfPlayers);
   }
 
   public void clearGame() {
     dealer.clearGame();
+  }
+
+  void setTurnForUnitTest(Turn beforeFlop) {
+    turn = beforeFlop;
+  }
+
+  private class Points {
+    int privatePoints;
+    int commonPoints;
   }
 }

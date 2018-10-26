@@ -1,6 +1,7 @@
 package poker;
 
 import org.junit.Test;
+import poker.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,18 +26,23 @@ public class TestBetting {
     staffansPrivateHand.add(new Card(Color.hearts, Ordinal.king));
     staffansPrivateHand.add(new Card(Color.spades, Ordinal.queen));
     pokerGame.setPrivateHand(staffan, staffansPrivateHand);
+    List<Player> playerList = new ArrayList<>();
+    playerList.add(jorn);
+    playerList.add(staffan);
 
+    pokerGame.setBlinds(playerList);
+    pokerGame.setTurnForUnitTest(Turn.BEFORE_FLOP);
     final int jornsBet = pokerGame.betPrivateHand(jorn, 2);
     final int staffansBet = pokerGame.betPrivateHand(staffan, 2);
-    assertEquals(jornsBet, 100);
-    assertEquals(staffansBet, 10);
+    assertEquals(jornsBet, 300);
+    assertEquals(staffansBet, 50);
 
     pokerGame.clearGame();
 
   }
 
   @Test
-  public void testBetPrivateHandsFirstPlayerHasGoodCards() {
+  public void testBetPrivateHandsOneVeryGoodOneGoodOneBad() {
     // User 1 gets pair of aces and raises high
     final PokerGame pokerGame = PokerGame.getInstance();
 
@@ -65,8 +71,11 @@ public class TestBetting {
     playerList.add(jorn);
     playerList.add(staffan);
     playerList.add(thomas);
-    final String result = pokerGame.decideBet(playerList, Turn.BEFORE_FLOP);
-    assertEquals("Player Jörn raises 100. Player Staffan fold. Player Thomas checks. Player Jörn checks. Player Thomas checks. ", result);
+
+    pokerGame.setBlinds(playerList);
+    pokerGame.setTurnForUnitTest(Turn.BEFORE_FLOP);
+    final String result = pokerGame.decideBet(playerList);
+    assertEquals("Player Jörn raises 250. Player Staffan fold. Player Thomas checks. Player Jörn checks. Player Thomas checks. ", result);
 
     pokerGame.clearGame();
   }
@@ -78,21 +87,23 @@ public class TestBetting {
     Player peter = new Player("Peter", PokerGame.TOTAL_MARKERS_PER_PLAYER);
     pokerGame.registerRobotPlayer(peter);
     List<Card> petersPrivateHand = new ArrayList<>();
-    petersPrivateHand.add(new Card(Color.hearts, Ordinal.six));
-    petersPrivateHand.add(new Card(Color.spades, Ordinal.king));
+    petersPrivateHand.add(new Card(Color.hearts, Ordinal.two));
+    petersPrivateHand.add(new Card(Color.spades, Ordinal.two));
     pokerGame.setPrivateHand(peter, petersPrivateHand);
     Player thomas = new Player("Thomas", PokerGame.TOTAL_MARKERS_PER_PLAYER);
     pokerGame.registerRobotPlayer(thomas);
     List<Card> thomasPrivateHand = new ArrayList<>();
-    thomasPrivateHand.add(new Card(Color.hearts, Ordinal.knight));
-    thomasPrivateHand.add(new Card(Color.spades, Ordinal.knight));
+    thomasPrivateHand.add(new Card(Color.hearts, Ordinal.ace));
+    thomasPrivateHand.add(new Card(Color.spades, Ordinal.ace));
     pokerGame.setPrivateHand(thomas, thomasPrivateHand);
 
     List<Player> playerList = new ArrayList<>();
     playerList.add(peter);
     playerList.add(thomas);
-    final String result = pokerGame.decideBet(playerList, Turn.BEFORE_FLOP);
-    assertEquals("Player Peter raises 10. Player Thomas raises 90. Player Peter fold. Player Thomas checks. ", result);
+    pokerGame.setBlinds(playerList);
+    pokerGame.setTurnForUnitTest(Turn.BEFORE_FLOP);
+    final String result = pokerGame.decideBet(playerList);
+    assertEquals("Player Peter raises 250. Player Thomas checks. Player Peter checks. Player Thomas checks. ", result);
 
     pokerGame.clearGame();
   }
@@ -117,8 +128,12 @@ public class TestBetting {
     List<Player> playerList = new ArrayList<>();
     playerList.add(peter);
     playerList.add(thomas);
-    final String result = pokerGame.decideBet(playerList, Turn.BEFORE_FLOP);
-    assertEquals("Player Peter raises 100. Player Thomas checks. Player Peter checks. Player Thomas checks. ", result);
+
+    pokerGame.setBlinds(playerList);
+    pokerGame.setTurnForUnitTest(Turn.BEFORE_FLOP);
+    final String result = pokerGame.decideBet(playerList);
+
+    assertEquals("Player Peter raises 250. Player Thomas checks. Player Peter checks. Player Thomas checks. ", result);
 
     pokerGame.clearGame();
   }

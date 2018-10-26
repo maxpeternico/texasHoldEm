@@ -7,6 +7,8 @@ import java.util.Map;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
+import static poker.PokerGame.TOTAL_MARKERS_PER_PLAYER;
+
 
 public class Player {
   private String name;
@@ -138,4 +140,19 @@ public class Player {
   public void clearBigBlind() {
       bigBlind = false;
   }
+
+  public boolean canPay(int pot) {
+    if (numberOfMarkers - pot < 0) {
+      return false;
+    }
+    return true;
+  }
+
+  public void decreaseMarkers(int markers) {
+    numberOfMarkers = numberOfMarkers - markers;
+    if (numberOfMarkers < 0) {
+      throw new RuntimeException("Number of markers should never be negative.");
+    }
+  }
+
 }
