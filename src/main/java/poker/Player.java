@@ -7,8 +7,6 @@ import java.util.Map;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import static poker.PokerGame.TOTAL_MARKERS_PER_PLAYER;
-
 
 public class Player {
   private String name;
@@ -125,20 +123,22 @@ public class Player {
     return bigBlind;
   }
 
-  public void setLittleBlind() {
-      littleBlind = true;
+  public void setLittleBlind(int blind) {
+    littleBlind = true;
+    numberOfMarkers = numberOfMarkers - blind / 2;
   }
 
   public void clearLittleBlind() {
-      littleBlind = false;
+    littleBlind = false;
   }
 
-  public void setBigBlind() {
-      bigBlind = true;
+  public void setBigBlind(int blind) {
+    bigBlind = true;
+    numberOfMarkers = numberOfMarkers - blind;
   }
 
   public void clearBigBlind() {
-      bigBlind = false;
+    bigBlind = false;
   }
 
   public boolean canPay(int pot) {

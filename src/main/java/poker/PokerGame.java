@@ -9,12 +9,13 @@ import java.util.*;
 import static poker.Strategy.OFFENSIVE;
 
 public class PokerGame {
-  private static final int FOLD_LEVEL = -5;
+  private static final int FOLD_LEVEL = -100;
   private Dealer dealer;
   private static final Logger logger = LogManager.getLogger(PokerGame.class);
   private int blind = 50;
   static final int TOTAL_MARKERS_PER_PLAYER = 2500;
   private Turn turn;
+  private int pot = 0;
 
   public static void main(String[] args) {
     final PokerGame pokerGame = getInstance();
@@ -27,10 +28,6 @@ public class PokerGame {
 
   public static PokerGame getInstance() {
     return new PokerGame();
-  }
-
-  public void putCardsBackInDeck(List<Card> cardsInHand) {
-    dealer.putCardsInHandToDeck(cardsInHand);
   }
 
   private void play() {
@@ -53,6 +50,7 @@ public class PokerGame {
     printHumanHand();
     String decision = getCharFromKeyboard(Lists.newArrayList("R", "C", "F"));
     if (isFolding(decision)) return;
+    decideBet(players);
 
     /********************************* TURN *************************************************/
 
@@ -61,6 +59,7 @@ public class PokerGame {
     printHumanHand();
     decision = getCharFromKeyboard(Lists.newArrayList("R", "C", "F"));
     if (isFolding(decision)) return;
+    decideBet(players);
 
     /********************************* RIVER *************************************************/
 
@@ -69,6 +68,7 @@ public class PokerGame {
     printHumanHand();
     decision = getCharFromKeyboard(Lists.newArrayList("R", "C", "F"));
     if (isFolding(decision)) return;
+    decideBet(players);
 
     /********************************* FIND THE WINNER *************************************************/
 
@@ -80,9 +80,11 @@ public class PokerGame {
   void setBlinds(List<Player> players) {
     // has any player blinds?
     if (!noPlayerHasBlind(players)) {
-      players.get(0).setLittleBlind();
+      players.get(0).setLittleBlind(blind);
+      pot += blind / 2;
       logger.debug("Set little blind to :[" + players.get(0).getName() + "]");
-      players.get(1).setBigBlind();
+      players.get(1).setBigBlind(blind);
+      pot += blind;
       logger.debug("Set big blind to :[" + players.get(1).getName() + "]");
     } else {
       int indexOfLittleBlind = getPlayerWithLittleBlind(players);
@@ -92,9 +94,9 @@ public class PokerGame {
       players.get(indexOfBigBlind).clearBigBlind();
       logger.debug("Clear big blind for :[" + players.get(0).getName() + "]");
 
-      players.get(indexOfLittleBlind + 1).setLittleBlind();
+      players.get(indexOfLittleBlind + 1).setLittleBlind(blind);
       logger.debug("Set little blind to :[" + players.get(0).getName() + "]");
-      players.get(indexOfBigBlind + 1).setBigBlind();
+      players.get(indexOfBigBlind + 1).setBigBlind(blind);
       logger.debug("Set big blind to :[" + players.get(1).getName() + "]");
     }
   }
@@ -188,17 +190,17 @@ public class PokerGame {
 
   String decideBet(List<Player> remainingPlayers) {
     StringBuffer result = new StringBuffer();
-    int maxRaiseFromOtherplayer = blind;
     List<Player> removePlayers = new ArrayList<>();
     Boolean[] doRaise = initDoRaise(remainingPlayers);
 
     payBlinds(result, remainingPlayers, removePlayers);
+
+    int maxRaiseFromOtherplayer = 0;
     do {
-      int raiseAmount = 0;
-      int pot = 0;
       for (Player player : remainingPlayers) {
+        int totalRaiseAmount = 0;
         if (isPlayerStillInTheGame(player, removePlayers)) {
-          logger.debug("player :[" + player + "] doRaise: [" + doRaise[remainingPlayers.indexOf(player)] + "]. maxRaiseFromOtherPlayer:[" + maxRaiseFromOtherplayer + "]");
+          logger.debug("player :[" + player + "] doRaise: [" + doRaise[remainingPlayers.indexOf(player)] + "]. maxRaiseFromOtherPlayer:[" + maxRaiseFromOtherplayer + "] pot :[" + pot + "]");
           Boolean isRaise = false;
           String playerDecision = "";
 
@@ -212,12 +214,12 @@ public class PokerGame {
               isRaise = false;
             } else if (isRaising(decision)) {
               isRaise = true;
-              raiseAmount = getRaiseAmount();
-              int totalRaiseAmount = raiseAmount - maxRaiseFromOtherplayer;
+              int raiseAmount = getRaiseAmount();
+              totalRaiseAmount = raiseAmount - maxRaiseFromOtherplayer;
               maxRaiseFromOtherplayer += totalRaiseAmount;
             }
           } else {
-            raiseAmount = evaluateOwnHand(player, remainingPlayers.size());
+            int raiseAmount = evaluateOwnHand(player, remainingPlayers.size());
             boolean fold = doFold(raiseAmount, maxRaiseFromOtherplayer);
             if (fold) {
               isRaise = false;
@@ -227,7 +229,7 @@ public class PokerGame {
             } else {
               isRaise = doRaise(raiseAmount, maxRaiseFromOtherplayer);
               if (isRaise) {
-                int totalRaiseAmount = raiseAmount - maxRaiseFromOtherplayer;
+                totalRaiseAmount = raiseAmount - maxRaiseFromOtherplayer;
                 maxRaiseFromOtherplayer += totalRaiseAmount;
                 playerDecision = "Player " + player.getName() + " raises " + totalRaiseAmount + ". ";
                 System.out.println(playerDecision);
@@ -237,6 +239,7 @@ public class PokerGame {
               }
             }
           }
+          pot += totalRaiseAmount;
           doRaise[remainingPlayers.indexOf(player)] = isRaise;
           result.append(playerDecision);
         }
@@ -510,77 +513,77 @@ public class PokerGame {
     String numberOfPlayers = getCharFromKeyboard(Lists.newArrayList("1", "2", "3", "4", "5", "6"));
     switch (numberOfPlayers) {
       case "1":
-        Player player = new Player("Thomas");
+        Player player = new Player("Thomas", TOTAL_MARKERS_PER_PLAYER);
         player.setToRobot();
         dealer.registerPlayer(player);
         break;
       case "2":
-        player = new Player("Thomas");
+        player = new Player("Thomas", TOTAL_MARKERS_PER_PLAYER);
         player.setToRobot();
         dealer.registerPlayer(player);
-        player = new Player("Jörn");
+        player = new Player("Jörn", TOTAL_MARKERS_PER_PLAYER);
         player.setToRobot();
         dealer.registerPlayer(player);
         break;
       case "3":
-        player = new Player("Thomas");
+        player = new Player("Thomas", TOTAL_MARKERS_PER_PLAYER);
         player.setToRobot();
         dealer.registerPlayer(player);
-        player = new Player("Jörn");
+        player = new Player("Jörn", TOTAL_MARKERS_PER_PLAYER);
         player.setToRobot();
         dealer.registerPlayer(player);
-        player = new Player("Anders");
+        player = new Player("Anders", TOTAL_MARKERS_PER_PLAYER);
         player.setToRobot();
         dealer.registerPlayer(player);
         break;
       case "4":
-        player = new Player("Thomas");
+        player = new Player("Thomas", TOTAL_MARKERS_PER_PLAYER);
         player.setToRobot();
         dealer.registerPlayer(player);
-        player = new Player("Jörn");
+        player = new Player("Jörn", TOTAL_MARKERS_PER_PLAYER);
         player.setToRobot();
         dealer.registerPlayer(player);
-        player = new Player("Anders");
+        player = new Player("Anders", TOTAL_MARKERS_PER_PLAYER);
         player.setToRobot();
         dealer.registerPlayer(player);
-        player = new Player("Bosse");
+        player = new Player("Bosse", TOTAL_MARKERS_PER_PLAYER);
         player.setToRobot();
         dealer.registerPlayer(player);
         break;
       case "5":
-        player = new Player("Thomas");
+        player = new Player("Thomas", TOTAL_MARKERS_PER_PLAYER);
         player.setToRobot();
         dealer.registerPlayer(player);
-        player = new Player("Jörn");
+        player = new Player("Jörn", TOTAL_MARKERS_PER_PLAYER);
         player.setToRobot();
         dealer.registerPlayer(player);
-        player = new Player("Anders");
+        player = new Player("Anders", TOTAL_MARKERS_PER_PLAYER);
         player.setToRobot();
         dealer.registerPlayer(player);
-        player = new Player("Bosse");
+        player = new Player("Bosse", TOTAL_MARKERS_PER_PLAYER);
         player.setToRobot();
         dealer.registerPlayer(player);
-        player = new Player("Ingemar");
+        player = new Player("Ingemar", TOTAL_MARKERS_PER_PLAYER);
         player.setToRobot();
         dealer.registerPlayer(player);
         break;
       case "6":
-        player = new Player("Thomas");
+        player = new Player("Thomas", TOTAL_MARKERS_PER_PLAYER);
         player.setToRobot();
         dealer.registerPlayer(player);
-        player = new Player("Jörn");
+        player = new Player("Jörn", TOTAL_MARKERS_PER_PLAYER);
         player.setToRobot();
         dealer.registerPlayer(player);
-        player = new Player("Anders");
+        player = new Player("Anders", TOTAL_MARKERS_PER_PLAYER);
         player.setToRobot();
         dealer.registerPlayer(player);
-        player = new Player("Bosse");
+        player = new Player("Bosse", TOTAL_MARKERS_PER_PLAYER);
         player.setToRobot();
         dealer.registerPlayer(player);
-        player = new Player("Ingemar");
+        player = new Player("Ingemar", TOTAL_MARKERS_PER_PLAYER);
         player.setToRobot();
         dealer.registerPlayer(player);
-        player = new Player("Staffan");
+        player = new Player("Staffan", TOTAL_MARKERS_PER_PLAYER);
         player.setToRobot();
         dealer.registerPlayer(player);
         break;
