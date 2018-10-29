@@ -19,7 +19,7 @@ public class PokerGame {
 
   public static void main(String[] args) {
     final PokerGame pokerGame = getInstance();
-    pokerGame.play();
+    pokerGame.startGame();
   }
 
   public PokerGame() {
@@ -30,18 +30,35 @@ public class PokerGame {
     return new PokerGame();
   }
 
-  private void play() {
-    blind = increaseBlind();
-    turn = Turn.BEFORE_FLOP;
-    turn = increaseTurn(turn);
+  private void startGame() {
     createPlayers();
     List<Player> players = dealer.getPlayers();
+    turn = Turn.BEFORE_FLOP;
+    playRound(players);
+  }
 
+  private void playRound(List<Player> players) {
+    turn = increaseTurn(turn);
+    blind = increaseBlind();
+    List<Player> playersStillInTheGame = Lists.newArrayList();
+    players.stream().forEach(e -> {
+      if (e.hasMarkers()) {
+        playersStillInTheGame.add(e);
+      } else {
+        System.out.println("Player :[" + e.getName() + "] left the game.");
+      }
+    });
+    if (playersStillInTheGame.size() == 1) {
+      System.out.println("Player :[" + playersStillInTheGame.get(0).getName() + "] is the winner and won :[" + playersStillInTheGame.get(0).getNumberOfMarkers() + "] markers.");
+      return;
+    } else if (playersStillInTheGame.size() == 0) {
+      throw new RuntimeException("How to handle draw?");
+    }
     System.out.println("Blind is: [" + blind / 2 + "] resp: [" + blind + "]");
     setBlinds(players);
     dealer.playPrivateHands();
     printHumanHand();
-    decideBet(players);
+    decideBet(playersStillInTheGame);
 
     /********************************* FLOP *************************************************/
 
@@ -50,7 +67,7 @@ public class PokerGame {
     printHumanHand();
     String decision = getCharFromKeyboard(Lists.newArrayList("R", "C", "F"));
     if (isFolding(decision)) return;
-    decideBet(players);
+    decideBet(playersStillInTheGame);
 
     /********************************* TURN *************************************************/
 
@@ -59,7 +76,7 @@ public class PokerGame {
     printHumanHand();
     decision = getCharFromKeyboard(Lists.newArrayList("R", "C", "F"));
     if (isFolding(decision)) return;
-    decideBet(players);
+    decideBet(playersStillInTheGame);
 
     /********************************* RIVER *************************************************/
 
@@ -68,7 +85,7 @@ public class PokerGame {
     printHumanHand();
     decision = getCharFromKeyboard(Lists.newArrayList("R", "C", "F"));
     if (isFolding(decision)) return;
-    decideBet(players);
+    decideBet(playersStillInTheGame);
 
     /********************************* FIND THE WINNER *************************************************/
 
@@ -177,9 +194,6 @@ public class PokerGame {
       case BEFORE_RIVER:
         newTurn = Turn.END_GAME;
         break;
-      case END_GAME:
-        newTurn = Turn.END_GAME;
-        break;
     }
     return newTurn;
   }
@@ -200,7 +214,7 @@ public class PokerGame {
       for (Player player : remainingPlayers) {
         int totalRaiseAmount = 0;
         if (isPlayerStillInTheGame(player, removePlayers)) {
-          logger.debug("player :[" + player + "] doRaise: [" + doRaise[remainingPlayers.indexOf(player)] + "]. maxRaiseFromOtherPlayer:[" + maxRaiseFromOtherplayer + "] pot :[" + pot + "]");
+          logger.debug("player :[" + player + "] doRaise: [" + doRaise[remainingPlayers.indexOf(player)] + "]. maxRaiseFromOtherPlayer:[" + maxRaiseFromOtherplayer + "] numbersOfMarkers :[" + player.getNumberOfMarkers() + "] pot :[" + pot + "]");
           Boolean isRaise = false;
           String playerDecision = "";
 
@@ -214,7 +228,7 @@ public class PokerGame {
               isRaise = false;
             } else if (isRaising(decision)) {
               isRaise = true;
-              int raiseAmount = getRaiseAmount();
+              int raiseAmount = getRaiseAmount(player);
               totalRaiseAmount = raiseAmount - maxRaiseFromOtherplayer;
               maxRaiseFromOtherplayer += totalRaiseAmount;
             }
@@ -324,8 +338,18 @@ public class PokerGame {
     return !removePlayers.contains(player);
   }
 
-  private int getRaiseAmount() {
-    return Integer.parseInt(getCharFromKeyboard(Lists.newArrayList("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")));
+  private int getRaiseAmount(Player player) {
+    final int desiredRaiseAmount = Integer.parseInt(getCharFromKeyboard(Lists.newArrayList("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")));
+    isDesiredRaiseAmountHigherThanBlind();
+    hasMarkersForAmount();
+    return desiredRaiseAmount;
+  }
+
+  private void hasMarkersForAmount() {
+
+  }
+
+  private void isDesiredRaiseAmountHigherThanBlind() {
   }
 
   private boolean isRaising(String decision) {
@@ -509,7 +533,7 @@ public class PokerGame {
   }
 
   private void createRobotPlayers() {
-    System.out.println("How many players do you want to play with?");
+    System.out.println("How many players do you want to startGame with?");
     String numberOfPlayers = getCharFromKeyboard(Lists.newArrayList("1", "2", "3", "4", "5", "6"));
     switch (numberOfPlayers) {
       case "1":

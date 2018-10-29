@@ -155,4 +155,10 @@ public class Player {
     }
   }
 
+  public boolean hasMarkers() {
+    if (numberOfMarkers >= 0) {
+      return true;
+    }
+    return false;
+  }
 }
