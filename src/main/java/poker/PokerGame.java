@@ -37,7 +37,7 @@ public class PokerGame {
     playRound(players);
   }
 
-  private void playRound(List<Player> players) {
+  void playRound(List<Player> players) {
     turn = increaseTurn(turn);
     blind = increaseBlind();
     List<Player> playersStillInTheGame = Lists.newArrayList();
@@ -105,16 +105,24 @@ public class PokerGame {
       logger.debug("Set big blind to :[" + players.get(1).getName() + "]");
     } else {
       int indexOfLittleBlind = getPlayerWithLittleBlind(players);
-      players.get(indexOfLittleBlind).clearLittleBlind();
-      logger.debug("Clear little blind for :[" + players.get(0).getName() + "]");
+      int newIndexOfLittleBlind = 0;
+      if (indexOfLittleBlind < players.size() - 1) {
+        newIndexOfLittleBlind = indexOfLittleBlind + 1;
+      }
       int indexOfBigBlind = getPlayerWithBigBlind(players);
+      int newIndexOfBigBlind = 0;
+      if (indexOfBigBlind < players.size() - 1) {
+        newIndexOfBigBlind = indexOfBigBlind + 1;
+      }
+      players.get(indexOfLittleBlind).clearLittleBlind();
+      logger.debug("Clear little blind for :[" + players.get(indexOfLittleBlind).getName() + "]");
       players.get(indexOfBigBlind).clearBigBlind();
-      logger.debug("Clear big blind for :[" + players.get(0).getName() + "]");
+      logger.debug("Clear big blind for :[" + players.get(indexOfBigBlind).getName() + "]");
 
-      players.get(indexOfLittleBlind + 1).setLittleBlind(blind);
-      logger.debug("Set little blind to :[" + players.get(0).getName() + "]");
-      players.get(indexOfBigBlind + 1).setBigBlind(blind);
-      logger.debug("Set big blind to :[" + players.get(1).getName() + "]");
+      players.get(newIndexOfLittleBlind).setLittleBlind(blind);
+      logger.debug("Set little blind to :[" + players.get(newIndexOfLittleBlind).getName() + "]");
+      players.get(newIndexOfBigBlind).setBigBlind(blind);
+      logger.debug("Set big blind to :[" + players.get(newIndexOfBigBlind).getName() + "]");
     }
   }
 
@@ -125,6 +133,8 @@ public class PokerGame {
       }
     }
     throw new RuntimeException("No player has little blind");
+
+
   }
 
   private int getPlayerWithBigBlind(List<Player> players) {
@@ -198,7 +208,7 @@ public class PokerGame {
     return newTurn;
   }
 
-  private int increaseBlind() {
+  int increaseBlind() {
     return blind * 2;
   }
 
