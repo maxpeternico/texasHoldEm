@@ -1,5 +1,6 @@
 package poker;
 
+import org.junit.After;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -8,11 +9,11 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 public class TestBetting {
+  final PokerGame pokerGame = PokerGame.getInstance();
 
   @Test
   public void testPointsForPrivateHand() {
     // User 1 gets pair of aces and raises high
-    final PokerGame pokerGame = PokerGame.getInstance();
     Player jorn = new Player("Jörn", PokerGame.TOTAL_MARKERS_PER_PLAYER);
     pokerGame.registerRobotPlayer(jorn);
     List<Card> jornsPrivateHand = new ArrayList<>();
@@ -36,15 +37,11 @@ public class TestBetting {
     assertEquals(jornsBet, 300);
     assertEquals(staffansBet, 50);
 
-    pokerGame.clearGame();
-
   }
 
   @Test
   public void testBetPrivateHandsOneVeryGoodOneGoodOneBad() {
     // User 1 gets pair of aces and raises high
-    final PokerGame pokerGame = PokerGame.getInstance();
-
     Player staffan = new Player("Staffan", PokerGame.TOTAL_MARKERS_PER_PLAYER);
     pokerGame.registerRobotPlayer(staffan);
     List<Card> staffansPrivateHand = new ArrayList<>();
@@ -76,13 +73,11 @@ public class TestBetting {
     final String result = pokerGame.decideBet(playerList);
     assertEquals("Player Jörn raises 300. Player Staffan fold. Player Thomas checks. Player Jörn checks. Player Thomas checks. ", result);
 
-    pokerGame.clearGame();
   }
 
   @Test
   public void testFirstPlayerRaisesSecondPlayerRaisesEvenMore() {
     // User 1 gets pair of aces and raises high
-    final PokerGame pokerGame = PokerGame.getInstance();
     Player peter = new Player("Peter", PokerGame.TOTAL_MARKERS_PER_PLAYER);
     pokerGame.registerRobotPlayer(peter);
     List<Card> petersPrivateHand = new ArrayList<>();
@@ -103,14 +98,11 @@ public class TestBetting {
     pokerGame.setTurnForUnitTest(Turn.BEFORE_FLOP);
     final String result = pokerGame.decideBet(playerList);
     assertEquals("Player Peter raises 300. Player Thomas checks. Player Peter checks. Player Thomas checks. ", result);
-
-    pokerGame.clearGame();
   }
 
   @Test
   public void testBothPlayersRaisesMax() {
     // User 1 gets pair of aces and raises high
-    final PokerGame pokerGame = PokerGame.getInstance();
     Player peter = new Player("Peter", PokerGame.TOTAL_MARKERS_PER_PLAYER);
     pokerGame.registerRobotPlayer(peter);
     List<Card> petersPrivateHand = new ArrayList<>();
@@ -133,14 +125,11 @@ public class TestBetting {
     final String result = pokerGame.decideBet(playerList);
 
     assertEquals("Player Peter raises 300. Player Thomas checks. Player Peter checks. Player Thomas checks. ", result);
-
-    pokerGame.clearGame();
   }
 
 //  @Test
 //  public void testPot() {
 //    // User 1 gets pair of aces and raises high
-//    final PokerGame pokerGame = PokerGame.getInstance();
 //    Player jorn = new Player("Jörn", PokerGame.TOTAL_MARKERS_PER_PLAYER);
 //    pokerGame.registerRobotPlayer(jorn);
 //    List<Card> jornsPrivateHand = new ArrayList<>();
@@ -166,7 +155,10 @@ public class TestBetting {
 //    assertEquals(jornsMarkers, 2450);
 //    assertEquals(staffansMarkers, 2400);
 //
-//    pokerGame.clearGame();
-//
 //  }
+
+  @After
+  public void clearGame() {
+    pokerGame.clearGame();
+  }
 }
