@@ -28,7 +28,6 @@ public class TestBlinds {
     assertEquals(peter.hasBlind(), false);
     assertEquals(thomas.hasBlind(), false);
     assertEquals(ingemar.hasBlind(), false);
-    pokerGame.clearGame();
   }
 
   @Test
@@ -46,7 +45,6 @@ public class TestBlinds {
     assertEquals(peter.hasBlind(), false);
     assertEquals(thomas.hasLittleBlind(), true);
     assertEquals(ingemar.hasBigBlind(), true);
-    pokerGame.clearGame();
   }
 
   @Test
