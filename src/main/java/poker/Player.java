@@ -8,7 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 
-public class Player {
+public abstract class Player {
   private String name;
   private int numberOfMarkers = 0;
 
@@ -16,9 +16,9 @@ public class Player {
 
   private List<Card> cardsOnHand = new ArrayList<Card>();
   private int i = 0;
-  private boolean isRobot = false;
   private boolean bigBlind = false;
   private boolean littleBlind = false;
+  Strategy strategy = Strategy.NOT_DECIDED;
 
   public Player(String playerName, int totalMarkersPerPlayer) {
     this.name = playerName;
@@ -89,18 +89,6 @@ public class Player {
     return true;
   }
 
-  public void setToRobot() {
-    isRobot = true;
-  }
-
-  public void setToHuman() {
-    isRobot = false;
-  }
-
-  public boolean isHuman() {
-    return !isRobot;
-  }
-
   public int getNumberOfMarkers() {
     return numberOfMarkers;
   }
@@ -155,10 +143,63 @@ public class Player {
     }
   }
 
-  public boolean hasMarkers() {
+  public boolean hasAnyMarkers() {
     if (numberOfMarkers >= 0) {
       return true;
     }
     return false;
   }
+
+  protected boolean isDesiredRaiseAmountHigherThanBlind(int amount, int blind) {
+    if (amount > blind) {
+      System.out.println("You must raise more than blind");
+      return false;
+    }
+    if (!hasMarkersForAmount(amount)) {
+      System.out.println("You don't have makers for :[" + amount + "]");
+      return false;
+    }
+    return true;
+  }
+
+  public boolean hasMarkersForAmount(int amount) {
+    if (amount > numberOfMarkers) {
+      return false;
+    }
+    return true;
+  }
+
+  public abstract void decideStrategy(Turn turn, int numberOfRemainingPlayers, List<Card> commonHand, int blind);
+
+  public Decision getDecision(Turn turn, int numberOfRemainingPlayers, List<Card> commonHand, int blind, int maxRaiseFromOtherPlayer) {
+    decideStrategy(turn, numberOfRemainingPlayers, commonHand, blind);
+    Decision decision = null;
+    switch (strategy) {
+      case ALL_IN:
+      case OFFENSIVE:
+        final int raiseAmount = calculateRaiseAmount(blind, maxRaiseFromOtherPlayer);
+        if (raiseAmount > blind) {
+          decision = new Decision(DecisionEnum.RAISE);
+          decision.setRaiseValue(raiseAmount);
+        } else {
+          decision = new Decision(DecisionEnum.CHECK);
+        }
+        break;
+      case JOIN:
+        decision = new Decision(DecisionEnum.CHECK);
+        break;
+      case JOIN_IF_CHEAP:
+        if (hasBigBlind()) {
+          decision = new Decision(DecisionEnum.CHECK);
+        }
+        break;
+    default:
+        decision = new Decision(DecisionEnum.FOLD);
+      break;
+    }
+    logger.debug("Player " + getName() + " decides to :[" + decision + "]");
+    return decision;
+  }
+
+  protected abstract int calculateRaiseAmount(int blind, int maxRaiseFromOtherplayer);
 }

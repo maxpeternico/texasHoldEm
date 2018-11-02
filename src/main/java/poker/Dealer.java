@@ -149,7 +149,7 @@ class Dealer {
   void playPrivateHands() {
     players.stream().forEach(e -> playPrivateHand(e));
     players.stream().forEach(e -> {
-      if (e.hasMarkers()) {
+      if (e.hasAnyMarkers()) {
         playPrivateHand(e);
       }
     });

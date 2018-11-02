@@ -12,16 +12,17 @@ import static org.junit.Assert.assertTrue;
 public class SimulateMultipleGames {
 
   private static final Logger logger = LogManager.getLogger(SimulateMultipleGames.class.getName());
+  static final int TOTAL_MARKERS_PER_PLAYER = 2500;
   Dealer dealer = Dealer.getInstance();
 
   @Test
   public void simulateNormalGame() throws Exception {
-    dealer.registerPlayer(new Player("Thomas"));
-    dealer.registerPlayer(new Player("Jörn"));
-    dealer.registerPlayer(new Player("Anders"));
-    dealer.registerPlayer(new Player("Peter"));
-    dealer.registerPlayer(new Player("Bosse"));
-    dealer.registerPlayer(new Player("Ingemar"));
+    dealer.registerPlayer(new RobotPlayer("Thomas", TOTAL_MARKERS_PER_PLAYER));
+    dealer.registerPlayer(new RobotPlayer("Jörn", TOTAL_MARKERS_PER_PLAYER));
+    dealer.registerPlayer(new RobotPlayer("Anders", TOTAL_MARKERS_PER_PLAYER));
+    dealer.registerPlayer(new RobotPlayer("Peter", TOTAL_MARKERS_PER_PLAYER));
+    dealer.registerPlayer(new RobotPlayer("Bosse", TOTAL_MARKERS_PER_PLAYER));
+    dealer.registerPlayer(new RobotPlayer("Ingemar", TOTAL_MARKERS_PER_PLAYER));
     for (int i = 0; i < 10000; i++) {
       dealer.play();
       dealer.findTheWinner();
@@ -54,13 +55,13 @@ public class SimulateMultipleGames {
 
   //@Test
   public void testWinWithTopCard() throws Exception {
-    Player peter = dealer.registerPlayer(new Player("Peter"));
+    Player peter = dealer.registerPlayer(new RobotPlayer("Peter", TOTAL_MARKERS_PER_PLAYER));
 
-    Player thomas = dealer.registerPlayer(new Player("Thomas"));
-    Player jorn = dealer.registerPlayer(new Player("Jörn"));
-    Player anders = dealer.registerPlayer(new Player("Anders"));
-    Player bosse = dealer.registerPlayer(new Player("Bosse"));
-    Player ingemar = dealer.registerPlayer(new Player("Ingemar"));
+    Player thomas = dealer.registerPlayer(new RobotPlayer("Thomas", TOTAL_MARKERS_PER_PLAYER));
+    Player jorn = dealer.registerPlayer(new RobotPlayer("Jörn", TOTAL_MARKERS_PER_PLAYER));
+    Player anders = dealer.registerPlayer(new RobotPlayer("Anders", TOTAL_MARKERS_PER_PLAYER));
+    Player bosse = dealer.registerPlayer(new RobotPlayer("Bosse", TOTAL_MARKERS_PER_PLAYER));
+    Player ingemar = dealer.registerPlayer(new RobotPlayer("Ingemar", TOTAL_MARKERS_PER_PLAYER));
     EvaluationHandler.initDrawnCardStatistics();
 
     for (Ordinal ordinal : Ordinal.values()) {
@@ -97,12 +98,12 @@ public class SimulateMultipleGames {
 
   // @Test
   public void testWinWithPairOnHand() {
-    Player peter = dealer.registerPlayer(new Player("Peter"));
-    Player thomas = dealer.registerPlayer(new Player("Thomas"));
-    Player jorn = dealer.registerPlayer(new Player("Jörn"));
-    Player anders = dealer.registerPlayer(new Player("Anders"));
-    Player bosse = dealer.registerPlayer(new Player("Bosse"));
-    Player ingemar = dealer.registerPlayer(new Player("Ingemar"));
+    Player peter = dealer.registerPlayer(new RobotPlayer("Peter", TOTAL_MARKERS_PER_PLAYER));
+    Player thomas = dealer.registerPlayer(new RobotPlayer("Thomas", TOTAL_MARKERS_PER_PLAYER));
+    Player jorn = dealer.registerPlayer(new RobotPlayer("Jörn", TOTAL_MARKERS_PER_PLAYER));
+    Player anders = dealer.registerPlayer(new RobotPlayer("Anders", TOTAL_MARKERS_PER_PLAYER));
+    Player bosse = dealer.registerPlayer(new RobotPlayer("Bosse", TOTAL_MARKERS_PER_PLAYER));
+    Player ingemar = dealer.registerPlayer(new RobotPlayer("Ingemar", TOTAL_MARKERS_PER_PLAYER));
     for (Ordinal ordinal : Ordinal.values()) {
       logger.info("Checking statistics when peter gets pair of:[" + ordinal.toString() + "]");
       for (int i = 0; i < 10000; i++) {
@@ -133,12 +134,12 @@ public class SimulateMultipleGames {
 
   //@Test
   public void testWinWithPairOnFlop() {
-    Player peter = dealer.registerPlayer(new Player("Peter"));
-    Player thomas = dealer.registerPlayer(new Player("Thomas"));
-    Player jorn = dealer.registerPlayer(new Player("Jörn"));
-    Player anders = dealer.registerPlayer(new Player("Anders"));
-    Player bosse = dealer.registerPlayer(new Player("Bosse"));
-    Player ingemar = dealer.registerPlayer(new Player("Ingemar"));
+    Player peter = dealer.registerPlayer(new RobotPlayer("Peter", TOTAL_MARKERS_PER_PLAYER));
+    Player thomas = dealer.registerPlayer(new RobotPlayer("Thomas", TOTAL_MARKERS_PER_PLAYER));
+    Player jorn = dealer.registerPlayer(new RobotPlayer("Jörn", TOTAL_MARKERS_PER_PLAYER));
+    Player anders = dealer.registerPlayer(new RobotPlayer("Anders", TOTAL_MARKERS_PER_PLAYER));
+    Player bosse = dealer.registerPlayer(new RobotPlayer("Bosse", TOTAL_MARKERS_PER_PLAYER));
+    Player ingemar = dealer.registerPlayer(new RobotPlayer("Ingemar", TOTAL_MARKERS_PER_PLAYER));
     for (Ordinal ordinal : Ordinal.values()) {
       logger.info("Checking statistics when peter gets pair of:[" + ordinal.toString() + "]");
       for (int i = 0; i < 10000; i++) {
@@ -170,10 +171,10 @@ public class SimulateMultipleGames {
 
   //@Test
   public void testWinWithTrippleAfterFlop() {
-    Player peter = dealer.registerPlayer(new Player("Peter"));
-    Player thomas = dealer.registerPlayer(new Player("Thomas"));
-    Player jorn = dealer.registerPlayer(new Player("Jörn"));
-    Player anders = dealer.registerPlayer(new Player("Anders"));
+    Player peter = dealer.registerPlayer(new RobotPlayer("Peter", TOTAL_MARKERS_PER_PLAYER));
+    Player thomas = dealer.registerPlayer(new RobotPlayer("Thomas", TOTAL_MARKERS_PER_PLAYER));
+    Player jorn = dealer.registerPlayer(new RobotPlayer("Jörn", TOTAL_MARKERS_PER_PLAYER));
+    Player anders = dealer.registerPlayer(new RobotPlayer("Anders", TOTAL_MARKERS_PER_PLAYER));
     for (Ordinal ordinal : Ordinal.values()) {
       logger.info("Checking statistics when peter gets a tripple of:[" + ordinal.toString() + "] after flop");
       for (int i = 0; i < 1000; i++) {
@@ -203,10 +204,10 @@ public class SimulateMultipleGames {
 
   //@Test
   public void testWinWithTrippleAfterFlopPairOnTable() {
-    Player peter = dealer.registerPlayer(new Player("Peter"));
-    Player thomas = dealer.registerPlayer(new Player("Thomas"));
-    Player jorn = dealer.registerPlayer(new Player("Jörn"));
-    Player anders = dealer.registerPlayer(new Player("Anders"));
+    Player peter = dealer.registerPlayer(new RobotPlayer("Peter", TOTAL_MARKERS_PER_PLAYER));
+    Player thomas = dealer.registerPlayer(new RobotPlayer("Thomas", TOTAL_MARKERS_PER_PLAYER));
+    Player jorn = dealer.registerPlayer(new RobotPlayer("Jörn", TOTAL_MARKERS_PER_PLAYER));
+    Player anders = dealer.registerPlayer(new RobotPlayer("Anders", TOTAL_MARKERS_PER_PLAYER));
     for (Ordinal ordinal : Ordinal.values()) {
       logger.info("Checking statistics when peter gets a tripple of:[" + ordinal.toString() + "] after flop with pair on the flop.");
       for (int i = 0; i < 1000; i++) {
@@ -237,10 +238,10 @@ public class SimulateMultipleGames {
 
   //@Test
   public void testWinWithTwoPair() {
-    Player peter = dealer.registerPlayer(new Player("Peter"));
-    Player thomas = dealer.registerPlayer(new Player("Thomas"));
-    Player jorn = dealer.registerPlayer(new Player("Jörn"));
-    Player anders = dealer.registerPlayer(new Player("Anders"));
+    Player peter = dealer.registerPlayer(new RobotPlayer("Peter", TOTAL_MARKERS_PER_PLAYER));
+    Player thomas = dealer.registerPlayer(new RobotPlayer("Thomas", TOTAL_MARKERS_PER_PLAYER));
+    Player jorn = dealer.registerPlayer(new RobotPlayer("Jörn", TOTAL_MARKERS_PER_PLAYER));
+    Player anders = dealer.registerPlayer(new RobotPlayer("Anders", TOTAL_MARKERS_PER_PLAYER));
     for (Ordinal ordinal : Ordinal.values()) {
       if (ordinal.getValue() > Ordinal.two.getValue()) { // Don't want to test foursome
         logger.info("Checking statistics when peter gets two pair of twos and :[" + ordinal.toString() + "].");

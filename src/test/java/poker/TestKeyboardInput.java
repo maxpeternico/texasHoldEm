@@ -65,7 +65,7 @@ public class TestKeyboardInput {
     PokerGame pokerGame = new PokerGame();
     do {
       input = askForInput;
-    } while (!pokerGame.allowedCharacterIsPressed(input, allowedCharacters));
+    } while (!KeyboardHelper.allowedCharacterIsPressed(input, allowedCharacters));
     return input;
   }
 

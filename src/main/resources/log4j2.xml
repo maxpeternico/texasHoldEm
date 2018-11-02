@@ -12,6 +12,12 @@
         <Logger name="poker.EvaluationHandler" level="info" additivity="false">
             <AppenderRef ref="Console" />
         </Logger>
+        <Logger name="poker.RobotPlayer" level="debug" additivity="false">
+            <AppenderRef ref="Console" />
+        </Logger>
+        <Logger name="poker.Player" level="debug" additivity="false">
+            <AppenderRef ref="Console" />
+        </Logger>
         <Root level="info">
             <AppenderRef ref="Console" />
         </Root>

@@ -6,8 +6,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
-import static poker.Strategy.OFFENSIVE;
-
 public class PokerGame {
   private static final int FOLD_LEVEL = -100;
   private Dealer dealer;
@@ -42,7 +40,7 @@ public class PokerGame {
     blind = increaseBlind();
     List<Player> playersStillInTheGame = Lists.newArrayList();
     players.stream().forEach(e -> {
-      if (e.hasMarkers()) {
+      if (e.hasAnyMarkers()) {
         playersStillInTheGame.add(e);
       } else {
         System.out.println("Player :[" + e.getName() + "] left the game.");
@@ -65,8 +63,6 @@ public class PokerGame {
     dealer.drawFlop();
     System.out.println("Total hand after flop: ");
     printHumanHand();
-    String decision = getCharFromKeyboard(Lists.newArrayList("R", "C", "F"));
-    if (isFolding(decision)) return;
     decideBet(playersStillInTheGame);
 
     /********************************* TURN *************************************************/
@@ -74,8 +70,6 @@ public class PokerGame {
     dealer.drawTurn();
     System.out.println("Total hand after turn: ");
     printHumanHand();
-    decision = getCharFromKeyboard(Lists.newArrayList("R", "C", "F"));
-    if (isFolding(decision)) return;
     decideBet(playersStillInTheGame);
 
     /********************************* RIVER *************************************************/
@@ -83,8 +77,6 @@ public class PokerGame {
     dealer.drawRiver();
     System.out.println("Total hand after river: ");
     printHumanHand();
-    decision = getCharFromKeyboard(Lists.newArrayList("R", "C", "F"));
-    if (isFolding(decision)) return;
     decideBet(playersStillInTheGame);
 
     /********************************* FIND THE WINNER *************************************************/
@@ -161,7 +153,7 @@ public class PokerGame {
     final List<Player> players = dealer.getPlayers();
     String humanPlayer = "";
     for (Player player : players) {
-      if (player.isHuman()) {
+      if (player instanceof HumanPlayer) {
         humanPlayer = player.getName();
       }
     }
@@ -184,10 +176,9 @@ public class PokerGame {
   }
 
   private Player createHumanPlayer() {
-    String playerName = askForInput("Enter your name: ");
+    String playerName = KeyboardHelper.askForInput("Enter your name: ");
     System.out.println("Welcome [" + playerName + "]");
-    final Player humanPlayer = new Player(playerName, TOTAL_MARKERS_PER_PLAYER);
-    humanPlayer.setToHuman();
+    final Player humanPlayer = new HumanPlayer(playerName, TOTAL_MARKERS_PER_PLAYER);
     dealer.registerPlayer(humanPlayer);
     return humanPlayer;
   }
@@ -226,52 +217,46 @@ public class PokerGame {
         if (isPlayerStillInTheGame(player, removePlayers)) {
           logger.debug("player :[" + player + "] doRaise: [" + doRaise[remainingPlayers.indexOf(player)] + "]. maxRaiseFromOtherPlayer:[" + maxRaiseFromOtherplayer + "] numbersOfMarkers :[" + player.getNumberOfMarkers() + "] pot :[" + pot + "]");
           Boolean isRaise = false;
-          String playerDecision = "";
 
-          if (player.isHuman()) {
-            String decision = getCharFromKeyboard(Lists.newArrayList("R", "C", "F"));
-            if (isFolding(decision)) {
-              isRaise = false;
-              removePlayers.add(player);
-            } else if (isChecking(decision)) {
-              // Put player money in pot
-              isRaise = false;
-            } else if (isRaising(decision)) {
-              isRaise = true;
-              int raiseAmount = getRaiseAmount(player);
-              totalRaiseAmount = raiseAmount - maxRaiseFromOtherplayer;
-              maxRaiseFromOtherplayer += totalRaiseAmount;
-            }
-          } else {
-            int raiseAmount = evaluateOwnHand(player, remainingPlayers.size());
-            boolean fold = doFold(raiseAmount, maxRaiseFromOtherplayer);
-            if (fold) {
-              isRaise = false;
-              playerDecision = "Player " + player.getName() + " fold. ";
-              System.out.println(playerDecision);
-              removePlayers.add(player);
-            } else {
-              isRaise = doRaise(raiseAmount, maxRaiseFromOtherplayer);
-              if (isRaise) {
-                totalRaiseAmount = raiseAmount - maxRaiseFromOtherplayer;
-                maxRaiseFromOtherplayer += totalRaiseAmount;
-                playerDecision = "Player " + player.getName() + " raises " + totalRaiseAmount + ". ";
-                System.out.println(playerDecision);
-              } else {
-                playerDecision = "Player " + player.getName() + " checks. ";
-                System.out.println(playerDecision);
-              }
-            }
+          Decision decision = player.getDecision(turn, remainingPlayers.size(), dealer.getCommonHand(), blind, maxRaiseFromOtherplayer);
+          if (decision.isRaise()) {
+            maxRaiseFromOtherplayer += decision.getRaiseAmount();
           }
+          removePlayerIfFold(player);
+
+//          } else {
+//            int raiseAmount = evaluateOwnHand(player, remainingPlayers.size());
+//            boolean fold = doFold(raiseAmount, maxRaiseFromOtherplayer);
+//            if (fold) {
+//              isRaise = false;
+//              playerDecision = "Player " + player.getName() + " fold. ";
+//              System.out.println(playerDecision);
+//              removePlayers.add(player);
+//            } else {
+//              isRaise = doRaise(raiseAmount, maxRaiseFromOtherplayer);
+//              if (isRaise) {
+//                totalRaiseAmount = raiseAmount - maxRaiseFromOtherplayer;
+//                maxRaiseFromOtherplayer += totalRaiseAmount;
+//                playerDecision = "Player " + player.getName() + " raises " + totalRaiseAmount + ". ";
+//                System.out.println(playerDecision);
+//              } else {
+//                playerDecision = "Player " + player.getName() + " checks. ";
+//                System.out.println(playerDecision);
+//              }
+//            }
+//          }
           pot += totalRaiseAmount;
           doRaise[remainingPlayers.indexOf(player)] = isRaise;
-          result.append(playerDecision);
+          result.append("Player " + player.getName() + " " + decision.toString() + ". ");
         }
       }
-    } while (anyOneIsRaising(doRaise));
+    }
+    while (anyOneIsRaising(doRaise));
     putCardsFromHandOfRemovedPlayersBackInDeck(remainingPlayers, removePlayers);
     return result.toString();
+  }
 
+  private void removePlayerIfFold(Player player) {
   }
 
   private void putCardsFromHandOfRemovedPlayersBackInDeck(List<Player> remainingPlayers, List<Player> removePlayers) {
@@ -348,36 +333,6 @@ public class PokerGame {
     return !removePlayers.contains(player);
   }
 
-  private int getRaiseAmount(Player player) {
-    final int desiredRaiseAmount = Integer.parseInt(getCharFromKeyboard(Lists.newArrayList("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")));
-    isDesiredRaiseAmountHigherThanBlind();
-    hasMarkersForAmount();
-    return desiredRaiseAmount;
-  }
-
-  private void hasMarkersForAmount() {
-
-  }
-
-  private void isDesiredRaiseAmountHigherThanBlind() {
-  }
-
-  private boolean isRaising(String decision) {
-    if (decision.equals("R")) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  private boolean isChecking(String decision) {
-    if (decision.equals("C")) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   private boolean doFold(int raiseByEvaluatingOwnHand, int maxRaiseFromOtherplayer) {
     int risk = raiseByEvaluatingOwnHand - maxRaiseFromOtherplayer;
     logger.debug("raiseByEvaluatingOwnHand: [" + raiseByEvaluatingOwnHand + "] maxRaiseFromOtherplayer: [" + maxRaiseFromOtherplayer + "] fold level: [" + FOLD_LEVEL + "]");
@@ -405,225 +360,66 @@ public class PokerGame {
     }
   }
 
-  int evaluateOwnHand(Player player, int numberOfRemainingPlayers) {
-    Points points = calculatePoints(player, numberOfRemainingPlayers);
-    Strategy strategy = decideBetStrategy(points, player.getNumberOfMarkers());
-    logger.debug(player.getName() + " has strategy " + strategy.toString());
-    int raiseAmount = decideRaiseAmount(player, strategy);
-    return raiseAmount;
-  }
-
-  private int decideRaiseAmount(Player player, Strategy strategy) {
-    int raiseAmount = 0;
-
-    // Depending on strategy, pot and blind
-    // low blind, offensive raises more, the rest joins
-    // medium blind, offensive raises more, join joins, join if cheap drops
-    // high blind offensive sets rise as blind, rest folds
-    switch (strategy) {
-      case OFFENSIVE:
-        // TODO: Ser percentage of number of markers instead
-        raiseAmount = 300;
-        break;
-      case JOIN:
-        raiseAmount = 100;
-        break;
-      case JOIN_IF_CHEAP:
-        raiseAmount = 50;
-        break;
-    }
-    return raiseAmount;
-  }
-
-  private Points calculatePoints(Player player, int numberOfRemainingPlayers) {
-    Points points = new Points();
-    int commonPoints = 0;
-    int privatePoints = calculatePrivatePoints(dealer.getPlayerHand(player.getName()), player);
-    logger.debug(player.getName() + " private points: " + privatePoints);
-    privatePoints = compensatePrivateHandWithNumberOfPlayers(privatePoints, numberOfRemainingPlayers);
-    if (turn != Turn.BEFORE_FLOP) {
-      commonPoints = calculateCommonPoints(numberOfRemainingPlayers);
-    }
-    logger.debug(player.getName() + " private points compensated: " + privatePoints + " common points compensated: " + commonPoints);
-    points.privatePoints = privatePoints;
-    points.commonPoints = commonPoints;
-    return points;
-  }
-
-  /**
-   * If lower than 4 players, an average hand may be a real good one
-   */
-  private int compensatePrivateHandWithNumberOfPlayers(int privatePoints, int numberOfRemainingPlayers) {
-    if (numberOfRemainingPlayers == 3) {
-      privatePoints = privatePoints * 2;
-    } else if (numberOfRemainingPlayers == 2) {
-      privatePoints = privatePoints * 3;
-    }
-    return privatePoints;
-  }
-
-  private int calculateCommonPoints(int numberOfRemainingPlayers) {
-    final List<Card> commonHand = dealer.getCommonHand();
-    final Map<Card, PokerResult> commonPointsMap = EvaluationHandler.evaluateHand("common", commonHand);
-    int commonHandPoints = EvaluationHandler.getResultFromCardPokerResultMap(commonPointsMap).getPoints();
-    // less probability that a common hand might fit another players hand
-    if (numberOfRemainingPlayers < 4) {
-      commonHandPoints = commonHandPoints / 2;
-    }
-    return commonHandPoints;
-  }
-
-  /**
-   * Since privatePoints is compensated by the number of players there is no need to consider number of players here
-   */
-  private Strategy decideBetStrategy(Points points, int numberOfMarkers) {
-    switch (turn) {
-      case BEFORE_FLOP:
-        // No common hand to care
-        // Pair is good, raise or go all in if pot is big
-        if (points.privatePoints > 113) {
-          // Pair of aces and higher
-          return OFFENSIVE;
-        }
-        // Pair
-        if (points.privatePoints > 100) {
-          return Strategy.JOIN;
-        }
-        break;
-      case BEFORE_TURN:
-        // Pair of aces is good or anything higher, raise or go all in if pott is big
-        // Low pair, join unless too expensive
-        // Bad cards, try to join if cheap otherwise fold
-        break;
-      case BEFORE_RIVER:
-        // Pair of aces is good or anything higher, raise or go all in if pott is big
-        // Low pair, join unless too expensive
-        // Bad cards, try to join if cheap otherwise fold
-        break;
-      case END_GAME:
-        break;
-    }
-    return Strategy.JOIN_IF_CHEAP;
-
-//    if (points.privatePoints > 113) { // Pair of aces and higher
-//      if (points.commonPoints < 50) {
-//        // TODO: calculateRaiseAmount(privatePoints, commonPoints, sizeOfBlind, moneyLeft)
-//        // raise
-//        raiseAmount = 100;
-//      } else {
-//        // raise only if no other raises
-//        raiseAmount = 50;
-//      }
-//    } else if (points.privatePoints > 10) {
-//      if (points.commonPoints < 5) {
-//        // raise if no one else has raised
-//        raiseAmount = 10;
-//      } else {
-//        // don't raise, join if blind is cheap otherwise fold
-//        raiseAmount = 5;
-//      }
-//    } else if (points.privatePoints > 5) {
-//      if (points.commonPoints < 5) {
-//        // raise if no one else has raised
-//        raiseAmount = 5;
-//      } else {
-//        // don't raise, join if blind is cheap otherwise fold
-//        raiseAmount = 0;
-//      }
-//    } else {
-//      // don't raise, join if blind is cheap otherwise fold
-//      raiseAmount = 0;
-//    }
-
-  }
-
-  private int calculatePrivatePoints(List<Card> hand, Player player) {
-    final Map<Card, PokerResult> cardPokerResultMap = EvaluationHandler.evaluateHand(player.getName(), hand);
-    return EvaluationHandler.calculatePointsFromHand(cardPokerResultMap);
-  }
-
   private void createRobotPlayers() {
     System.out.println("How many players do you want to startGame with?");
-    String numberOfPlayers = getCharFromKeyboard(Lists.newArrayList("1", "2", "3", "4", "5", "6"));
+    String numberOfPlayers = KeyboardHelper.getCharFromKeyboard(Lists.newArrayList("1", "2", "3", "4", "5", "6"), "(R)aise/(C)heck/(F)old:");
     switch (numberOfPlayers) {
       case "1":
-        Player player = new Player("Thomas", TOTAL_MARKERS_PER_PLAYER);
-        player.setToRobot();
+        Player player = new RobotPlayer("Thomas", TOTAL_MARKERS_PER_PLAYER);
         dealer.registerPlayer(player);
         break;
       case "2":
-        player = new Player("Thomas", TOTAL_MARKERS_PER_PLAYER);
-        player.setToRobot();
+        player = new RobotPlayer("Thomas", TOTAL_MARKERS_PER_PLAYER);
         dealer.registerPlayer(player);
-        player = new Player("Jörn", TOTAL_MARKERS_PER_PLAYER);
-        player.setToRobot();
+        player = new RobotPlayer("Jörn", TOTAL_MARKERS_PER_PLAYER);
         dealer.registerPlayer(player);
         break;
       case "3":
-        player = new Player("Thomas", TOTAL_MARKERS_PER_PLAYER);
-        player.setToRobot();
+        player = new RobotPlayer("Thomas", TOTAL_MARKERS_PER_PLAYER);
         dealer.registerPlayer(player);
-        player = new Player("Jörn", TOTAL_MARKERS_PER_PLAYER);
-        player.setToRobot();
+        player = new RobotPlayer("Jörn", TOTAL_MARKERS_PER_PLAYER);
         dealer.registerPlayer(player);
-        player = new Player("Anders", TOTAL_MARKERS_PER_PLAYER);
-        player.setToRobot();
+        player = new RobotPlayer("Anders", TOTAL_MARKERS_PER_PLAYER);
         dealer.registerPlayer(player);
         break;
       case "4":
-        player = new Player("Thomas", TOTAL_MARKERS_PER_PLAYER);
-        player.setToRobot();
+        player = new RobotPlayer("Thomas", TOTAL_MARKERS_PER_PLAYER);
         dealer.registerPlayer(player);
-        player = new Player("Jörn", TOTAL_MARKERS_PER_PLAYER);
-        player.setToRobot();
+        player = new RobotPlayer("Jörn", TOTAL_MARKERS_PER_PLAYER);
         dealer.registerPlayer(player);
-        player = new Player("Anders", TOTAL_MARKERS_PER_PLAYER);
-        player.setToRobot();
+        player = new RobotPlayer("Anders", TOTAL_MARKERS_PER_PLAYER);
         dealer.registerPlayer(player);
-        player = new Player("Bosse", TOTAL_MARKERS_PER_PLAYER);
-        player.setToRobot();
+        player = new RobotPlayer("Bosse", TOTAL_MARKERS_PER_PLAYER);
         dealer.registerPlayer(player);
         break;
       case "5":
-        player = new Player("Thomas", TOTAL_MARKERS_PER_PLAYER);
-        player.setToRobot();
+        player = new RobotPlayer("Thomas", TOTAL_MARKERS_PER_PLAYER);
         dealer.registerPlayer(player);
-        player = new Player("Jörn", TOTAL_MARKERS_PER_PLAYER);
-        player.setToRobot();
+        player = new RobotPlayer("Jörn", TOTAL_MARKERS_PER_PLAYER);
         dealer.registerPlayer(player);
-        player = new Player("Anders", TOTAL_MARKERS_PER_PLAYER);
-        player.setToRobot();
+        player = new RobotPlayer("Anders", TOTAL_MARKERS_PER_PLAYER);
         dealer.registerPlayer(player);
-        player = new Player("Bosse", TOTAL_MARKERS_PER_PLAYER);
-        player.setToRobot();
+        player = new RobotPlayer("Bosse", TOTAL_MARKERS_PER_PLAYER);
         dealer.registerPlayer(player);
-        player = new Player("Ingemar", TOTAL_MARKERS_PER_PLAYER);
-        player.setToRobot();
+        player = new RobotPlayer("Ingemar", TOTAL_MARKERS_PER_PLAYER);
         dealer.registerPlayer(player);
         break;
       case "6":
-        player = new Player("Thomas", TOTAL_MARKERS_PER_PLAYER);
-        player.setToRobot();
+        player = new RobotPlayer("Thomas", TOTAL_MARKERS_PER_PLAYER);
         dealer.registerPlayer(player);
-        player = new Player("Jörn", TOTAL_MARKERS_PER_PLAYER);
-        player.setToRobot();
+        player = new RobotPlayer("Jörn", TOTAL_MARKERS_PER_PLAYER);
         dealer.registerPlayer(player);
-        player = new Player("Anders", TOTAL_MARKERS_PER_PLAYER);
-        player.setToRobot();
+        player = new RobotPlayer("Anders", TOTAL_MARKERS_PER_PLAYER);
         dealer.registerPlayer(player);
-        player = new Player("Bosse", TOTAL_MARKERS_PER_PLAYER);
-        player.setToRobot();
+        player = new RobotPlayer("Bosse", TOTAL_MARKERS_PER_PLAYER);
         dealer.registerPlayer(player);
-        player = new Player("Ingemar", TOTAL_MARKERS_PER_PLAYER);
-        player.setToRobot();
+        player = new RobotPlayer("Ingemar", TOTAL_MARKERS_PER_PLAYER);
         dealer.registerPlayer(player);
-        player = new Player("Staffan", TOTAL_MARKERS_PER_PLAYER);
-        player.setToRobot();
+        player = new RobotPlayer("Staffan", TOTAL_MARKERS_PER_PLAYER);
         dealer.registerPlayer(player);
         break;
       default:
         throw new RuntimeException("Number of players should be between 1 and 6: " + numberOfPlayers);
-
     }
   }
 
@@ -645,53 +441,17 @@ public class PokerGame {
     }
   }
 
-  private boolean isFolding(String decision) {
-    if (decision.equals("F")) {
-      System.out.println("You fold! Bye");
-      return true;
-    }
-    return false;
-  }
-
-  boolean allowedCharacterIsPressed(String input, List<String> allowedCharacters) {
-    final char[] inputCharArray = input.toCharArray();
-    for (char inputChar : inputCharArray) {
-      for (String allowedCharacter : allowedCharacters) {
-        if (allowedCharacter.contains(String.valueOf(inputChar))) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  private String askForInput(String message) {
-    System.out.println(message);
-    Scanner keyboard = new Scanner(System.in);
-    String input = keyboard.next();
-    return input;
-  }
-
-  private String getCharFromKeyboard(List<String> allowedCharacters) {
-    String input = "";
-    do {
-      input = askForInput("Select :" + allowedCharacters.toString());
-    } while (!allowedCharacterIsPressed(input, allowedCharacters));
-    return input;
-  }
-
-  public void registerRobotPlayer(Player player) {
-    player.setToRobot();
-    dealer.registerPlayer(player);
-  }
-
   public void setPrivateHand(Player player, List<Card> privateHand) {
     dealer.setPrivateHand(player, privateHand);
   }
 
-  public int betPrivateHand(Player player, int numberOfPlayers) {
-    return evaluateOwnHand(player, numberOfPlayers);
-  }
+//  public int betPrivateHand(Player player, int numberOfPlayers) {
+//    final Decision decision = player.getDecision(turn, numberOfPlayers, dealer.getPlayerHand(player.getName()), blind, 0);
+//    if (decision.isRaise()) {
+//      return decision.getRaiseAmount();
+//    }
+//    return 0;
+//  }
 
   public void clearGame() {
     dealer.clearGame();
@@ -701,8 +461,7 @@ public class PokerGame {
     turn = beforeFlop;
   }
 
-  private class Points {
-    int privatePoints;
-    int commonPoints;
+  void registerPlayer(Player player) {
+    dealer.registerPlayer(player);
   }
 }
