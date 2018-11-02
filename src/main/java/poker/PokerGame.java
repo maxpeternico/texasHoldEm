@@ -361,8 +361,8 @@ public class PokerGame {
   }
 
   private void createRobotPlayers() {
-    System.out.println("How many players do you want to startGame with?");
-    String numberOfPlayers = KeyboardHelper.getCharFromKeyboard(Lists.newArrayList("1", "2", "3", "4", "5", "6"), "(R)aise/(C)heck/(F)old:");
+    System.out.println("How many players do you want to play with?");
+    String numberOfPlayers = KeyboardHelper.getCharFromKeyboard(Lists.newArrayList("1", "2", "3", "4", "5", "6"), "[1-6]:");
     switch (numberOfPlayers) {
       case "1":
         Player player = new RobotPlayer("Thomas", TOTAL_MARKERS_PER_PLAYER);
