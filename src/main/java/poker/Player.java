@@ -202,4 +202,8 @@ public abstract class Player {
   }
 
   protected abstract int calculateRaiseAmount(int blind, int maxRaiseFromOtherplayer);
+
+  public void addMarkers(int pot) {
+    numberOfMarkers = numberOfMarkers + pot;
+  }
 }

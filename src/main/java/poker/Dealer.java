@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.*;
 
 import static java.util.Arrays.stream;
+import static sun.audio.AudioPlayer.player;
 
 
 class Dealer {
@@ -148,11 +149,11 @@ class Dealer {
 
   void playPrivateHands() {
     players.stream().forEach(e -> playPrivateHand(e));
-    players.stream().forEach(e -> {
-      if (e.hasAnyMarkers()) {
-        playPrivateHand(e);
-      }
-    });
+//    players.stream().forEach(e -> {
+//      if (e.hasAnyMarkers()) {
+//        playPrivateHand(e);
+//      }
+//    });
   }
 
   private void rotateDealer() {
@@ -312,22 +313,38 @@ class Dealer {
   }
 
   public Player findTheWinner() {
+    return findTheWinner(null);
+  }
+
+  public Player findTheWinner(List<Player> playersStillInTheGame) {
     Player winner = null;
     Map<Card, PokerResult> highScore = new HashMap<Card, PokerResult>();
     highScore.put(EvaluationHandler.getLeastValueableCard(), new PokerResult(PokerHand.NO_RESULT));
     for (Player player : dealer.getPlayers()) {
-      Map<Card, PokerResult> result = dealer.playRiver(player);
-      logResult(player, result, highScore);
-      if (EvaluationHandler.isResultFromLatestPlayerHigherThanHighScore(result, highScore)) {
-        highScore.clear();
-        highScore.putAll(result);
-        winner = player;
+      if (isPlayerStillInTheGame(playersStillInTheGame, player)) {
+        Map<Card, PokerResult> result = player.evaluateHand(commonHand);
+        logResult(player, result, highScore);
+        if (EvaluationHandler.isResultFromLatestPlayerHigherThanHighScore(result, highScore)) {
+          highScore.clear();
+          highScore.putAll(result);
+          winner = player;
+        }
       }
     }
     dealer.updateWinStatistics(winner, highScore);
     logger.info(
             "And the winner is:[" + winner.getName() + "] with highscore :[" + printPokerResult(highScore) + "]");
     return winner;
+  }
+
+  private boolean isPlayerStillInTheGame(List<Player> playersStillInTheGame, Player player) {
+    if (playersStillInTheGame == null) {
+      return true;
+    }
+    if (playersStillInTheGame.contains(player)) {
+      return true;
+    }
+    return false;
   }
 
   private void logResult(Player player, Map<Card, PokerResult> result, Map<Card, PokerResult> highScore) {

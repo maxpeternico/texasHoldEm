@@ -36,9 +36,8 @@ public class PokerGame {
   }
 
   void playRound(List<Player> players) {
-    turn = increaseTurn(turn);
-    blind = increaseBlind();
     List<Player> playersStillInTheGame = Lists.newArrayList();
+
     players.stream().forEach(e -> {
       if (e.hasAnyMarkers()) {
         playersStillInTheGame.add(e);
@@ -83,6 +82,11 @@ public class PokerGame {
 
     final Player theWinner = dealer.findTheWinner();
     checkTotalHand(dealer, theWinner.getName(), theWinner.getPrivateHand());
+    theWinner.addMarkers(pot);
+    System.out.println("Player :[" + theWinner.getName() + "] wins :[" + pot + "] markers.");
+    turn = increaseTurn(turn);
+    blind = increaseBlind();
+    pot = 0;
     dealer.putCardsBackIntoDeck();
   }
 
@@ -209,7 +213,7 @@ public class PokerGame {
     Boolean[] doRaise = initDoRaise(remainingPlayers);
 
     payBlinds(result, remainingPlayers, removePlayers);
-
+    pot = getValueOfLittleAndBigBlind();
     int maxRaiseFromOtherplayer = 0;
     do {
       for (Player player : remainingPlayers) {
@@ -221,31 +225,12 @@ public class PokerGame {
           Decision decision = player.getDecision(turn, remainingPlayers.size(), dealer.getCommonHand(), blind, maxRaiseFromOtherplayer);
           if (decision.isRaise()) {
             maxRaiseFromOtherplayer += decision.getRaiseAmount();
+            totalRaiseAmount += maxRaiseFromOtherplayer;
+            logger.debug(" totalRaiseAmount :[" + totalRaiseAmount + "]. ");
           }
           removePlayerIfFold(player);
-
-//          } else {
-//            int raiseAmount = evaluateOwnHand(player, remainingPlayers.size());
-//            boolean fold = doFold(raiseAmount, maxRaiseFromOtherplayer);
-//            if (fold) {
-//              isRaise = false;
-//              playerDecision = "Player " + player.getName() + " fold. ";
-//              System.out.println(playerDecision);
-//              removePlayers.add(player);
-//            } else {
-//              isRaise = doRaise(raiseAmount, maxRaiseFromOtherplayer);
-//              if (isRaise) {
-//                totalRaiseAmount = raiseAmount - maxRaiseFromOtherplayer;
-//                maxRaiseFromOtherplayer += totalRaiseAmount;
-//                playerDecision = "Player " + player.getName() + " raises " + totalRaiseAmount + ". ";
-//                System.out.println(playerDecision);
-//              } else {
-//                playerDecision = "Player " + player.getName() + " checks. ";
-//                System.out.println(playerDecision);
-//              }
-//            }
-//          }
           pot += totalRaiseAmount;
+          logger.debug("Pot size :[" + pot + "]. ");
           doRaise[remainingPlayers.indexOf(player)] = isRaise;
           result.append("Player " + player.getName() + " " + decision.toString() + ". ");
         }
@@ -254,6 +239,10 @@ public class PokerGame {
     while (anyOneIsRaising(doRaise));
     putCardsFromHandOfRemovedPlayersBackInDeck(remainingPlayers, removePlayers);
     return result.toString();
+  }
+
+  private int getValueOfLittleAndBigBlind() {
+    return blind + blind/2;
   }
 
   private void removePlayerIfFold(Player player) {
@@ -314,6 +303,7 @@ public class PokerGame {
       if (player.canPay(blindPayment)) {
         player.decreaseMarkers(blindPayment);
         logger.info("Player " + player + " pays the blind " + blindPayment);
+        logger.debug("Number of markers :[" + player.getNumberOfMarkers() + "].");
       } else {
         throw new OutOfMarkersException("Player :[" + player.getName() + "] has to fold due to insufficient number of markers. ");
       }
