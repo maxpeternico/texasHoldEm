@@ -102,6 +102,9 @@ public class RobotPlayer extends Player {
         raiseAmount = 50;
         break;
     }
+    if (raiseAmount > getNumberOfMarkers()) {
+      raiseAmount = getNumberOfMarkers();
+    }
     logger.debug(getName() + " raise amount: " + raiseAmount);
     return raiseAmount;
   }

@@ -37,13 +37,18 @@ public class TestBlinds {
     players.add(peter);
     players.add(thomas);
     players.add(ingemar);
-    pokerGame.setBlinds(players);
+    pokerGame.initBlinds(players);
+//    pokerGame.payBlinds(players, 50);
     assertEquals(peter.hasBlind(), true);
     assertEquals(peter.hasLittleBlind(), true);
+    assertEquals(peter.hasBigBlind(), false);
+
     assertEquals(thomas.hasBlind(), true);
+    assertEquals(thomas.hasLittleBlind(), false);
     assertEquals(thomas.hasBigBlind(), true);
     assertEquals(ingemar.hasBlind(), false);
-    pokerGame.setBlinds(players);
+
+    pokerGame.payBlinds(players, 50);
     assertEquals(peter.hasBlind(), false);
     assertEquals(thomas.hasLittleBlind(), true);
     assertEquals(ingemar.hasBigBlind(), true);
@@ -53,22 +58,23 @@ public class TestBlinds {
   public void testBlinds() {
     final PokerGame pokerGame = PokerGame.getInstance();
     List<Player> players = getThreePlayers(pokerGame);
-    pokerGame.setBlinds(players);
+    pokerGame.initBlinds(players);
+//    pokerGame.payBlinds(players, 50);
     int indexOfLittleBlind = getIndexOfBlind(players, Player::hasLittleBlind);
     int indexOfBigBlind = getIndexOfBlind(players, Player::hasBigBlind);
     assertEquals(indexOfLittleBlind, 0);
     assertEquals(indexOfBigBlind, 1);
-    pokerGame.setBlinds(players);
+    pokerGame.payBlinds(players, 50);
     indexOfLittleBlind = getIndexOfBlind(players, Player::hasLittleBlind);
     indexOfBigBlind = getIndexOfBlind(players, Player::hasBigBlind);
     assertEquals(indexOfLittleBlind, 1);
     assertEquals(indexOfBigBlind, 2);
-    pokerGame.setBlinds(players);
+    pokerGame.payBlinds(players, 50);
     indexOfLittleBlind = getIndexOfBlind(players, Player::hasLittleBlind);
     indexOfBigBlind = getIndexOfBlind(players, Player::hasBigBlind);
     assertEquals(indexOfLittleBlind, 2);
     assertEquals(indexOfBigBlind, 0);
-    pokerGame.setBlinds(players);
+    pokerGame.payBlinds(players, 50);
     indexOfLittleBlind = getIndexOfBlind(players, Player::hasLittleBlind);
     indexOfBigBlind = getIndexOfBlind(players, Player::hasBigBlind);
     assertEquals(indexOfLittleBlind, 0);
@@ -76,7 +82,52 @@ public class TestBlinds {
     pokerGame.clearGame();
   }
 
+  @Test
+  public void testOnePlayerCantPayBlinds() {
+    final PokerGame pokerGame = PokerGame.getInstance();
+    List<Player> players = getTwoPlayers();
+
+    Player thomas = new RobotPlayer("Thomas", 10);
+    List<Card> thomasPrivateHand = new ArrayList<>();
+    thomasPrivateHand.add(new Card(Color.clubs, Ordinal.king));
+    thomasPrivateHand.add(new Card(Color.diamonds, Ordinal.king));
+    pokerGame.setPrivateHand(thomas, thomasPrivateHand);
+    players.add(thomas);
+
+    pokerGame.initBlinds(players);
+
+    final Player staffan = players.get(0);
+    final Player jorn = players.get(1);
+
+    assertEquals(staffan.hasLittleBlind(), true);
+    assertEquals(jorn.hasBigBlind(), true);
+    assertEquals(thomas.hasBlind(), false);
+
+    int blindPot = pokerGame.payBlinds(players, 50);
+
+    assertEquals(staffan.hasBigBlind(), true);
+    assertEquals(jorn.hasLittleBlind(), true);
+    assertEquals(thomas.hasBlind(), false);
+    assertEquals(blindPot, 85);
+
+    pokerGame.clearGame();
+  }
+
   private List<Player> getThreePlayers(PokerGame pokerGame) {
+    List<Player> playerList = getTwoPlayers();
+
+    Player thomas = new RobotPlayer("Thomas", PokerGame.TOTAL_MARKERS_PER_PLAYER);
+    List<Card> thomasPrivateHand = new ArrayList<>();
+    thomasPrivateHand.add(new Card(Color.clubs, Ordinal.king));
+    thomasPrivateHand.add(new Card(Color.diamonds, Ordinal.king));
+    pokerGame.setPrivateHand(thomas, thomasPrivateHand);
+
+    playerList.add(thomas);
+
+    return playerList;
+  }
+
+  private List<Player> getTwoPlayers() {
     Player staffan = new RobotPlayer("Staffan", PokerGame.TOTAL_MARKERS_PER_PLAYER);
     List<Card> staffansPrivateHand = new ArrayList<>();
     staffansPrivateHand.add(new Card(Color.hearts, Ordinal.king));
@@ -89,16 +140,9 @@ public class TestBlinds {
     jornsPrivateHand.add(new Card(Color.spades, Ordinal.ace));
     pokerGame.setPrivateHand(jorn, jornsPrivateHand);
 
-    Player thomas = new RobotPlayer("Thomas", PokerGame.TOTAL_MARKERS_PER_PLAYER);
-    List<Card> thomasPrivateHand = new ArrayList<>();
-    thomasPrivateHand.add(new Card(Color.clubs, Ordinal.king));
-    thomasPrivateHand.add(new Card(Color.diamonds, Ordinal.king));
-    pokerGame.setPrivateHand(thomas, thomasPrivateHand);
-
     List<Player> playerList = new ArrayList<>();
     playerList.add(jorn);
     playerList.add(staffan);
-    playerList.add(thomas);
 
     return playerList;
   }

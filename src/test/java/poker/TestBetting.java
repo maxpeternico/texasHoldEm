@@ -30,7 +30,8 @@ public class TestBetting {
     playerList.add(jorn);
     playerList.add(staffan);
 
-    pokerGame.setBlinds(playerList);
+    pokerGame.initBlinds(playerList);
+    pokerGame.payBlinds(playerList, 50);
     pokerGame.setTurnForUnitTest(Turn.BEFORE_FLOP);
     List<Card> emptyCommonhand = new ArrayList<>();
     final Points jornsPoints = ((RobotPlayer) jorn).calculatePoints(2, Turn.BEFORE_FLOP, emptyCommonhand);
@@ -68,7 +69,8 @@ public class TestBetting {
     playerList.add(staffan);
     playerList.add(thomas);
 
-    pokerGame.setBlinds(playerList);
+    pokerGame.initBlinds(playerList);
+    pokerGame.payBlinds(playerList, 50);
     pokerGame.setTurnForUnitTest(Turn.BEFORE_FLOP);
     final String result = pokerGame.decideBet(playerList);
     assertEquals("Player Jörn Decision :[RAISE]. Player Staffan Decision :[FOLD]. Player Thomas Decision :[RAISE]. ", result);
@@ -94,7 +96,8 @@ public class TestBetting {
     List<Player> playerList = new ArrayList<>();
     playerList.add(peter);
     playerList.add(thomas);
-    pokerGame.setBlinds(playerList);
+    pokerGame.initBlinds(playerList);
+    pokerGame.payBlinds(playerList, 50);
     pokerGame.setTurnForUnitTest(Turn.BEFORE_FLOP);
     final String result = pokerGame.decideBet(playerList);
     assertEquals("Player Peter Decision :[RAISE]. Player Thomas Decision :[RAISE]. ", result);
@@ -120,7 +123,8 @@ public class TestBetting {
     playerList.add(peter);
     playerList.add(thomas);
 
-    pokerGame.setBlinds(playerList);
+    pokerGame.initBlinds(playerList);
+    pokerGame.payBlinds(playerList, 50);
     pokerGame.setTurnForUnitTest(Turn.BEFORE_FLOP);
     final String result = pokerGame.decideBet(playerList);
 
@@ -146,7 +150,7 @@ public class TestBetting {
 //    playerList.add(jorn);
 //    playerList.add(staffan);
 //
-//    pokerGame.setBlinds(playerList);
+//    pokerGame.initBlinds(playerList);
 //    pokerGame.setTurnForUnitTest(Turn.BEFORE_FLOP);
 //    pokerGame.playRound(playerList);
 //    final int jornsMarkers = jorn.getNumberOfMarkers();

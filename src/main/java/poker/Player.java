@@ -111,9 +111,10 @@ public abstract class Player {
     return bigBlind;
   }
 
-  public void setLittleBlind(int blind) {
-    littleBlind = true;
-    numberOfMarkers = numberOfMarkers - blind / 2;
+  public void setLittleBlind(int littleBlind) {
+    this.littleBlind = true;
+    numberOfMarkers = numberOfMarkers - littleBlind;
+    logger.debug("Player :[" + getName() + "] pays :[" + littleBlind + "] to the pot. ");
   }
 
   public void clearLittleBlind() {
@@ -123,6 +124,7 @@ public abstract class Player {
   public void setBigBlind(int blind) {
     bigBlind = true;
     numberOfMarkers = numberOfMarkers - blind;
+    logger.debug("Player :[" + getName() + "] pays :[" + blind + "] to the pot. ");
   }
 
   public void clearBigBlind() {
@@ -139,12 +141,12 @@ public abstract class Player {
   public void decreaseMarkers(int markers) {
     numberOfMarkers = numberOfMarkers - markers;
     if (numberOfMarkers < 0) {
-      throw new RuntimeException("Number of markers should never be negative.");
+      numberOfMarkers = 0;
     }
   }
 
   public boolean hasAnyMarkers() {
-    if (numberOfMarkers >= 0) {
+    if (numberOfMarkers > 0) {
       return true;
     }
     return false;
