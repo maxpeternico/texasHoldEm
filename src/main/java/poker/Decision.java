@@ -2,18 +2,18 @@ package poker;
 
 public class Decision {
   private DecisionEnum decision;
-  private int eventualRaiseAmount;
+  private int raiseAmount;
 
   public Decision(DecisionEnum decision) {
     this.decision = decision;
   }
 
   public void setRaiseValue(int value) {
-    this.eventualRaiseAmount = value;
+    this.raiseAmount = value;
   }
 
-  public int getRaiseAmount() {
-    return eventualRaiseAmount;
+  public int raise() {
+    return raiseAmount;
   }
 
   public boolean isRaise() {

@@ -111,20 +111,16 @@ public abstract class Player {
     return bigBlind;
   }
 
-  public void setLittleBlind(int littleBlind) {
+  public void setLittleBlind() {
     this.littleBlind = true;
-    numberOfMarkers = numberOfMarkers - littleBlind;
-    logger.debug("Player :[" + getName() + "] pays :[" + littleBlind + "] to the pot. ");
   }
 
   public void clearLittleBlind() {
     littleBlind = false;
   }
 
-  public void setBigBlind(int blind) {
+  public void setBigBlind() {
     bigBlind = true;
-    numberOfMarkers = numberOfMarkers - blind;
-    logger.debug("Player :[" + getName() + "] pays :[" + blind + "] to the pot. ");
   }
 
   public void clearBigBlind() {
@@ -143,6 +139,7 @@ public abstract class Player {
     if (numberOfMarkers < 0) {
       numberOfMarkers = 0;
     }
+    logger.debug("Decrease [" + markers + "] for :[" + getName() + "]. Total number of markers :[" + numberOfMarkers + "]");
   }
 
   public boolean hasAnyMarkers() {
@@ -195,9 +192,9 @@ public abstract class Player {
           decision = new Decision(DecisionEnum.CHECK);
         }
         break;
-    default:
+      default:
         decision = new Decision(DecisionEnum.FOLD);
-      break;
+        break;
     }
     logger.debug("Player " + getName() + " decides to :[" + decision + "]");
     return decision;
@@ -205,7 +202,8 @@ public abstract class Player {
 
   protected abstract int calculateRaiseAmount(int blind, int maxRaiseFromOtherplayer);
 
-  public void addMarkers(int pot) {
-    numberOfMarkers = numberOfMarkers + pot;
+  public void addMarkers(int markers) {
+    numberOfMarkers = numberOfMarkers + markers;
+    logger.debug("Player :[" + getName() + "] gets :[" + markers + "]");
   }
 }

@@ -47,9 +47,9 @@ public class PokerGame {
     if (players.size() < 2) {
       throw new RuntimeException("At least 2 players has to play.");
     }
-    players.get(0).setLittleBlind(blind / 2);
+    players.get(0).setLittleBlind();
     logger.debug("Set little blind for :[" + players.get(0).getName() + "]");
-    players.get(1).setBigBlind(blind);
+    players.get(1).setBigBlind();
     logger.debug("Set big blind for :[" + players.get(1).getName() + "]");
   }
 
@@ -179,7 +179,8 @@ public class PokerGame {
         playerWithOldLittleBlind.clearLittleBlind();
         logger.debug("Clear little blind for :[" + playerWithOldLittleBlind.getName() + "]");
 
-        newLittleBlindPlayer.setLittleBlind(blindAmount);
+        newLittleBlindPlayer.setLittleBlind();
+        newLittleBlindPlayer.decreaseMarkers(blindAmount);
         logger.debug("Set little blind for :[" + newLittleBlindPlayer.getName() + "]");
 
 
@@ -206,7 +207,8 @@ public class PokerGame {
         playerWithOldBigBlind.clearBigBlind();
         logger.debug("Clear big blind for :[" + playerWithOldBigBlind.getName() + "]");
 
-        newBigBlindPlayer.setBigBlind(blindAmount);
+        newBigBlindPlayer.setBigBlind();
+        newBigBlindPlayer.decreaseMarkers(blindAmount);
         logger.debug("Set big blind for :[" + newBigBlindPlayer.getName() + "]");
 
         pot += blindAmount;
@@ -344,7 +346,8 @@ public class PokerGame {
 
           Decision decision = player.getDecision(turn, remainingPlayers.size(), dealer.getCommonHand(), blind, maxRaiseFromOtherplayer);
           if (decision.isRaise()) {
-            maxRaiseFromOtherplayer += decision.getRaiseAmount();
+            maxRaiseFromOtherplayer += decision.raise();
+            player.decreaseMarkers(decision.raise());
             totalRaiseAmount += maxRaiseFromOtherplayer;
             logger.debug(" totalRaiseAmount :[" + totalRaiseAmount + "]. ");
           }
