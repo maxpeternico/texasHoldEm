@@ -71,7 +71,7 @@ public class TestPot {
   private boolean isAPlayerBroke(List<Player> players) {
     for (Player player : players) {
       if (!player.hasAnyMarkers()) {
-        return false;
+        return true;
       }
     }
     return false;

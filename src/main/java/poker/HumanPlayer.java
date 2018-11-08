@@ -36,7 +36,7 @@ public class HumanPlayer extends Player {
   }
 
   @Override
-  protected int calculateRaiseAmount(int blind, int maxRaiseFromOtherplayer) {
+  protected int calculateRaiseAmount(int blind) {
     int raiseAmount = 0;
     try {
       raiseAmount = getRaiseAmount(blind);
@@ -45,8 +45,7 @@ public class HumanPlayer extends Player {
       strategy = QUIT;
       return 0;
     }
-    int totalRaiseAmount = raiseAmount - maxRaiseFromOtherplayer;
-    return totalRaiseAmount;
+    return raiseAmount;
   }
 
   private int getRaiseAmount(int blind) {

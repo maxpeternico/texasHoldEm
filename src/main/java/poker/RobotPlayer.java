@@ -28,7 +28,7 @@ public class RobotPlayer extends Player {
     switch (turn) {
       case BEFORE_FLOP:
         // No common hand to care
-        // Pair is good, raise or go all in if pot is big
+        // Pair is good, getRaiseAmount or go all in if pot is big
         if (points.privatePoints > 113) {
           // Pair of aces and higher
           strategy = ALL_IN;
@@ -38,12 +38,12 @@ public class RobotPlayer extends Player {
         }
         break;
       case BEFORE_TURN:
-        // Pair of aces is good or anything higher, raise or go all in if pott is big
+        // Pair of aces is good or anything higher, getRaiseAmount or go all in if pott is big
         // Low pair, join unless too expensive
         // Bad cards, try to join if cheap otherwise fold
         break;
       case BEFORE_RIVER:
-        // Pair of aces is good or anything higher, raise or go all in if pott is big
+        // Pair of aces is good or anything higher, getRaiseAmount or go all in if pott is big
         // Low pair, join unless too expensive
         // Bad cards, try to join if cheap otherwise fold
         break;
@@ -54,7 +54,7 @@ public class RobotPlayer extends Player {
   }
 
   @Override
-  protected int calculateRaiseAmount(int blind, int maxRaiseFromOtherplayer) {
+  protected int calculateRaiseAmount(int blind) {
     int raiseAmount = 0;
 
     // Depending on strategy, pot and blind
@@ -63,35 +63,37 @@ public class RobotPlayer extends Player {
     // high blind offensive sets rise as blind, rest folds
     switch (strategy) {
       case ALL_IN:
+        raiseAmount = getNumberOfMarkers();
+        break;
       case OFFENSIVE:
-        // TODO: Ser percentage of number of markers instead
+        // TODO: Set percentage of number of markers instead
         if (points.privatePoints > 113) { // Pair of aces and higher
           if (points.commonPoints < 50) {
             // TODO: calculateRaiseAmount(privatePoints, commonPoints, sizeOfBlind, moneyLeft)
-            // raise
+            // getRaiseAmount
             raiseAmount = 300;
           } else {
-            // raise only if no other raises
+            // getRaiseAmount only if no other raises
             raiseAmount = 50;
           }
         } else if (points.privatePoints > 100) {
           if (points.commonPoints < 5) {
-            // raise if no one else has raised
+            // getRaiseAmount if no one else has raised
             raiseAmount = 75;
           } else {
-            // don't raise, join if blind is cheap otherwise fold
+            // don't getRaiseAmount, join if blind is cheap otherwise fold
             raiseAmount = 5;
           }
         } else if (points.privatePoints > 5) {
           if (points.commonPoints < 5) {
-            // raise if no one else has raised
+            // getRaiseAmount if no one else has raised
             raiseAmount = 5;
           } else {
-            // don't raise, join if blind is cheap otherwise fold
+            // don't getRaiseAmount, join if blind is cheap otherwise fold
             raiseAmount = 0;
           }
         } else {
-          // don't raise, join if blind is cheap otherwise fold
+          // don't getRaiseAmount, join if blind is cheap otherwise fold
           raiseAmount = 0;
         }
         break;
@@ -105,7 +107,7 @@ public class RobotPlayer extends Player {
     if (raiseAmount > getNumberOfMarkers()) {
       raiseAmount = getNumberOfMarkers();
     }
-    logger.debug(getName() + " raise amount: " + raiseAmount);
+    logger.debug(getName() + " getRaiseAmount amount: " + raiseAmount);
     return raiseAmount;
   }
 

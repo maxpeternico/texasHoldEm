@@ -1,6 +1,6 @@
 package poker;
 
-public enum DecisionEnum {
+public enum ActionEnum {
   RAISE,
   CHECK,
   FOLD

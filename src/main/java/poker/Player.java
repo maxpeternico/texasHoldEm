@@ -20,6 +20,12 @@ public abstract class Player {
   private boolean littleBlind = false;
   Strategy strategy = Strategy.NOT_DECIDED;
 
+  public Action getAction() {
+    return action;
+  }
+
+  private Action action = new Action(ActionEnum.CHECK);
+
   public Player(String playerName, int totalMarkersPerPlayer) {
     this.name = playerName;
     this.numberOfMarkers = totalMarkersPerPlayer;
@@ -151,7 +157,7 @@ public abstract class Player {
 
   protected boolean isDesiredRaiseAmountHigherThanBlind(int amount, int blind) {
     if (amount > blind) {
-      System.out.println("You must raise more than blind");
+      System.out.println("You must getRaiseAmount more than blind");
       return false;
     }
     if (!hasMarkersForAmount(amount)) {
@@ -170,40 +176,31 @@ public abstract class Player {
 
   public abstract void decideStrategy(Turn turn, int numberOfRemainingPlayers, List<Card> commonHand, int blind);
 
-  public Decision getDecision(Turn turn, int numberOfRemainingPlayers, List<Card> commonHand, int blind, int maxRaiseFromOtherPlayer) {
+  public void decideAction(Turn turn, int numberOfRemainingPlayers, List<Card> commonHand, int blind, int maxRaiseFromOtherPlayer) {
     decideStrategy(turn, numberOfRemainingPlayers, commonHand, blind);
-    Decision decision = null;
-    switch (strategy) {
-      case ALL_IN:
-      case OFFENSIVE:
-        final int raiseAmount = calculateRaiseAmount(blind, maxRaiseFromOtherPlayer);
-        if (raiseAmount > blind) {
-          decision = new Decision(DecisionEnum.RAISE);
-          decision.setRaiseValue(raiseAmount);
-        } else {
-          decision = new Decision(DecisionEnum.CHECK);
-        }
-        break;
-      case JOIN:
-        decision = new Decision(DecisionEnum.CHECK);
-        break;
-      case JOIN_IF_CHEAP:
-        if (hasBigBlind()) {
-          decision = new Decision(DecisionEnum.CHECK);
-        }
-        break;
-      default:
-        decision = new Decision(DecisionEnum.FOLD);
-        break;
+
+    int raiseAmount = calculateRaiseAmount(blind);
+    if (raiseAmount > maxRaiseFromOtherPlayer) {
+      action = new Action(ActionEnum.RAISE);
+      action.setRaiseValue(raiseAmount);
+      decreaseMarkers(raiseAmount);
+    } else if (raiseAmount == maxRaiseFromOtherPlayer) {
+      action = new Action(ActionEnum.CHECK);
+      decreaseMarkers(maxRaiseFromOtherPlayer);
+    } else {
+      action = new Action(ActionEnum.FOLD);
     }
-    logger.debug("Player " + getName() + " decides to :[" + decision + "]");
-    return decision;
+    logger.debug("Player " + getName() + " decides to :[" + action + "]");
   }
 
-  protected abstract int calculateRaiseAmount(int blind, int maxRaiseFromOtherplayer);
+  protected abstract int calculateRaiseAmount(int blind);
 
   public void addMarkers(int markers) {
     numberOfMarkers = numberOfMarkers + markers;
     logger.debug("Player :[" + getName() + "] gets :[" + markers + "]");
+  }
+
+  public boolean hasFolded() {
+    return action.isFold();
   }
 }

@@ -36,7 +36,7 @@ public class PokerGame {
     turn = Turn.BEFORE_FLOP;
     List<Player> playersStillInTheGame;
     do {
-      playersStillInTheGame = isPlayerStillInTheGame(players);
+      playersStillInTheGame = getPlayersStillInTheGame(players);
       playRound(playersStillInTheGame);
     } while (!doWeHaveAWinner(playersStillInTheGame));
     final Player theWinner = playersStillInTheGame.get(0);
@@ -58,32 +58,32 @@ public class PokerGame {
     pot = payBlinds(players, blind);
     dealer.playPrivateHands();
     //printHumanHand();
-    decideBet(players);
+    decideBet(getPlayersStillInTheGame(players));
 
     /********************************* FLOP *************************************************/
 
     dealer.drawFlop();
     System.out.println("Total hand after flop: ");
     //printHumanHand();
-    decideBet(players);
+    decideBet(getPlayersStillInTheGame(players));
 
     /********************************* TURN *************************************************/
 
     dealer.drawTurn();
     System.out.println("Total hand after turn: ");
     //printHumanHand();
-    decideBet(players);
+    decideBet(getPlayersStillInTheGame(players));
 
     /********************************* RIVER *************************************************/
 
     dealer.drawRiver();
     System.out.println("Total hand after river: ");
     //printHumanHand();
-    decideBet(players);
+    decideBet(getPlayersStillInTheGame(players));
 
     /********************************* FIND THE WINNER *************************************************/
 
-    final Player theWinner = dealer.findTheWinner();
+    final Player theWinner = dealer.findTheWinner(getPlayersThatDidNotFold(players));
     checkTotalHand(dealer, theWinner.getName(), theWinner.getPrivateHand());
     theWinner.addMarkers(this.pot);
     System.out.println("Player :[" + theWinner.getName() + "] wins :[" + this.pot + "] markers.");
@@ -96,6 +96,10 @@ public class PokerGame {
     dealer.putCardsBackIntoDeck();
   }
 
+  private List<Player> getPlayersThatDidNotFold(List<Player> players) {
+    return players.stream().filter(e->!e.hasFolded()).collect(Collectors.toList());
+  }
+
   private boolean doWeHaveAWinner(List<Player> playersStillInTheGame) {
     if (playersStillInTheGame.size() == 1) {
       return true;
@@ -105,62 +109,19 @@ public class PokerGame {
     return false;
   }
 
-  private List<Player> isPlayerStillInTheGame(List<Player> players) {
+  private List<Player> getPlayersStillInTheGame(List<Player> players) {
     final ArrayList<Player> playersStillInTheGame = Lists.newArrayList();
     players.stream().forEach(e -> {
-      if (e.hasAnyMarkers()) {
-        playersStillInTheGame.add(e);
+      if (e.hasFolded()) {
+        System.out.println("Player :[" + e.getName() + "] has folded.");
+      } else if (!e.hasAnyMarkers()){
+        System.out.println("Player :[" + e.getName() + "] has no more markers.");
       } else {
-        System.out.println("Player :[" + e.getName() + "] left the game.");
+        playersStillInTheGame.add(e);
       }
     });
     return playersStillInTheGame;
   }
-
-//  void initBlinds(List<Player> players) {
-//
-//    // has any player blinds?
-//    if (!noPlayerHasBlind(players)) {
-//      players.get(0).setLittleBlind(blind);
-//      pot += blind / 2;
-//      logger.debug("Set little blind to :[" + players.get(0).getName() + "]");
-//      players.get(1).setBigBlind(blind);
-//      pot += blind;
-//      logger.debug("Set big blind to :[" + players.get(1).getName() + "]");
-//    } else {
-//      int indexOfBigBlind = getPlayerWithBigBlind(players);
-//      int newIndexOfBigBlind = 0;
-//      if (indexOfBigBlind < players.size() - 1) {
-//        newIndexOfBigBlind = indexOfBigBlind + 1;
-//      }
-//      players.get(indexOfLittleBlind).clearLittleBlind();
-//      logger.debug("Clear little blind for :[" + players.get(indexOfLittleBlind).getName() + "]");
-//      players.get(indexOfBigBlind).clearBigBlind();
-//      logger.debug("Clear big blind for :[" + players.get(indexOfBigBlind).getName() + "]");
-//
-//      players.get(newIndexOfLittleBlind).setLittleBlind(blind);
-//      logger.debug("Set little blind to :[" + players.get(newIndexOfLittleBlind).getName() + "]");
-//      players.get(newIndexOfBigBlind).setBigBlind(blind);
-//      logger.debug("Set big blind to :[" + players.get(newIndexOfBigBlind).getName() + "]");
-//    }
-//  }
-//
-//  private void setLittleBlind(List<Player> players, int blindAmount) {
-//    boolean blindPlayerFound = false;
-//    do {
-//      if (players.size() == 1) {
-//        System.out.println("Player :[" + players.get(0).getName() + "] has won the game.");
-//        break;
-//      }
-//      Player newLittleBlind = getNewLittleBlindPlayer(players);
-//      if (newLittleBlind.canPay(blindAmount)) {
-//        blindPlayerFound = true;
-//      } else {
-//        // set player to broke
-//        newLittleBlind.decreaseMarkers(newLittleBlind.getNumberOfMarkers());
-//      }
-//    } while (blindPlayerFound);
-//  }
 
   int payBlinds(List<Player> players, int blindAmount) {
     int blindPot = 0;
@@ -332,32 +293,32 @@ public class PokerGame {
   }
 
   String decideBet(List<Player> remainingPlayers) {
+    if (remainingPlayers.size() < 2) {
+      // A player already won
+      return "";
+    }
     StringBuffer result = new StringBuffer();
-    List<Player> foldedPlayers = new ArrayList<>();
     Boolean[] doRaise = initDoRaise(remainingPlayers);
 
     int maxRaiseFromOtherplayer = 0;
     do {
       for (Player player : remainingPlayers) {
         int totalRaiseAmount = 0;
-        if (isPlayerStillInTheGame(player, foldedPlayers)) {
+        if (getPlayersStillInTheGame(player)) {
           logger.debug("player :[" + player + "] doRaise: [" + doRaise[remainingPlayers.indexOf(player)] + "]. maxRaiseFromOtherPlayer:[" + maxRaiseFromOtherplayer + "] numbersOfMarkers :[" + player.getNumberOfMarkers() + "] pot :[" + pot + "]");
           Boolean isRaise = false;
 
-          Decision decision = player.getDecision(turn, remainingPlayers.size(), dealer.getCommonHand(), blind, maxRaiseFromOtherplayer);
-          if (decision.isRaise()) {
-            maxRaiseFromOtherplayer += decision.raise();
-            player.decreaseMarkers(decision.raise());
+          player.decideAction(turn, remainingPlayers.size(), dealer.getCommonHand(), blind, maxRaiseFromOtherplayer);
+          final Action action = player.getAction();
+          if (action.isRaise()) {
+            maxRaiseFromOtherplayer += action.getRaiseAmount();
             totalRaiseAmount += maxRaiseFromOtherplayer;
             logger.debug(" totalRaiseAmount :[" + totalRaiseAmount + "]. ");
-          }
-          if (decision.isFold()) {
-            foldedPlayers.add(player);
           }
           pot += totalRaiseAmount;
           logger.debug("Pot size :[" + pot + "]. ");
           doRaise[remainingPlayers.indexOf(player)] = isRaise;
-          result.append("Player " + player.getName() + " " + decision.toString() + ". ");
+          result.append("Player " + player.getName() + " " + action.toString() + ". ");
         }
       }
     }
@@ -419,8 +380,8 @@ public class PokerGame {
     return false;
   }
 
-  private boolean isPlayerStillInTheGame(Player player, List<Player> foldedPlayers) {
-    if (foldedPlayers.contains(player)) {
+  private boolean getPlayersStillInTheGame(Player player) {
+    if (player.hasFolded()) {
       return false;
     }
     if (!player.hasAnyMarkers()) {

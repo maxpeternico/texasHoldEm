@@ -1,10 +1,10 @@
 package poker;
 
-public class Decision {
-  private DecisionEnum decision;
+public class Action {
+  private ActionEnum decision;
   private int raiseAmount;
 
-  public Decision(DecisionEnum decision) {
+  public Action(ActionEnum decision) {
     this.decision = decision;
   }
 
@@ -12,26 +12,26 @@ public class Decision {
     this.raiseAmount = value;
   }
 
-  public int raise() {
+  public int getRaiseAmount() {
     return raiseAmount;
   }
 
   public boolean isRaise() {
-    if (decision.equals(DecisionEnum.RAISE)) {
+    if (decision.equals(ActionEnum.RAISE)) {
       return true;
     }
     return false;
   }
 
   public boolean isCheck() {
-    if (decision.equals(DecisionEnum.CHECK)) {
+    if (decision.equals(ActionEnum.CHECK)) {
       return true;
     }
     return false;
   }
 
   public boolean isFold() {
-    if (decision.equals(DecisionEnum.FOLD)) {
+    if (decision.equals(ActionEnum.FOLD)) {
       return true;
     }
     return false;
@@ -39,7 +39,7 @@ public class Decision {
 
   @Override
   public String toString() {
-    return "Decision :[" +
+    return "Action :[" +
             decision +
             ']';
   }
