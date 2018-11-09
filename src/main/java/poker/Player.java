@@ -184,13 +184,20 @@ public abstract class Player {
       action = new Action(ActionEnum.RAISE);
       action.setRaiseValue(raiseAmount);
       decreaseMarkers(raiseAmount);
-    } else if (raiseAmount == maxRaiseFromOtherPlayer) {
+    } else if (isWithin(raiseAmount, maxRaiseFromOtherPlayer)) {
       action = new Action(ActionEnum.CHECK);
       decreaseMarkers(maxRaiseFromOtherPlayer);
     } else {
       action = new Action(ActionEnum.FOLD);
     }
     logger.debug("Player " + getName() + " decides to :[" + action + "]");
+  }
+
+  private boolean isWithin(int raiseAmount, int maxRaiseFromOtherPlayer) {
+    if (raiseAmount > maxRaiseFromOtherPlayer*0.9 && raiseAmount < maxRaiseFromOtherPlayer * 1.1) {
+      return true;
+    }
+    return false;
   }
 
   protected abstract int calculateRaiseAmount(int blind);

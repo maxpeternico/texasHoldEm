@@ -60,8 +60,8 @@ public class TestBetting {
     Player thomas = new RobotPlayer("Thomas", PokerGame.TOTAL_MARKERS_PER_PLAYER);
     pokerGame.registerPlayer(thomas);
     List<Card> thomasPrivateHand = new ArrayList<>();
-    thomasPrivateHand.add(new Card(Color.clubs, Ordinal.king));
-    thomasPrivateHand.add(new Card(Color.diamonds, Ordinal.king));
+    thomasPrivateHand.add(new Card(Color.clubs, Ordinal.ace));
+    thomasPrivateHand.add(new Card(Color.diamonds, Ordinal.ace));
     pokerGame.setPrivateHand(thomas, thomasPrivateHand);
 
     List<Player> playerList = new ArrayList<>();
@@ -73,7 +73,7 @@ public class TestBetting {
     pokerGame.payBlinds(playerList, 50);
     pokerGame.setTurnForUnitTest(Turn.BEFORE_FLOP);
     final String result = pokerGame.decideBet(playerList);
-    assertEquals("Player Jörn Action :[RAISE]. Player Staffan Action :[FOLD]. Player Thomas Action :[RAISE]. ", result);
+    assertEquals("Player Jörn Action :[RAISE]. Player Staffan Action :[FOLD]. Player Thomas Action :[CHECK]. ", result);
 
   }
 

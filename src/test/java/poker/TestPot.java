@@ -1,5 +1,6 @@
 package poker;
 
+import org.junit.After;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -75,6 +76,11 @@ public class TestPot {
       }
     }
     return false;
+  }
+
+  @After
+  public void clearGame() {
+    pokerGame.clearGame();
   }
 
 }
