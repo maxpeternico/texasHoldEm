@@ -36,8 +36,32 @@ public class HumanPlayer extends Player {
   }
 
   @Override
+  protected void setAction(int raiseAmount, int maxRaiseFromOtherPlayer) {
+    switch (strategy) {
+      case OFFENSIVE:
+        action = new Action(ActionEnum.RAISE);
+        action.setRaiseValue(raiseAmount);
+        break;
+      case JOIN:
+        action = new Action(ActionEnum.CHECK);
+        break;
+      case QUIT:
+        action = new Action(ActionEnum.FOLD);
+        break;
+      default:
+        throw new RuntimeException("This should not happen. strategy:[" + strategy + "]");
+    }
+  }
+
+  @Override
   protected int calculateRaiseAmount(int blind) {
     int raiseAmount = 0;
+    if (action.isCheck()) {
+      return blind;
+    }
+    if (action.isFold()) {
+      return 0;
+    }
     try {
       raiseAmount = getRaiseAmount(blind);
     } catch (Exception e) {
@@ -56,8 +80,8 @@ public class HumanPlayer extends Player {
     int desiredRaiseAmount = 0;
     do {
       desiredRaiseAmount = Integer.parseInt(KeyboardHelper.getCharFromKeyboard(Lists.newArrayList("0", "1", "2", "3", "4", "5", "6", "7", "8", "9"), "Raise amount:"));
-       hasMarkers = isDesiredRaiseAmountHigherThanBlind(desiredRaiseAmount, blind);
-    } while(hasMarkers = false);
+      hasMarkers = isDesiredRaiseAmountHigherThanBlind(desiredRaiseAmount, blind);
+    } while (hasMarkers = false);
     return desiredRaiseAmount;
   }
 

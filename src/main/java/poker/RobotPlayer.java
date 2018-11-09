@@ -54,6 +54,27 @@ public class RobotPlayer extends Player {
   }
 
   @Override
+  protected void setAction(int raiseAmount, int maxRaiseFromOtherPlayer) {
+    if (raiseAmount > maxRaiseFromOtherPlayer) {
+      action = new Action(ActionEnum.RAISE);
+      action.setRaiseValue(raiseAmount);
+      decreaseMarkers(raiseAmount);
+    } else if (isWithin(raiseAmount, maxRaiseFromOtherPlayer)) {
+      action = new Action(ActionEnum.CHECK);
+      decreaseMarkers(maxRaiseFromOtherPlayer);
+    } else {
+      action = new Action(ActionEnum.FOLD);
+    }
+  }
+
+  private boolean isWithin(int raiseAmount, int maxRaiseFromOtherPlayer) {
+    if (raiseAmount > maxRaiseFromOtherPlayer * 0.9 && raiseAmount < maxRaiseFromOtherPlayer * 1.1) {
+      return true;
+    }
+    return false;
+  }
+
+  @Override
   protected int calculateRaiseAmount(int blind) {
     int raiseAmount = 0;
 

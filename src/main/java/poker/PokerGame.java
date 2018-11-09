@@ -57,28 +57,28 @@ public class PokerGame {
     System.out.println("Blind is: [" + blind / 2 + "] resp: [" + blind + "]");
     pot = payBlinds(players, blind);
     dealer.playPrivateHands();
-    //printHumanHand();
+    printHumanHand();
     decideBet(getPlayersStillInTheGame(players));
 
     /********************************* FLOP *************************************************/
 
     dealer.drawFlop();
     System.out.println("Total hand after flop: ");
-    //printHumanHand();
+    printHumanHand();
     decideBet(getPlayersStillInTheGame(players));
 
     /********************************* TURN *************************************************/
 
     dealer.drawTurn();
     System.out.println("Total hand after turn: ");
-    //printHumanHand();
+    printHumanHand();
     decideBet(getPlayersStillInTheGame(players));
 
     /********************************* RIVER *************************************************/
 
     dealer.drawRiver();
     System.out.println("Total hand after river: ");
-    //printHumanHand();
+    printHumanHand();
     decideBet(getPlayersStillInTheGame(players));
 
     /********************************* FIND THE WINNER *************************************************/

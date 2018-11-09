@@ -19,12 +19,12 @@ public abstract class Player {
   private boolean bigBlind = false;
   private boolean littleBlind = false;
   Strategy strategy = Strategy.NOT_DECIDED;
+  protected Action action = new Action(ActionEnum.CHECK);
+
 
   public Action getAction() {
     return action;
   }
-
-  private Action action = new Action(ActionEnum.CHECK);
 
   public Player(String playerName, int totalMarkersPerPlayer) {
     this.name = playerName;
@@ -180,25 +180,11 @@ public abstract class Player {
     decideStrategy(turn, numberOfRemainingPlayers, commonHand, blind);
 
     int raiseAmount = calculateRaiseAmount(blind);
-    if (raiseAmount > maxRaiseFromOtherPlayer) {
-      action = new Action(ActionEnum.RAISE);
-      action.setRaiseValue(raiseAmount);
-      decreaseMarkers(raiseAmount);
-    } else if (isWithin(raiseAmount, maxRaiseFromOtherPlayer)) {
-      action = new Action(ActionEnum.CHECK);
-      decreaseMarkers(maxRaiseFromOtherPlayer);
-    } else {
-      action = new Action(ActionEnum.FOLD);
-    }
+    setAction(raiseAmount, maxRaiseFromOtherPlayer);
     logger.debug("Player " + getName() + " decides to :[" + action + "]");
   }
 
-  private boolean isWithin(int raiseAmount, int maxRaiseFromOtherPlayer) {
-    if (raiseAmount > maxRaiseFromOtherPlayer*0.9 && raiseAmount < maxRaiseFromOtherPlayer * 1.1) {
-      return true;
-    }
-    return false;
-  }
+  protected abstract void setAction(int raiseAmount, int maxRaiseFromOtherPlayer);
 
   protected abstract int calculateRaiseAmount(int blind);
 
