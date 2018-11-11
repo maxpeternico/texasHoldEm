@@ -90,10 +90,17 @@ public class PokerGame {
     for (Player player : players) {
       System.out.println("Number of markers for :[" + player.getName() + "] : [" + player.getNumberOfMarkers() + "]");
     }
+    clearActions(players);
     turn = increaseTurn(turn);
     blind = increaseBlind();
     this.pot = 0;
     dealer.putCardsBackIntoDeck();
+  }
+
+  private void clearActions(List<Player> players) {
+    for (Player player:players) {
+      player.action = new Action(ActionEnum.NOT_DECIDED);
+    }
   }
 
   private List<Player> getPlayersThatDidNotFold(List<Player> players) {

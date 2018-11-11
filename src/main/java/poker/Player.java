@@ -19,7 +19,7 @@ public abstract class Player {
   private boolean bigBlind = false;
   private boolean littleBlind = false;
   Strategy strategy = Strategy.NOT_DECIDED;
-  protected Action action = new Action(ActionEnum.CHECK);
+  protected Action action = new Action(ActionEnum.NOT_DECIDED);
 
 
   public Action getAction() {
