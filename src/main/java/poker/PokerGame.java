@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 public class PokerGame {
   private static final int FOLD_LEVEL = -100;
+  private static final int MAX_NUMBER_OF_PLAYERS = 7;
   private Dealer dealer;
   private static final Logger logger = LogManager.getLogger(PokerGame.class);
   private int blind = 50;
@@ -48,14 +49,15 @@ public class PokerGame {
       throw new RuntimeException("At least 2 players has to play.");
     }
     players.get(0).setLittleBlind();
-    logger.debug("Set little blind for :[" + players.get(0).getName() + "]");
+    logger.debug("Init blind.  Little blind is set to :[" + players.get(0).getName() + "]");
     players.get(1).setBigBlind();
-    logger.debug("Set big blind for :[" + players.get(1).getName() + "]");
+    logger.debug("Init blind. Big blind is set to :[" + players.get(1).getName() + "]");
   }
 
   void playRound(List<Player> players) {
     System.out.println("Blind is: [" + blind / 2 + "] resp: [" + blind + "]");
-    pot = payBlinds(players, blind);
+    pot = payBlinds(getPlayersStillInTheGame(players), blind);
+
     dealer.playPrivateHands();
     printHumanHand();
     decideBet(getPlayersStillInTheGame(players));
@@ -131,9 +133,13 @@ public class PokerGame {
   }
 
   int payBlinds(List<Player> players, int blindAmount) {
+    if (players.size() <2) {
+      // A player has won the game, no need to continue
+      return 0;
+    }
     int blindPot = 0;
     blindPot += payLittleBlind(players, blindAmount / 2);
-    blindPot += payBigBlind(players, blindAmount);
+    blindPot += payBigBlind(getPlayersStillInTheGame(players), blindAmount, getPlayerWithLittleBlind(players));
     return blindPot;
   }
 
@@ -143,6 +149,7 @@ public class PokerGame {
     Player playerWithOldLittleBlind = players.get(getPlayerWithLittleBlind(players));
     do {
       Player newLittleBlindPlayer = getNewLittleBlindPlayer(players.stream().filter(Player::hasAnyMarkers).collect(Collectors.toList()));
+      logger.debug("Trying to set big blind to :[" + newLittleBlindPlayer.getName() + "]");
       if (newLittleBlindPlayer.canPay(blindAmount)) {
         playerWithOldLittleBlind.clearLittleBlind();
         logger.debug("Clear little blind for :[" + playerWithOldLittleBlind.getName() + "]");
@@ -151,27 +158,37 @@ public class PokerGame {
         newLittleBlindPlayer.decreaseMarkers(blindAmount);
         logger.debug("Set little blind for :[" + newLittleBlindPlayer.getName() + "]");
 
-
         pot += blindAmount;
         littleBlindNotFound = false;
       } else {
         // Set player to broke and put all money to pot
-        pot = +newLittleBlindPlayer.getNumberOfMarkers();
+        System.out.println("Player :[" + newLittleBlindPlayer.getName() + "] has to fold due to insufficient number of markers. All markers are paid to the pot :[" + newLittleBlindPlayer.getNumberOfMarkers() + "]");
+        pot += newLittleBlindPlayer.getNumberOfMarkers();
         newLittleBlindPlayer.decreaseMarkers(newLittleBlindPlayer.getNumberOfMarkers());
-        System.out.println("Player :[" + newLittleBlindPlayer.getName() + "] has to fold due to insufficient number of markers. ");
-        // Little blind goes to next person if that one can pay
+        newLittleBlindPlayer.action = new Action(ActionEnum.FOLD);
+
+        // Set big blind to next in line
+        final int indexOfTempBigBlindPlayer = (players.indexOf(newLittleBlindPlayer) + 1) % (players.size() - 1);
+        players.get(indexOfTempBigBlindPlayer).setBigBlind();
+        logger.debug("Setting big blind temporary to " + players.get(indexOfTempBigBlindPlayer).getName());
       }
-    } while (littleBlindNotFound);
+    } while (littleBlindNotFound && (getPlayersStillInTheGame(players).size() > 1));
     return pot;
   }
 
-  private int payBigBlind(List<Player> players, int blindAmount) {
+  private int payBigBlind(List<Player> players, int blindAmount, int indexOfOldBigBlind) {
+    if (players.size() < 2) {
+      // A player has won, no need to continue
+      return 0;
+    }
     int pot = 0;
+    int indexOfNewBigBlind = (indexOfOldBigBlind +1) % players.size();
     boolean bigBlindNotFound = true;
-    Player playerWithOldBigBlind = players.get(getPlayerWithBigBlind(players));
     do {
-      Player newBigBlindPlayer = getNewBigBlindPlayer(players.stream().filter(Player::hasAnyMarkers).collect(Collectors.toList()));
+      Player newBigBlindPlayer = players.get(indexOfNewBigBlind);
+      logger.debug("Trying to set big blind to :[" + newBigBlindPlayer.getName() + "]");
       if (newBigBlindPlayer.canPay(blindAmount)) {
+        Player playerWithOldBigBlind = players.get(indexOfOldBigBlind);
         playerWithOldBigBlind.clearBigBlind();
         logger.debug("Clear big blind for :[" + playerWithOldBigBlind.getName() + "]");
 
@@ -185,9 +202,11 @@ public class PokerGame {
         // Set player to broke and put all money to pot
         pot += newBigBlindPlayer.getNumberOfMarkers();
         newBigBlindPlayer.decreaseMarkers(newBigBlindPlayer.getNumberOfMarkers());
-        System.out.println("Player :[" + newBigBlindPlayer.getName() + "] has to fold due to insufficient number of markers. ");
+        System.out.println("Player :[" + newBigBlindPlayer.getName() + "] has to fold due to insufficient number of markers.  All markers are paid to the pot :[" + newBigBlindPlayer.getNumberOfMarkers() + "]");
+        newBigBlindPlayer.action = new Action(ActionEnum.FOLD);
+        indexOfNewBigBlind = (indexOfNewBigBlind +1) % players.size();
       }
-    } while (bigBlindNotFound);
+    } while (bigBlindNotFound && (getPlayersStillInTheGame(players).size() > 1));
     return pot;
   }
 
@@ -410,64 +429,24 @@ public class PokerGame {
   private void createRobotPlayers() {
     System.out.println("How many players do you want to play with?");
     String numberOfPlayers = KeyboardHelper.getCharFromKeyboard(Lists.newArrayList("1", "2", "3", "4", "5", "6"), "[1-6]:");
-    switch (numberOfPlayers) {
-      case "1":
-        Player player = new RobotPlayer("Thomas", TOTAL_MARKERS_PER_PLAYER);
-        dealer.registerPlayer(player);
-        break;
-      case "2":
-        player = new RobotPlayer("Thomas", TOTAL_MARKERS_PER_PLAYER);
-        dealer.registerPlayer(player);
-        player = new RobotPlayer("Jörn", TOTAL_MARKERS_PER_PLAYER);
-        dealer.registerPlayer(player);
-        break;
-      case "3":
-        player = new RobotPlayer("Thomas", TOTAL_MARKERS_PER_PLAYER);
-        dealer.registerPlayer(player);
-        player = new RobotPlayer("Jörn", TOTAL_MARKERS_PER_PLAYER);
-        dealer.registerPlayer(player);
-        player = new RobotPlayer("Anders", TOTAL_MARKERS_PER_PLAYER);
-        dealer.registerPlayer(player);
-        break;
-      case "4":
-        player = new RobotPlayer("Thomas", TOTAL_MARKERS_PER_PLAYER);
-        dealer.registerPlayer(player);
-        player = new RobotPlayer("Jörn", TOTAL_MARKERS_PER_PLAYER);
-        dealer.registerPlayer(player);
-        player = new RobotPlayer("Anders", TOTAL_MARKERS_PER_PLAYER);
-        dealer.registerPlayer(player);
-        player = new RobotPlayer("Bosse", TOTAL_MARKERS_PER_PLAYER);
-        dealer.registerPlayer(player);
-        break;
-      case "5":
-        player = new RobotPlayer("Thomas", TOTAL_MARKERS_PER_PLAYER);
-        dealer.registerPlayer(player);
-        player = new RobotPlayer("Jörn", TOTAL_MARKERS_PER_PLAYER);
-        dealer.registerPlayer(player);
-        player = new RobotPlayer("Anders", TOTAL_MARKERS_PER_PLAYER);
-        dealer.registerPlayer(player);
-        player = new RobotPlayer("Bosse", TOTAL_MARKERS_PER_PLAYER);
-        dealer.registerPlayer(player);
-        player = new RobotPlayer("Ingemar", TOTAL_MARKERS_PER_PLAYER);
-        dealer.registerPlayer(player);
-        break;
-      case "6":
-        player = new RobotPlayer("Thomas", TOTAL_MARKERS_PER_PLAYER);
-        dealer.registerPlayer(player);
-        player = new RobotPlayer("Jörn", TOTAL_MARKERS_PER_PLAYER);
-        dealer.registerPlayer(player);
-        player = new RobotPlayer("Anders", TOTAL_MARKERS_PER_PLAYER);
-        dealer.registerPlayer(player);
-        player = new RobotPlayer("Bosse", TOTAL_MARKERS_PER_PLAYER);
-        dealer.registerPlayer(player);
-        player = new RobotPlayer("Ingemar", TOTAL_MARKERS_PER_PLAYER);
-        dealer.registerPlayer(player);
-        player = new RobotPlayer("Staffan", TOTAL_MARKERS_PER_PLAYER);
-        dealer.registerPlayer(player);
-        break;
-      default:
-        throw new RuntimeException("Number of players should be between 1 and 6: " + numberOfPlayers);
+    final List<Player> numberOfRobotPlayers = createNumberOfRobotPlayers(Integer.valueOf(numberOfPlayers), TOTAL_MARKERS_PER_PLAYER);
+    for (Player robot:numberOfRobotPlayers) {
+      dealer.registerPlayer(robot);
     }
+  }
+
+  List<Player> createNumberOfRobotPlayers(int numberOfPlayers, int markersPerPlayer) {
+    if (numberOfPlayers > MAX_NUMBER_OF_PLAYERS) {
+      throw new RuntimeException("Number of players should be between 1 and 7: " + numberOfPlayers);
+    }
+    final String[] name = {"Thomas", "Jörn", "Anders", "Bosse", "Ingemar", "Staffan", "Bagarn"};
+
+    List<Player> robotPlayers = Lists.newArrayList();
+    for (int i=0;i<numberOfPlayers;i++) {
+      Player player = new RobotPlayer(name[i], markersPerPlayer);
+      robotPlayers.add(player);
+    }
+    return robotPlayers;
   }
 
   private void checkTotalHand(Dealer dealer, String playerName, List<Card> privateHand) {

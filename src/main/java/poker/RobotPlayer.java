@@ -55,6 +55,7 @@ public class RobotPlayer extends Player {
 
   @Override
   protected void setAction(int raiseAmount, int maxRaiseFromOtherPlayer) {
+    logger.debug("Player :[" + getName() + "] raiseAmount: [" + raiseAmount + "] maxRaiseFromOtherPlayer :[" + maxRaiseFromOtherPlayer + "]");
     if (raiseAmount > maxRaiseFromOtherPlayer) {
       action = new Action(ActionEnum.RAISE);
       action.setRaiseValue(raiseAmount);
@@ -68,7 +69,7 @@ public class RobotPlayer extends Player {
   }
 
   private boolean isWithin(int raiseAmount, int maxRaiseFromOtherPlayer) {
-    if (raiseAmount > maxRaiseFromOtherPlayer * 0.9 && raiseAmount < maxRaiseFromOtherPlayer * 1.1) {
+    if (raiseAmount >= maxRaiseFromOtherPlayer * 0.9 && raiseAmount <= maxRaiseFromOtherPlayer * 1.1) {
       return true;
     }
     return false;

@@ -61,19 +61,32 @@ public class TestPot {
     do {
       pokerGame.setTurnForUnitTest(Turn.BEFORE_FLOP);
       pokerGame.playRound(players);
-    } while (!isAPlayerBroke(players));
-//    final int jornNumberOfMarkers = jorn.getNumberOfMarkers();
-//    final int staffansNumberOfMarkers = staffan.getNumberOfMarkers();
-//    System.out.println("Jörn has :[" + jornNumberOfMarkers + "] markers.");
-//    System.out.println("Staffan has :[" + staffansNumberOfMarkers + "] markers.");
-//    assertEquals(jornNumberOfMarkers + staffansNumberOfMarkers, 2*PokerGame.TOTAL_MARKERS_PER_PLAYER);
+    } while (moreThanOnePlayerHasMarkers(players));
   }
 
-  private boolean isAPlayerBroke(List<Player> players) {
+  @Test
+  public void playUntilAPlayerWinsTheGameMaxPlayers() {
+    List<Player> players = pokerGame.createNumberOfRobotPlayers(7, PokerGame.TOTAL_MARKERS_PER_PLAYER);
+    for (Player player:players) {
+      pokerGame.registerPlayer(player);
+    }
+
+    pokerGame.initBlinds(players);
+    do {
+      pokerGame.setTurnForUnitTest(Turn.BEFORE_FLOP);
+      pokerGame.playRound(players);
+    } while (moreThanOnePlayerHasMarkers(players));
+  }
+
+  private boolean moreThanOnePlayerHasMarkers(List<Player> players) {
+    int i = 0;
     for (Player player : players) {
-      if (!player.hasAnyMarkers()) {
-        return true;
+      if (player.hasAnyMarkers()) {
+        i++;
       }
+    }
+    if (i>1) {
+      return true;
     }
     return false;
   }

@@ -143,6 +143,7 @@ public abstract class Player {
   public void decreaseMarkers(int markers) {
     numberOfMarkers = numberOfMarkers - markers;
     if (numberOfMarkers < 0) {
+      logger.debug("Player :[" + getName() + "] is broke!");
       numberOfMarkers = 0;
     }
     logger.debug("Decrease [" + markers + "] for :[" + getName() + "]. Total number of markers :[" + numberOfMarkers + "]");
