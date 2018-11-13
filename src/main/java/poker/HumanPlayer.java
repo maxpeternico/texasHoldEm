@@ -56,10 +56,10 @@ public class HumanPlayer extends Player {
   @Override
   protected int calculateRaiseAmount(int blind) {
     int raiseAmount = 0;
-    if (action.isCheck()) {
+    if (strategy.equals(JOIN)) {
       return blind;
     }
-    if (action.isFold()) {
+    if (strategy.equals(QUIT)) {
       return 0;
     }
     try {
