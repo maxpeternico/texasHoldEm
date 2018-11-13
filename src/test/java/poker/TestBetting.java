@@ -73,7 +73,7 @@ public class TestBetting {
     pokerGame.payBlinds(playerList, 50);
     pokerGame.setTurnForUnitTest(Turn.BEFORE_FLOP);
     final String result = pokerGame.decideBet(playerList);
-    assertEquals("Player Jörn Action :[RAISE]. Player Staffan Action :[FOLD]. Player Thomas Action :[CHECK]. ", result);
+    assertEquals("Player Jörn Action :[RAISE]. Player Staffan Action :[CHECK]. Player Thomas Action :[RAISE]. ", result);
 
   }
 

@@ -191,7 +191,7 @@ public abstract class Player {
 
   public void addMarkers(int markers) {
     numberOfMarkers = numberOfMarkers + markers;
-    logger.debug("Player :[" + getName() + "] gets :[" + markers + "]");
+    logger.debug("Player :[" + getName() + "] gets :[" + markers + "]. Total number of markers :[" + numberOfMarkers + "]. ");
   }
 
   public boolean hasFolded() {

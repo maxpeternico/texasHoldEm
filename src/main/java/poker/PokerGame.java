@@ -89,8 +89,14 @@ public class PokerGame {
     checkTotalHand(dealer, theWinner.getName(), theWinner.getPrivateHand());
     theWinner.addMarkers(this.pot);
     System.out.println("Player :[" + theWinner.getName() + "] wins :[" + this.pot + "] markers.");
+    int totalNumberOfMarkers = 0;
     for (Player player : players) {
       System.out.println("Number of markers for :[" + player.getName() + "] : [" + player.getNumberOfMarkers() + "]");
+      totalNumberOfMarkers += player.getNumberOfMarkers();
+    }
+    final int theoreticalNumberOfMarkers = players.size() * 2500;
+    if (totalNumberOfMarkers != theoreticalNumberOfMarkers) {
+      throw new RuntimeException("Total number of markers is :[" + totalNumberOfMarkers + "] but should be :[" + theoreticalNumberOfMarkers + "]");
     }
     clearActions(players);
     turn = increaseTurn(turn);
@@ -139,7 +145,7 @@ public class PokerGame {
     }
     int blindPot = 0;
     blindPot += payLittleBlind(players, blindAmount / 2);
-    blindPot += payBigBlind(getPlayersStillInTheGame(players), blindAmount, getPlayerWithLittleBlind(players));
+    blindPot += payBigBlind(players, blindAmount, getPlayerWithLittleBlind(players));
     return blindPot;
   }
 
@@ -337,9 +343,12 @@ public class PokerGame {
           player.decideAction(turn, remainingPlayers.size(), dealer.getCommonHand(), blind, maxRaiseFromOtherplayer);
           final Action action = player.getAction();
           if (action.isRaise()) {
-            maxRaiseFromOtherplayer += action.getRaiseAmount();
-            totalRaiseAmount += maxRaiseFromOtherplayer;
-            logger.debug(" totalRaiseAmount :[" + totalRaiseAmount + "]. ");
+            int raiseAmount = action.getRaiseAmount();
+            totalRaiseAmount += raiseAmount - maxRaiseFromOtherplayer;
+            logger.debug("Player :[" + player.getName() + "] raises with totalRaiseAmount :[" + totalRaiseAmount + "]. ");
+          } else if (action.isCheck()) {
+            totalRaiseAmount = maxRaiseFromOtherplayer;
+            logger.debug("Player :[" + player.getName() + "] checks with totalRaiseAmount :[" + totalRaiseAmount + "]. ");
           }
           pot += totalRaiseAmount;
           logger.debug("Pot size :[" + pot + "]. ");

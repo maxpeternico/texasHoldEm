@@ -67,7 +67,7 @@ public class TestPot {
   @Test
   public void playUntilAPlayerWinsTheGameMaxPlayers() {
     List<Player> players = pokerGame.createNumberOfRobotPlayers(7, PokerGame.TOTAL_MARKERS_PER_PLAYER);
-    for (Player player:players) {
+    for (Player player : players) {
       pokerGame.registerPlayer(player);
     }
 
@@ -85,10 +85,59 @@ public class TestPot {
         i++;
       }
     }
-    if (i>1) {
+    if (i > 1) {
       return true;
     }
     return false;
+  }
+
+  @Test
+  public void testPotOnePlayerRaiseOtherFold() {
+    Player jorn = new RobotPlayer("Jörn", PokerGame.TOTAL_MARKERS_PER_PLAYER);
+    pokerGame.registerPlayer(jorn);
+    List<Card> jornsPrivateHand = new ArrayList<>();
+    jornsPrivateHand.add(new Card(Color.hearts, Ordinal.ace));
+    jornsPrivateHand.add(new Card(Color.spades, Ordinal.ace));
+    pokerGame.setPrivateHand(jorn, jornsPrivateHand);
+    Player staffan = new RobotPlayer("Staffan", PokerGame.TOTAL_MARKERS_PER_PLAYER);
+    pokerGame.registerPlayer(staffan);
+    List<Card> staffansPrivateHand = new ArrayList<>();
+    staffansPrivateHand.add(new Card(Color.hearts, Ordinal.seven));
+    staffansPrivateHand.add(new Card(Color.spades, Ordinal.two));
+    pokerGame.setPrivateHand(staffan, staffansPrivateHand);
+    List<Player> players = new ArrayList<>();
+    players.add(jorn);
+    players.add(staffan);
+
+    pokerGame.initBlinds(players);
+    pokerGame.setTurnForUnitTest(Turn.BEFORE_FLOP);
+    pokerGame.playRound(players);
+  //  assertEquals(2525, jorn.getNumberOfMarkers());
+    //   assertEquals(2475, staffan.getNumberOfMarkers());
+  }
+
+  @Test
+  public void testPotBothPlayersAllIn() {
+    Player jorn = new RobotPlayer("Jörn", PokerGame.TOTAL_MARKERS_PER_PLAYER);
+    pokerGame.registerPlayer(jorn);
+    List<Card> jornsPrivateHand = new ArrayList<>();
+    jornsPrivateHand.add(new Card(Color.hearts, Ordinal.ace));
+    jornsPrivateHand.add(new Card(Color.spades, Ordinal.ace));
+    pokerGame.setPrivateHand(jorn, jornsPrivateHand);
+    Player staffan = new RobotPlayer("Staffan", PokerGame.TOTAL_MARKERS_PER_PLAYER);
+    pokerGame.registerPlayer(staffan);
+    List<Card> staffansPrivateHand = new ArrayList<>();
+    staffansPrivateHand.add(new Card(Color.diamonds, Ordinal.ace));
+    staffansPrivateHand.add(new Card(Color.clubs, Ordinal.ace));
+    pokerGame.setPrivateHand(staffan, staffansPrivateHand);
+    List<Player> players = new ArrayList<>();
+    players.add(jorn);
+    players.add(staffan);
+
+    pokerGame.initBlinds(players);
+    pokerGame.setTurnForUnitTest(Turn.BEFORE_FLOP);
+    pokerGame.playRound(players);
+    assertEquals(5000, jorn.getNumberOfMarkers() + staffan.getNumberOfMarkers());
   }
 
   @After
