@@ -39,7 +39,7 @@ public class PokerGame {
     do {
       playersStillInTheGame = getPlayersStillInTheGame(players);
       playRound(playersStillInTheGame);
-    } while (!doWeHaveAWinner(playersStillInTheGame));
+    } while (!doWeHaveAWinner(getPlayersStillInTheGame(players)));
     final Player theWinner = playersStillInTheGame.get(0);
     System.out.println("Player :[" + theWinner.getName() + "] is the winner and won :[" + theWinner.getNumberOfMarkers() + "] markers.");
   }
@@ -94,7 +94,7 @@ public class PokerGame {
       System.out.println("Number of markers for :[" + player.getName() + "] : [" + player.getNumberOfMarkers() + "]");
       totalNumberOfMarkers += player.getNumberOfMarkers();
     }
-    final int theoreticalNumberOfMarkers = players.size() * 2500;
+    final int theoreticalNumberOfMarkers = dealer.getPlayers().size() * 2500;
     if (totalNumberOfMarkers != theoreticalNumberOfMarkers) {
       throw new RuntimeException("Total number of markers is :[" + totalNumberOfMarkers + "] but should be :[" + theoreticalNumberOfMarkers + "]");
     }

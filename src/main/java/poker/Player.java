@@ -157,8 +157,8 @@ public abstract class Player {
   }
 
   protected boolean isDesiredRaiseAmountHigherThanBlind(int amount, int blind) {
-    if (amount > blind) {
-      System.out.println("You must getRaiseAmount more than blind");
+    if (amount < blind) {
+      System.out.println("You must raise more than blind");
       return false;
     }
     if (!hasMarkersForAmount(amount)) {

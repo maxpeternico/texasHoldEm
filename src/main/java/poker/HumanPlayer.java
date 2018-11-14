@@ -69,6 +69,7 @@ public class HumanPlayer extends Player {
       strategy = QUIT;
       return 0;
     }
+    decreaseMarkers(raiseAmount);
     return raiseAmount;
   }
 
@@ -76,37 +77,21 @@ public class HumanPlayer extends Player {
     if (!hasMarkersForAmount(blind)) {
       throw new InsufficentMarkersException("You have no markers to pay the blind");
     }
+    boolean hasMarkersForBlind = false;
     boolean hasMarkers = false;
     int desiredRaiseAmount = 0;
     do {
       desiredRaiseAmount = Integer.parseInt(KeyboardHelper.getCharFromKeyboard(Lists.newArrayList("0", "1", "2", "3", "4", "5", "6", "7", "8", "9"), "Raise amount:"));
-      hasMarkers = isDesiredRaiseAmountHigherThanBlind(desiredRaiseAmount, blind);
-    } while (hasMarkers = false);
+      hasMarkersForBlind = isDesiredRaiseAmountHigherThanBlind(desiredRaiseAmount, blind);
+      hasMarkers = isDesiredRaiseAmountHigherThanNumberOfMarkers(desiredRaiseAmount);
+    } while (hasMarkersForBlind == false || hasMarkers == false);
     return desiredRaiseAmount;
   }
 
-
-  private boolean isFolding(String decision) {
-    if (decision.equals("F")) {
-      System.out.println("You fold! Bye");
-      return true;
-    }
-    return false;
-  }
-
-  private boolean isRaising(String decision) {
-    if (decision.equals("R")) {
-      return true;
-    } else {
+  private boolean isDesiredRaiseAmountHigherThanNumberOfMarkers(int desiredRaiseAmount) {
+    if (desiredRaiseAmount > getNumberOfMarkers()) {
       return false;
     }
-  }
-
-  private boolean isChecking(String decision) {
-    if (decision.equals("C")) {
-      return true;
-    } else {
-      return false;
-    }
+    return true;
   }
 }
