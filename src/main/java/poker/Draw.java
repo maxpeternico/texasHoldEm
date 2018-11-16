@@ -1,14 +1,14 @@
 package poker;
 
-enum Turn {
+enum Draw {
   BEFORE_FLOP(0),
   BEFORE_TURN(1),
   BEFORE_RIVER(2),
   END_GAME(3);
 
-  private final int turnValue;
+  private final int drawValue;
 
-  Turn(int value) {
-    this.turnValue = value;
+  Draw(int value) {
+    this.drawValue = value;
   }
 }

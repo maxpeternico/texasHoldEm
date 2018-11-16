@@ -1,10 +1,10 @@
 package poker;
 
 enum Color {
-    hearts(0),
-    spades(1),
-    diamonds(2),
-    clubs(3);
+    hearts(3),
+    spades(2),
+    diamonds(1),
+    clubs(0);
 
     private int colorCode;
 

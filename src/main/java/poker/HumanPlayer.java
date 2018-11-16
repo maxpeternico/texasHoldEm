@@ -18,7 +18,7 @@ public class HumanPlayer extends Player {
   }
 
   @Override
-  public void decideStrategy(Turn turn, int numberOfRemainingPlayers, List<Card> commonHand, int blind) {
+  public void decideStrategy(Draw draw, int numberOfRemainingPlayers, List<Card> commonHand, int blind) {
     String decision = KeyboardHelper.getCharFromKeyboard(Lists.newArrayList("R", "C", "F"), "(R)aise/(C)heck/(F)old:");
     switch (decision) {
       case "R":
@@ -36,7 +36,7 @@ public class HumanPlayer extends Player {
   }
 
   @Override
-  protected void setAction(int raiseAmount, int maxRaiseFromOtherPlayer) {
+  protected int setAction(int raiseAmount, int maxRaiseFromOtherPlayer) {
     switch (strategy) {
       case OFFENSIVE:
         action = new Action(ActionEnum.RAISE);
@@ -51,6 +51,8 @@ public class HumanPlayer extends Player {
       default:
         throw new RuntimeException("This should not happen. strategy:[" + strategy + "]");
     }
+    // Already checked that raiseamount is equal or higher than blind (or 0)
+    return raiseAmount;
   }
 
   @Override
@@ -69,7 +71,6 @@ public class HumanPlayer extends Player {
       strategy = QUIT;
       return 0;
     }
-    decreaseMarkers(raiseAmount);
     return raiseAmount;
   }
 

@@ -6,7 +6,6 @@ import org.apache.logging.log4j.Logger;
 import java.util.*;
 
 import static java.util.Arrays.stream;
-import static sun.audio.AudioPlayer.player;
 
 
 class Dealer {
@@ -75,7 +74,7 @@ class Dealer {
     return new Card(color, ordinal);
   }
 
-  private void removeCardFromDeck(Card drawnCard) {
+  void removeCardFromDeck(Card drawnCard) {
     boolean isCardRemovedFromDeck = deck.remove(drawnCard);
     if (!isCardRemovedFromDeck) {
       throw new RuntimeException("Card was not removed from deck!");
@@ -87,9 +86,27 @@ class Dealer {
     commonHand.addAll(drawnCards);
   }
 
+  private boolean isCommonHandForTest() {
+    // Att test common hand is already set
+    if (commonHand.size() == 5) {
+      return true;
+    }
+    return false;
+  }
+
   void playPrivateHand(Player player) {
-    player.addPrivateCards(dealPrivateHand());
+    if (!isTest(player)) {
+      player.addPrivateCards(dealPrivateHand());
+    }
     player.evaluateHand(commonHand);
+  }
+
+  private boolean isTest(Player player) {
+    // At test private hand is already set
+    if (player.getPrivateHand().size() == 2) {
+      return true;
+    }
+    return false;
   }
 
   void playFlop(Player player) {
@@ -104,12 +121,28 @@ class Dealer {
     return player.evaluateHand(commonHand);
   }
 
+  void drawFlop() {
+    if (isCommonHandForTest()) {
+      return;
+    }
+    skipCard();
+    dealCommon(NUMBER_OF_CARD_FOR_FLOP);
+//    dealCommon(NUMBER_OF_CARD_FOR_FLOP - getEventuallyReservedCardsForFlop());
+  }
+
   void drawRiver() {
+    if (isCommonHandForTest()) {
+      return;
+    }
     skipCard();
     dealCommon(NUMBER_OF_CARD_FOR_RIVER);
   }
 
   void drawTurn() {
+    if (isCommonHandForTest()) {
+      return;
+    }
+
     skipCard();
     dealCommon(NUMBER_OF_CARD_FOR_TURN);
   }
@@ -118,11 +151,6 @@ class Dealer {
     logger.trace("The card:");
     skippedCards.addAll(dealRandomCard(SKIP_CARD));
     logger.trace(" is skipped.");
-  }
-
-  void drawFlop() {
-    skipCard();
-    dealCommon(NUMBER_OF_CARD_FOR_FLOP - getEventuallyReservedCardsForFlop());
   }
 
   private int getEventuallyReservedCardsForFlop() {
@@ -149,11 +177,6 @@ class Dealer {
 
   void playPrivateHands() {
     players.stream().forEach(e -> playPrivateHand(e));
-//    players.stream().forEach(e -> {
-//      if (e.hasAnyMarkers()) {
-//        playPrivateHand(e);
-//      }
-//    });
   }
 
   private void rotateDealer() {
@@ -163,19 +186,32 @@ class Dealer {
   }
 
   void setPrivateHand(Player player, List<Card> privateHand) {
-    List<Card> cardsInHand = new ArrayList<>();
+    List<Card> cardsInHand = drawCardsFromDeck(privateHand);
+    player.addPrivateCards(cardsInHand);
+  }
+
+  private List<Card> drawCardsFromDeck(List<Card> privateHand) {
+    List<Card> drawnCards = new ArrayList<>();
     for (Card card : privateHand) {
       if (!deck.contains(card)) {
         throw new RuntimeException("Card [" + card.toString() + "] is not present in the Deck!");
       }
       logger.debug("Drawing card:" + card.toString() + "]");
-      cardsInHand.add(card);
+      drawnCards.add(card);
       boolean isCardRemovedFromDeck = deck.remove(card);
       if (!isCardRemovedFromDeck) {
         throw new RuntimeException("Card [" + card + "] was not removed from deck!");
       }
     }
-    player.addPrivateCards(cardsInHand);
+    return drawnCards;
+  }
+
+  public void setCommonHand(List<Card> newCommonHand) {
+    this.commonHand = drawCardsFromDeck(newCommonHand);
+  }
+
+  List<Card> getCommonHand() {
+    return commonHand;
   }
 
   List<Player> getPlayers() {
@@ -190,10 +226,6 @@ class Dealer {
       deck.add(card);
     }
     cardsInHand.clear();
-  }
-
-  List<Card> getCommonHand() {
-    return commonHand;
   }
 
   List<Card> getSkippedCards() {

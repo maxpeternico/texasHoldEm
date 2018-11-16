@@ -1,5 +1,6 @@
 package poker;
 
+import com.google.common.collect.Lists;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,18 +23,18 @@ public class RobotPlayer extends Player {
   /**
    * Since privatePoints is compensated by the number of players there is no need to consider number of players here
    */
-  public void decideStrategy(Turn turn, int numberOfRemainingPlayers, List<Card> commonHand, int blind) {
-    points = calculatePoints(numberOfRemainingPlayers, turn, commonHand);
+  public void decideStrategy(Draw draw, int numberOfRemainingPlayers, List<Card> commonHand, int blind) {
+    points = calculatePoints(numberOfRemainingPlayers, draw, commonHand);
 
-    switch (turn) {
+    switch (draw) {
       case BEFORE_FLOP:
         // No common hand to care
         // Pair is good, getRaiseAmount or go all in if pot is big
-        if (points.privatePoints > 113) {
+        if (points.totalPoints > 113) {
           // Pair of aces and higher
           strategy = ALL_IN;
           // Pair
-        } else if (points.privatePoints > 100) {
+        } else if (points.totalPoints > 100) {
           strategy = OFFENSIVE;
         }
         break;
@@ -54,18 +55,20 @@ public class RobotPlayer extends Player {
   }
 
   @Override
-  protected void setAction(int raiseAmount, int maxRaiseFromOtherPlayer) {
+  protected int setAction(int raiseAmount, int maxRaiseFromOtherPlayer) {
     logger.debug("Player :[" + getName() + "] raiseAmount: [" + raiseAmount + "] maxRaiseFromOtherPlayer :[" + maxRaiseFromOtherPlayer + "]");
+    int finalRaiseAmount = 0;
     if (raiseAmount > maxRaiseFromOtherPlayer) {
       action = new Action(ActionEnum.RAISE);
       action.setRaiseValue(raiseAmount);
-      decreaseMarkers(raiseAmount);
+      finalRaiseAmount = raiseAmount;
     } else if (isWithin(raiseAmount, maxRaiseFromOtherPlayer)) {
       action = new Action(ActionEnum.CHECK);
-      decreaseMarkers(maxRaiseFromOtherPlayer);
+      finalRaiseAmount = maxRaiseFromOtherPlayer;
     } else {
       action = new Action(ActionEnum.FOLD);
     }
+    return finalRaiseAmount;
   }
 
   private boolean isWithin(int raiseAmount, int maxRaiseFromOtherPlayer) {
@@ -133,19 +136,30 @@ public class RobotPlayer extends Player {
     return raiseAmount;
   }
 
-  Points calculatePoints(int numberOfRemainingPlayers, Turn turn, List<Card> commonHand) {
+  Points calculatePoints(int numberOfRemainingPlayers, Draw draw, List<Card> commonHand) {
     Points points = new Points();
     int commonPoints = 0;
     int privatePoints = calculatePrivatePoints(getPrivateHand());
     logger.debug(getName() + " private points: " + privatePoints);
    // privatePoints = compensatePrivateHandWithNumberOfPlayers(privatePoints, numberOfRemainingPlayers);
-    if (turn != Turn.BEFORE_FLOP) {
+    if (draw != Draw.BEFORE_FLOP) {
       commonPoints = calculateCommonPoints(numberOfRemainingPlayers, commonHand);
     }
+    List<Card> totalHand = Lists.newArrayList();
+    totalHand.addAll(getPrivateHand());
+    totalHand.addAll(commonHand);
+    int totalHandPoints = calculateTotalHandPoints(totalHand);
     logger.debug(getName() + " private points compensated: " + privatePoints + " common points compensated: " + commonPoints);
     points.privatePoints = privatePoints;
     points.commonPoints = commonPoints;
+    points.totalPoints = totalHandPoints;
     return points;
+  }
+
+  private int calculateTotalHandPoints(List<Card> totalHand) {
+    final Map<Card, PokerResult> commonPointsMap = EvaluationHandler.evaluateHand("common", totalHand);
+    int commonHandPoints = EvaluationHandler.getResultFromCardPokerResultMap(commonPointsMap).getPoints();
+    return commonHandPoints;
   }
 
   private int calculatePrivatePoints(List<Card> hand) {

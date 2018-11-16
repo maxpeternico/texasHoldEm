@@ -32,10 +32,10 @@ public class TestBetting {
 
     pokerGame.initBlinds(playerList);
     pokerGame.payBlinds(playerList, 50);
-    pokerGame.setTurnForUnitTest(Turn.BEFORE_FLOP);
+    pokerGame.setTurnForUnitTest(Draw.BEFORE_FLOP);
     List<Card> emptyCommonhand = new ArrayList<>();
-    final Points jornsPoints = ((RobotPlayer) jorn).calculatePoints(2, Turn.BEFORE_FLOP, emptyCommonhand);
-    final Points staffansPoints = ((RobotPlayer) staffan).calculatePoints(2, Turn.BEFORE_FLOP, emptyCommonhand);
+    final Points jornsPoints = ((RobotPlayer) jorn).calculatePoints(2, Draw.BEFORE_FLOP, emptyCommonhand);
+    final Points staffansPoints = ((RobotPlayer) staffan).calculatePoints(2, Draw.BEFORE_FLOP, emptyCommonhand);
     assertEquals(jornsPoints.toInt(), 114);
     assertEquals(staffansPoints.toInt(), 13);
   }
@@ -71,7 +71,7 @@ public class TestBetting {
 
     pokerGame.initBlinds(playerList);
     pokerGame.payBlinds(playerList, 50);
-    pokerGame.setTurnForUnitTest(Turn.BEFORE_FLOP);
+    pokerGame.setTurnForUnitTest(Draw.BEFORE_FLOP);
     final String result = pokerGame.decideBet(playerList);
     assertEquals("Player Jörn Action :[RAISE]. Player Staffan Action :[CHECK]. Player Thomas Action :[RAISE]. ", result);
 
@@ -98,7 +98,7 @@ public class TestBetting {
     playerList.add(thomas);
     pokerGame.initBlinds(playerList);
     pokerGame.payBlinds(playerList, 50);
-    pokerGame.setTurnForUnitTest(Turn.BEFORE_FLOP);
+    pokerGame.setTurnForUnitTest(Draw.BEFORE_FLOP);
     final String result = pokerGame.decideBet(playerList);
     assertEquals("Player Peter Action :[RAISE]. Player Thomas Action :[RAISE]. ", result);
   }
@@ -125,7 +125,7 @@ public class TestBetting {
 
     pokerGame.initBlinds(playerList);
     pokerGame.payBlinds(playerList, 50);
-    pokerGame.setTurnForUnitTest(Turn.BEFORE_FLOP);
+    pokerGame.setTurnForUnitTest(Draw.BEFORE_FLOP);
     final String result = pokerGame.decideBet(playerList);
 
     assertEquals("Player Peter Action :[RAISE]. Player Thomas Action :[RAISE]. ", result);
@@ -151,7 +151,7 @@ public class TestBetting {
 //    playerList.add(staffan);
 //
 //    pokerGame.initBlinds(playerList);
-//    pokerGame.setTurnForUnitTest(Turn.BEFORE_FLOP);
+//    pokerGame.setTurnForUnitTest(Draw.BEFORE_FLOP);
 //    pokerGame.playRound(playerList);
 //    final int jornsMarkers = jorn.getNumberOfMarkers();
 //    final int staffansMarkers = staffan.getNumberOfMarkers();

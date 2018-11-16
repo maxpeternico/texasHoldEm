@@ -175,17 +175,18 @@ public abstract class Player {
     return true;
   }
 
-  public abstract void decideStrategy(Turn turn, int numberOfRemainingPlayers, List<Card> commonHand, int blind);
+  public abstract void decideStrategy(Draw draw, int numberOfRemainingPlayers, List<Card> commonHand, int blind);
 
-  public void decideAction(Turn turn, int numberOfRemainingPlayers, List<Card> commonHand, int blind, int maxRaiseFromOtherPlayer) {
-    decideStrategy(turn, numberOfRemainingPlayers, commonHand, blind);
+  public void decideAction(Draw draw, int numberOfRemainingPlayers, List<Card> commonHand, int blind, int maxRaiseFromOtherPlayer) {
+    decideStrategy(draw, numberOfRemainingPlayers, commonHand, blind);
 
     int raiseAmount = calculateRaiseAmount(blind);
-    setAction(raiseAmount, maxRaiseFromOtherPlayer);
+    int checkOrRaiseAmount = setAction(raiseAmount, maxRaiseFromOtherPlayer);
     logger.debug("Player " + getName() + " decides to :[" + action + "]");
+    decreaseMarkers(checkOrRaiseAmount);
   }
 
-  protected abstract void setAction(int raiseAmount, int maxRaiseFromOtherPlayer);
+  protected abstract int setAction(int raiseAmount, int maxRaiseFromOtherPlayer);
 
   protected abstract int calculateRaiseAmount(int blind);
 

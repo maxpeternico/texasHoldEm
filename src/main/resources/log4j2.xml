@@ -18,6 +18,9 @@
         <Logger name="poker.Player" level="debug" additivity="false">
             <AppenderRef ref="Console" />
         </Logger>
+        <Logger name="poker.Dealer" level="info" additivity="false">
+            <AppenderRef ref="Console" />
+        </Logger>
         <Root level="info">
             <AppenderRef ref="Console" />
         </Root>
