@@ -2,9 +2,9 @@ package poker;
 
 enum Draw {
   BEFORE_FLOP(0),
-  BEFORE_TURN(1),
-  BEFORE_RIVER(2),
-  END_GAME(3);
+  FLOP(1),
+  TURN(2),
+  RIVER(3);
 
   private final int drawValue;
 

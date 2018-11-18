@@ -1,5 +1,6 @@
 package poker;
 
+import com.google.common.collect.Lists;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -86,8 +87,24 @@ class Dealer {
     commonHand.addAll(drawnCards);
   }
 
-  private boolean isCommonHandForTest() {
-    // Att test common hand is already set
+  private boolean isCommonHandForFlopTest() {
+    // At test common hand is already set
+    if (commonHand.size() == 3) {
+      return true;
+    }
+    return false;
+  }
+
+  private boolean isCommonHandForTurnTest() {
+    // At test common hand is already set
+    if (commonHand.size() == 4) {
+      return true;
+    }
+    return false;
+  }
+
+  private boolean isCommonHandForRiverTest() {
+    // At test common hand is already set
     if (commonHand.size() == 5) {
       return true;
     }
@@ -122,7 +139,7 @@ class Dealer {
   }
 
   void drawFlop() {
-    if (isCommonHandForTest()) {
+    if (isCommonHandForFlopTest()) {
       return;
     }
     skipCard();
@@ -131,7 +148,7 @@ class Dealer {
   }
 
   void drawRiver() {
-    if (isCommonHandForTest()) {
+    if (isCommonHandForRiverTest()) {
       return;
     }
     skipCard();
@@ -139,7 +156,7 @@ class Dealer {
   }
 
   void drawTurn() {
-    if (isCommonHandForTest()) {
+    if (isCommonHandForTurnTest()) {
       return;
     }
 
@@ -204,10 +221,6 @@ class Dealer {
       }
     }
     return drawnCards;
-  }
-
-  public void setCommonHand(List<Card> newCommonHand) {
-    this.commonHand = drawCardsFromDeck(newCommonHand);
   }
 
   List<Card> getCommonHand() {
@@ -407,5 +420,9 @@ class Dealer {
     players.clear();
     deck.clear();
     populateDeck();
+  }
+
+  void addToCommonHand(List<Card> cards) {
+    commonHand.addAll(drawCardsFromDeck(cards));
   }
 }

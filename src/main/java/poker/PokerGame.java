@@ -55,39 +55,21 @@ public class PokerGame {
 
   void playRound(List<Player> players) {
     System.out.println("Blind is: [" + blind / 2 + "] resp: [" + blind + "]");
-    pot = payBlinds(getPlayersStillInTheGame(players), blind);
+    payBlinds(getPlayersStillInTheGame(players), blind);
 
-    dealer.playPrivateHands();
-    printHumanHand();
-    decideBet(getPlayersStillInTheGame(players));
+    playBeforeFlop(players);
     increaseDraw();
-
-    /********************************* FLOP *************************************************/
-
-    dealer.drawFlop();
-    System.out.println("Total hand after flop: ");
-    printHumanHand();
-    decideBet(getPlayersStillInTheGame(players));
+    playFlop(players);
     increaseDraw();
-
-    /********************************* TURN *************************************************/
-
-    dealer.drawTurn();
-    System.out.println("Total hand after draw: ");
-    printHumanHand();
-    decideBet(getPlayersStillInTheGame(players));
+    playTurn(players);
     increaseDraw();
-
-    /********************************* RIVER *************************************************/
-
-    dealer.drawRiver();
-    System.out.println("Total hand after river: ");
-    printHumanHand();
-    decideBet(getPlayersStillInTheGame(players));
+    playRiver(players);
     increaseDraw();
+    getTheWinner(players);
+    resetTurn(players);
+  }
 
-    /********************************* FIND THE WINNER *************************************************/
-
+  void getTheWinner(List<Player> players) {
     final Player theWinner = dealer.findTheWinner(getPlayersThatDidNotFold(players));
     checkTotalHand(dealer, theWinner.getName(), theWinner.getPrivateHand());
     theWinner.addMarkers(this.pot);
@@ -101,10 +83,36 @@ public class PokerGame {
     if (totalNumberOfMarkers != theoreticalNumberOfMarkers) {
       throw new RuntimeException("Total number of markers is :[" + totalNumberOfMarkers + "] but should be :[" + theoreticalNumberOfMarkers + "]");
     }
-    resetTurn(players);
   }
 
-  private void resetTurn(List<Player> players) {
+  String playRiver(List<Player> players) {
+    dealer.drawRiver();
+    System.out.println("Total hand after river: ");
+    printHumanHand();
+    return decideBet(getPlayersStillInTheGame(players));
+  }
+
+  String playTurn(List<Player> players) {
+    dealer.drawTurn();
+    System.out.println("Total hand after draw: ");
+    printHumanHand();
+    return decideBet(getPlayersStillInTheGame(players));
+  }
+
+  String playFlop(List<Player> players) {
+    dealer.drawFlop();
+    System.out.println("Total hand after flop: ");
+    printHumanHand();
+    return decideBet(getPlayersStillInTheGame(players));
+  }
+
+  String playBeforeFlop(List<Player> players) {
+    dealer.playPrivateHands();
+    printHumanHand();
+    return decideBet(getPlayersStillInTheGame(players));
+  }
+
+  void resetTurn(List<Player> players) {
     for (Player player:players) {
       player.action = new Action(ActionEnum.NOT_DECIDED);
     }
@@ -140,15 +148,14 @@ public class PokerGame {
     return playersStillInTheGame;
   }
 
-  int payBlinds(List<Player> players, int blindAmount) {
+  void payBlinds(List<Player> players, int blindAmount) {
     if (players.size() <2) {
       // A player has won the game, no need to continue
-      return 0;
+      return;
     }
-    int blindPot = 0;
-    blindPot += payLittleBlind(players, blindAmount / 2);
-    blindPot += payBigBlind(players, blindAmount, getPlayerWithLittleBlind(players));
-    return blindPot;
+    pot = 0;
+    pot += payLittleBlind(players, blindAmount / 2);
+    pot += payBigBlind(players, blindAmount, getPlayerWithLittleBlind(players));
   }
 
   private int payLittleBlind(List<Player> players, int blindAmount) {
@@ -272,18 +279,18 @@ public class PokerGame {
     return humanPlayer;
   }
 
-  private void increaseDraw() {
+  void increaseDraw() {
     switch (draw) {
       case BEFORE_FLOP:
-        draw = Draw.BEFORE_TURN;
+        draw = Draw.FLOP;
         break;
-      case BEFORE_TURN:
-        draw = Draw.BEFORE_RIVER;
+      case FLOP:
+        draw = Draw.TURN;
         break;
-      case BEFORE_RIVER:
-        draw = Draw.END_GAME;
+      case TURN:
+        draw = Draw.RIVER;
         break;
-      case END_GAME:
+      case RIVER:
         draw = Draw.BEFORE_FLOP;
         break;
     }
@@ -312,13 +319,13 @@ public class PokerGame {
 
           player.decideAction(draw, remainingPlayers.size(), dealer.getCommonHand(), blind, maxRaiseFromOtherplayer);
           final Action action = player.getAction();
-          if (action.isRaise()) {
+          if (action.isRaise() || action.isAllIn()) {
             raiseAmount = action.getRaiseAmount();  // E.g. players 1 rasies 100 player 2 raises 200
             totalRaiseAmount += raiseAmount + maxRaiseFromOtherplayer; // pot = 200 + 100
             maxRaiseFromOtherplayer = totalRaiseAmount;   // max rise from another player is 300
             logger.debug("Player :[" + player.getName() + "] raises with totalRaiseAmount :[" + totalRaiseAmount + "]. ");
           } else if (action.isCheck()) {
-            totalRaiseAmount = maxRaiseFromOtherplayer;
+            raiseAmount = maxRaiseFromOtherplayer;
             logger.debug("Player :[" + player.getName() + "] checks with totalRaiseAmount :[" + totalRaiseAmount + "]. ");
           }
           pot += raiseAmount;
@@ -421,11 +428,11 @@ public class PokerGame {
     decideBet(getPlayersStillInTheGame(players));
   }
 
-  public void setCommonHand(List<Card> commonHand) {
-    dealer.setCommonHand(commonHand);
+  void addToCommonHand(List<Card> cards) {
+    dealer.addToCommonHand(cards);
   }
 
-  public void drawCardFromDeck(Card card) {
-    dealer.removeCardFromDeck(card);
+  int getPot() {
+    return pot;
   }
 }

@@ -16,6 +16,13 @@ public class Action {
     return raiseAmount;
   }
 
+  public boolean isAllIn() {
+    if (decision.equals(ActionEnum.ALL_IN)) {
+      return true;
+    }
+    return false;
+  }
+
   public boolean isRaise() {
     if (decision.equals(ActionEnum.RAISE)) {
       return true;

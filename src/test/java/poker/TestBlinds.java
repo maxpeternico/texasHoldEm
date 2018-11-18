@@ -103,12 +103,12 @@ public class TestBlinds {
     assertEquals(jorn.hasBigBlind(), true);
     assertEquals(thomas.hasBlind(), false);
 
-    int blindPot = pokerGame.payBlinds(players, 50);
+    pokerGame.payBlinds(players, 50);
 
     assertEquals(staffan.hasBigBlind(), true);
     assertEquals(jorn.hasLittleBlind(), true);
     assertEquals(thomas.hasBlind(), false);
-    assertEquals(blindPot, 85);
+    assertEquals(pokerGame.getPot(), 85);
 
     pokerGame.clearGame();
   }
@@ -161,8 +161,8 @@ public class TestBlinds {
     // Set player 1 so he can not pay little blind
     players.get(1).decreaseMarkers(90);
     pokerGame.initBlinds(players);
-    final int blindPot = pokerGame.payBlinds(players, 50);
-    assertEquals(10, blindPot);
+    pokerGame.payBlinds(players, 50);
+    assertEquals(10, pokerGame.getPot());
   }
 
   @Test
@@ -171,8 +171,8 @@ public class TestBlinds {
     // Set player 0 so he can not pay big blind
     players.get(0).decreaseMarkers(90);
     pokerGame.initBlinds(players);
-    final int blindPot = pokerGame.payBlinds(players, 50);
-    assertEquals(35, blindPot);
+    pokerGame.payBlinds(players, 50);
+    assertEquals(35, pokerGame.getPot());
   }
 
   @Test
@@ -184,8 +184,8 @@ public class TestBlinds {
     int indexOfBigBlind = getIndexOfBlind(players, Player::hasBigBlind);
     assertEquals(indexOfBigBlind, 1);
 
-    int blindPot = pokerGame.payBlinds(players, 50);
-    assertEquals(75, blindPot);
+    pokerGame.payBlinds(players, 50);
+    assertEquals(75, pokerGame.getPot());
 
     indexOfLittleBlind = getIndexOfBlind(players, Player::hasLittleBlind);
     assertEquals(indexOfLittleBlind, 1);
@@ -194,8 +194,8 @@ public class TestBlinds {
 
     // Player 1 shall nog be able to pay blind
     players.get(0).decreaseMarkers(70);
-    blindPot = pokerGame.payBlinds(players, 50);
-    assertEquals(105, blindPot);
+     pokerGame.payBlinds(players, 50);
+    assertEquals(105, pokerGame.getPot());
 
     indexOfLittleBlind = getIndexOfBlind(players, Player::hasLittleBlind);
     assertEquals(2, indexOfLittleBlind);
@@ -213,8 +213,8 @@ public class TestBlinds {
     int indexOfBigBlind = getIndexOfBlind(players, Player::hasBigBlind);
     assertEquals(indexOfBigBlind, 1);
 
-    int blindPot = pokerGame.payBlinds(players, 50);
-    assertEquals(75, blindPot);
+    pokerGame.payBlinds(players, 50);
+    assertEquals(75, pokerGame.getPot());
 
     indexOfLittleBlind = getIndexOfBlind(players, Player::hasLittleBlind);
     assertEquals(indexOfLittleBlind, 1);
@@ -223,8 +223,8 @@ public class TestBlinds {
 
     // Player 2 shall nog be able to pay blind
     players.get(2).decreaseMarkers(30);
-    blindPot = pokerGame.payBlinds(players, 50);
-    assertEquals(95, blindPot);
+    pokerGame.payBlinds(players, 50);
+    assertEquals(95, pokerGame.getPot());
 
     indexOfLittleBlind = getIndexOfBlind(players, Player::hasLittleBlind);
     assertEquals(0, indexOfLittleBlind);
@@ -241,8 +241,8 @@ public class TestBlinds {
     int indexOfBigBlind = getIndexOfBlind(players, Player::hasBigBlind);
     assertEquals(indexOfBigBlind, 1);
 
-    int blindPot = pokerGame.payBlinds(players, 50);
-    assertEquals(75, blindPot);
+    pokerGame.payBlinds(players, 50);
+    assertEquals(75, pokerGame.getPot());
 
     indexOfLittleBlind = getIndexOfBlind(players, Player::hasLittleBlind);
     assertEquals(indexOfLittleBlind, 1);
@@ -253,8 +253,8 @@ public class TestBlinds {
     players.get(0).decreaseMarkers(80);
     // Player 2 shall not be able to pay little blind
     players.get(2).decreaseMarkers(30);
-    blindPot = pokerGame.payBlinds(players, 50);
-    assertEquals(40, blindPot);
+    pokerGame.payBlinds(players, 50);
+    assertEquals(40, pokerGame.getPot());
 
     indexOfLittleBlind = getIndexOfBlind(players, Player::hasLittleBlind);
     assertEquals(1, indexOfLittleBlind);

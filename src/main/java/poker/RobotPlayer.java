@@ -38,17 +38,17 @@ public class RobotPlayer extends Player {
           strategy = OFFENSIVE;
         }
         break;
-      case BEFORE_TURN:
+      case FLOP:
         // Pair of aces is good or anything higher, getRaiseAmount or go all in if pott is big
         // Low pair, join unless too expensive
         // Bad cards, try to join if cheap otherwise fold
         break;
-      case BEFORE_RIVER:
+      case TURN:
         // Pair of aces is good or anything higher, getRaiseAmount or go all in if pott is big
         // Low pair, join unless too expensive
         // Bad cards, try to join if cheap otherwise fold
         break;
-      case END_GAME:
+      case RIVER:
         break;
     }
     logger.debug("Player " + getName() + " has strategy " + strategy + ". ");
@@ -57,18 +57,24 @@ public class RobotPlayer extends Player {
   @Override
   protected int setAction(int raiseAmount, int maxRaiseFromOtherPlayer) {
     logger.debug("Player :[" + getName() + "] raiseAmount: [" + raiseAmount + "] maxRaiseFromOtherPlayer :[" + maxRaiseFromOtherPlayer + "]");
-    int finalRaiseAmount = 0;
+
+    if (strategy.equals(ALL_IN)) {
+      action = new Action(ActionEnum.ALL_IN);
+      action.setRaiseValue(raiseAmount);
+      return raiseAmount;
+    }
     if (raiseAmount > maxRaiseFromOtherPlayer) {
       action = new Action(ActionEnum.RAISE);
       action.setRaiseValue(raiseAmount);
-      finalRaiseAmount = raiseAmount;
-    } else if (isWithin(raiseAmount, maxRaiseFromOtherPlayer)) {
+      return raiseAmount;
+    }
+    if (isWithin(raiseAmount, maxRaiseFromOtherPlayer)) {
       action = new Action(ActionEnum.CHECK);
-      finalRaiseAmount = maxRaiseFromOtherPlayer;
+      return maxRaiseFromOtherPlayer;
     } else {
       action = new Action(ActionEnum.FOLD);
+      return 0;
     }
-    return finalRaiseAmount;
   }
 
   private boolean isWithin(int raiseAmount, int maxRaiseFromOtherPlayer) {

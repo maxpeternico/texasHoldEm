@@ -5,6 +5,7 @@ import org.junit.After;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -14,7 +15,7 @@ public class TestPot {
   final PokerGame pokerGame = PokerGame.getInstance();
 
   @Test
-  public void testTwoPlayersOneRaiseOneFold() {
+  public void testTwoPlayersOneAllInOneFoldPotEqualToLittleBlind() {
     final List<Player> players = pokerGame.createNumberOfRobotPlayers(2, 2500);
     players.stream().forEach(pokerGame::registerPlayer);
     final Player player0 = players.get(0);
@@ -24,8 +25,27 @@ public class TestPot {
 
     pokerGame.setTurnForUnitTest(Draw.BEFORE_FLOP);
     pokerGame.initBlinds(players);
-    pokerGame.setCommonHand(getBadCommonHand());
-    pokerGame.playRound(players);
+    pokerGame.payBlinds(players, 50);
+    String decision = pokerGame.playBeforeFlop(players);
+    assertEquals(decision, "Player Thomas Action :[ALL_IN]. Player Jörn Action :[FOLD]. ");
+
+    pokerGame.increaseDraw();
+    pokerGame.addToCommonHand(getBadFlop());
+    decision = pokerGame.playFlop(players);
+    assertEquals(decision, "");
+
+    pokerGame.increaseDraw();
+    pokerGame.addToCommonHand(Arrays.asList(drawCard(Color.hearts, Ordinal.knight)));
+    pokerGame.playTurn(players);
+    assertEquals(decision, "");
+
+    pokerGame.increaseDraw();
+    pokerGame.addToCommonHand(Arrays.asList(drawCard(Color.spades, Ordinal.two)));
+    pokerGame.playRiver(players);
+    assertEquals(decision, "");
+
+    pokerGame.getTheWinner(players);
+    pokerGame.resetTurn(players);
 
     final int numberOfMarkersForPlayer0 = player0.getNumberOfMarkers();
     final int numberOfMarkersForPlayer1 = player1.getNumberOfMarkers();
@@ -47,8 +67,27 @@ public class TestPot {
 
     pokerGame.setTurnForUnitTest(Draw.BEFORE_FLOP);
     pokerGame.initBlinds(players);
-    pokerGame.setCommonHand(getBadCommonHand());
-    pokerGame.playRound(players);
+    pokerGame.payBlinds(players, 50);
+    String decision = pokerGame.playBeforeFlop(players);
+    assertEquals(decision, "Player Thomas Action :[ALL_IN]. Player Jörn Action :[ALL_IN]. ");
+
+    pokerGame.increaseDraw();
+    pokerGame.addToCommonHand(getBadFlop());
+    decision = pokerGame.playFlop(players);
+    assertEquals(decision, "");
+
+    pokerGame.increaseDraw();
+    pokerGame.addToCommonHand(Arrays.asList(drawCard(Color.hearts, Ordinal.knight)));
+    pokerGame.playTurn(players);
+    assertEquals(decision, "");
+
+    pokerGame.increaseDraw();
+    pokerGame.addToCommonHand(Arrays.asList(drawCard(Color.spades, Ordinal.two)));
+    pokerGame.playRiver(players);
+    assertEquals(decision, "");
+
+    pokerGame.getTheWinner(players);
+    pokerGame.resetTurn(players);
 
     final int numberOfMarkersForPlayer0 = player0.getNumberOfMarkers();
     final int numberOfMarkersForPlayer1 = player1.getNumberOfMarkers();
@@ -60,7 +99,7 @@ public class TestPot {
   }
 
   @Test
-  public void testPotBothPlayersBothCheck() {
+  public void testPotBothPlayersBothCheckPotEqualToBigBlind() {
     final List<Player> players = pokerGame.createNumberOfRobotPlayers(2, 2500);
     players.stream().forEach(pokerGame::registerPlayer);
     final Player player0 = players.get(0);
@@ -70,8 +109,27 @@ public class TestPot {
 
     pokerGame.setTurnForUnitTest(Draw.BEFORE_FLOP);
     pokerGame.initBlinds(players);
-    pokerGame.setCommonHand(getBadCommonHand());
-    pokerGame.playRound(players);
+    pokerGame.payBlinds(players, 50);
+    String decision = pokerGame.playBeforeFlop(players);
+    assertEquals(decision, "Player Thomas Action :[CHECK]. Player Jörn Action :[CHECK]. ");
+
+    pokerGame.increaseDraw();
+    pokerGame.addToCommonHand(getBadFlop());
+    decision = pokerGame.playFlop(players);
+    assertEquals(decision, "Player Thomas Action :[CHECK]. Player Jörn Action :[CHECK]. ");
+
+    pokerGame.increaseDraw();
+    pokerGame.addToCommonHand(Arrays.asList(drawCard(Color.hearts, Ordinal.knight)));
+    pokerGame.playTurn(players);
+    assertEquals(decision, "Player Thomas Action :[CHECK]. Player Jörn Action :[CHECK]. ");
+
+    pokerGame.increaseDraw();
+    pokerGame.addToCommonHand(Arrays.asList(drawCard(Color.spades, Ordinal.two)));
+    pokerGame.playRiver(players);
+    assertEquals(decision, "Player Thomas Action :[CHECK]. Player Jörn Action :[CHECK]. ");
+
+    pokerGame.getTheWinner(players);
+    pokerGame.resetTurn(players);
 
     final int numberOfMarkersForPlayer0 = player0.getNumberOfMarkers();
     final int numberOfMarkersForPlayer1 = player1.getNumberOfMarkers();
@@ -94,7 +152,7 @@ public class TestPot {
     pokerGame.setTurnForUnitTest(Draw.BEFORE_FLOP);
     pokerGame.initBlinds(players);
     try {
-      pokerGame.setCommonHand(getBadCommonHand());
+      pokerGame.addToCommonHand(getBadFlop());
       fail("Multiple card not detected.");
     } catch (RuntimeException e) {
       assertEquals(e.getMessage(), "Card [Color:[hearts] value:[knight]] is not present in the Deck!");
@@ -112,7 +170,7 @@ public class TestPot {
 
     pokerGame.setTurnForUnitTest(Draw.BEFORE_FLOP);
     pokerGame.initBlinds(players);
-    pokerGame.setCommonHand(getBadCommonHand());
+    pokerGame.addToCommonHand(getBadFlop());
     pokerGame.playRound(players);
 
     final int numberOfMarkersForPlayer0 = player0.getNumberOfMarkers();
@@ -169,7 +227,6 @@ public class TestPot {
     return hand;
   }
 
-
   private List<Card> drawKingAndQueenOfDifferentColor() {
     final ArrayList<Card> hand = Lists.newArrayList();
     final Card aceOfHearts = drawCard(Color.hearts, Ordinal.king);
@@ -202,13 +259,11 @@ public class TestPot {
     return card;
   }
 
-  private List<Card> getBadCommonHand() {
+  private List<Card> getBadFlop() {
     final ArrayList<Card> cards = Lists.newArrayList();
     cards.add(drawCard(Color.diamonds, Ordinal.three));
     cards.add(drawCard(Color.clubs, Ordinal.nine));
-    cards.add(drawCard(Color.spades, Ordinal.six));
     cards.add(drawCard(Color.hearts, Ordinal.knight));
-    cards.add(drawCard(Color.spades, Ordinal.two));
     return cards;
   }
 
