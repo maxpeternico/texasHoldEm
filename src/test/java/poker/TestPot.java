@@ -35,7 +35,7 @@ public class TestPot {
     assertEquals(decision, "");
 
     pokerGame.increaseDraw();
-    pokerGame.addToCommonHand(Arrays.asList(drawCard(Color.hearts, Ordinal.knight)));
+    pokerGame.addToCommonHand(Arrays.asList(drawCard(Color.hearts, Ordinal.queen)));
     pokerGame.playTurn(players);
     assertEquals(decision, "");
 
@@ -77,7 +77,7 @@ public class TestPot {
     assertEquals(decision, "");
 
     pokerGame.increaseDraw();
-    pokerGame.addToCommonHand(Arrays.asList(drawCard(Color.hearts, Ordinal.knight)));
+    pokerGame.addToCommonHand(Arrays.asList(drawCard(Color.hearts, Ordinal.queen)));
     pokerGame.playTurn(players);
     assertEquals(decision, "");
 
@@ -119,7 +119,7 @@ public class TestPot {
     assertEquals(decision, "Player Thomas Action :[CHECK]. Player Jörn Action :[CHECK]. ");
 
     pokerGame.increaseDraw();
-    pokerGame.addToCommonHand(Arrays.asList(drawCard(Color.hearts, Ordinal.knight)));
+    pokerGame.addToCommonHand(Arrays.asList(drawCard(Color.hearts, Ordinal.queen)));
     pokerGame.playTurn(players);
     assertEquals(decision, "Player Thomas Action :[CHECK]. Player Jörn Action :[CHECK]. ");
 
@@ -151,7 +151,7 @@ public class TestPot {
 
     pokerGame.setTurnForUnitTest(Draw.BEFORE_FLOP);
     pokerGame.initBlinds(players);
-    pokerGame.setCommonHand(getBadCommonHand());
+    pokerGame.addToCommonHand(getBadFlop());
     pokerGame.playRound(players);
 
     final int numberOfMarkersForPlayer0 = player0.getNumberOfMarkers();
