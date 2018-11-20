@@ -141,6 +141,29 @@ public class TestPot {
   }
 
   @Test
+  public void testPotOneRaiseOneCheck() {
+    final List<Player> players = pokerGame.createNumberOfRobotPlayers(2, 2500);
+    players.stream().forEach(pokerGame::registerPlayer);
+    final Player player0 = players.get(0);
+    pokerGame.setPrivateHand(player0, drawPairOfEights1());
+    final Player player1 = players.get(1);
+    pokerGame.setPrivateHand(player1, drawPairOfEights2());
+
+    pokerGame.setTurnForUnitTest(Draw.BEFORE_FLOP);
+    pokerGame.initBlinds(players);
+    pokerGame.setCommonHand(getBadCommonHand());
+    pokerGame.playRound(players);
+
+    final int numberOfMarkersForPlayer0 = player0.getNumberOfMarkers();
+    final int numberOfMarkersForPlayer1 = player1.getNumberOfMarkers();
+    System.out.println("Player 0 has :[" + numberOfMarkersForPlayer0 + "] markers.");
+    System.out.println("Player 1 has :[" + numberOfMarkersForPlayer1 + "] markers.");
+    assertEquals(numberOfMarkersForPlayer0 + numberOfMarkersForPlayer1, 2 * PokerGame.TOTAL_MARKERS_PER_PLAYER);
+    assertEquals(numberOfMarkersForPlayer0, 2615);
+    assertEquals(numberOfMarkersForPlayer1 , 2385);
+  }
+
+  @Test
   public void testDetectMultipleCard() {
     final List<Player> players = pokerGame.createNumberOfRobotPlayers(2, 2500);
     players.stream().forEach(pokerGame::registerPlayer);
@@ -178,8 +201,8 @@ public class TestPot {
     System.out.println("Player 0 has :[" + numberOfMarkersForPlayer0 + "] markers.");
     System.out.println("Player 1 has :[" + numberOfMarkersForPlayer1 + "] markers.");
     assertEquals(numberOfMarkersForPlayer0 + numberOfMarkersForPlayer1, 2 * PokerGame.TOTAL_MARKERS_PER_PLAYER);
-    assertEquals(numberOfMarkersForPlayer0, 2450);
-    assertEquals(numberOfMarkersForPlayer1 , 2550);
+    assertEquals(numberOfMarkersForPlayer0, 2445);
+    assertEquals(numberOfMarkersForPlayer1 , 2555);
   }
 
   private List<Card> drawPairOfKnightsNegative() {
@@ -196,6 +219,24 @@ public class TestPot {
     final Card aceOfHearts = drawCard(Color.spades, Ordinal.knight);
     hand.add(aceOfHearts);
     final Card aceOfSpades = drawCard(Color.spades, Ordinal.queen);
+    hand.add(aceOfSpades);
+    return hand;
+  }
+
+  private List<Card> drawPairOfEights1() {
+    final ArrayList<Card> hand = Lists.newArrayList();
+    final Card aceOfHearts = drawCard(Color.hearts, Ordinal.eight);
+    hand.add(aceOfHearts);
+    final Card aceOfSpades = drawCard(Color.clubs, Ordinal.eight);
+    hand.add(aceOfSpades);
+    return hand;
+  }
+
+  private List<Card> drawPairOfEights2() {
+    final ArrayList<Card> hand = Lists.newArrayList();
+    final Card aceOfHearts = drawCard(Color.diamonds, Ordinal.eight);
+    hand.add(aceOfHearts);
+    final Card aceOfSpades = drawCard(Color.spades, Ordinal.eight);
     hand.add(aceOfSpades);
     return hand;
   }
@@ -288,6 +329,7 @@ public class TestPot {
     pokerGame.initBlinds(players);
     do {
       pokerGame.setTurnForUnitTest(Draw.BEFORE_FLOP);
+      pokerGame.playRound(players);
     } while (moreThanOnePlayerHasMarkers(players));
   }
 
