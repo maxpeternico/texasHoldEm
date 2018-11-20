@@ -136,8 +136,8 @@ public class TestPot {
     System.out.println("Player 0 has :[" + numberOfMarkersForPlayer0 + "] markers.");
     System.out.println("Player 1 has :[" + numberOfMarkersForPlayer1 + "] markers.");
     assertEquals(numberOfMarkersForPlayer0 + numberOfMarkersForPlayer1, 2 * PokerGame.TOTAL_MARKERS_PER_PLAYER);
-    assertEquals(numberOfMarkersForPlayer0, 2450);
-    assertEquals(numberOfMarkersForPlayer1 , 2550);
+    assertEquals(numberOfMarkersForPlayer0, 2525);
+    assertEquals(numberOfMarkersForPlayer1 , 2475);
   }
 
   @Test
@@ -151,16 +151,44 @@ public class TestPot {
 
     pokerGame.setTurnForUnitTest(Draw.BEFORE_FLOP);
     pokerGame.initBlinds(players);
+    pokerGame.payBlinds(players, 50);
     pokerGame.addToCommonHand(getBadFlop());
-    pokerGame.playRound(players);
+
+    String decision = pokerGame.playBeforeFlop(players);
+    assertEquals(decision, "Player Thomas Action :[RAISE]. Player Jörn Action :[CHECK]. ");
+    assertEquals(pokerGame.getPot(), 25+50+75+75);
+    assertEquals(player0.getNumberOfMarkers(), 2500-50-75);
+    assertEquals(player1.getNumberOfMarkers(), 2500-25-75);
+
+    pokerGame.increaseDraw();
+    pokerGame.addToCommonHand(Arrays.asList(drawCard(Color.hearts, Ordinal.queen)));
+    pokerGame.playTurn(players);
+    assertEquals(decision, "Player Thomas Action :[RAISE]. Player Jörn Action :[CHECK]. ");
+    assertEquals(pokerGame.getPot(), 25+50+75+75+5+5);
+    assertEquals(player0.getNumberOfMarkers(), 2500-50-75-5);
+    assertEquals(player1.getNumberOfMarkers(), 2500-25-75-5);
+
+    pokerGame.increaseDraw();
+    pokerGame.addToCommonHand(Arrays.asList(drawCard(Color.spades, Ordinal.two)));
+    pokerGame.playRiver(players);
+    assertEquals(decision, "Player Thomas Action :[RAISE]. Player Jörn Action :[CHECK]. ");
+    final int potAfterRiver = 25 + 50 + 75 + 75 + 5 + 5 + 5 + 5;
+    assertEquals(pokerGame.getPot(), potAfterRiver);
+    final int player0ExpectedMarkersAfterRiver = 2500 - 50 - 75 - 5 - 5;
+    assertEquals(player0.getNumberOfMarkers(), player0ExpectedMarkersAfterRiver);
+    final int player1ExpectedMarkersAfterRiver = 2500 - 25 - 75 - 5 - 5;
+    assertEquals(player1.getNumberOfMarkers(), player1ExpectedMarkersAfterRiver);
+
+    pokerGame.getTheWinner(players);
+    pokerGame.resetTurn(players);
 
     final int numberOfMarkersForPlayer0 = player0.getNumberOfMarkers();
     final int numberOfMarkersForPlayer1 = player1.getNumberOfMarkers();
     System.out.println("Player 0 has :[" + numberOfMarkersForPlayer0 + "] markers.");
     System.out.println("Player 1 has :[" + numberOfMarkersForPlayer1 + "] markers.");
     assertEquals(numberOfMarkersForPlayer0 + numberOfMarkersForPlayer1, 2 * PokerGame.TOTAL_MARKERS_PER_PLAYER);
-    assertEquals(numberOfMarkersForPlayer0, 2615);
-    assertEquals(numberOfMarkersForPlayer1 , 2385);
+    assertEquals(player0.getNumberOfMarkers(), player0ExpectedMarkersAfterRiver + potAfterRiver);
+    assertEquals(player1.getNumberOfMarkers() , player1ExpectedMarkersAfterRiver);
   }
 
   @Test
