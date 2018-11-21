@@ -102,23 +102,23 @@ public class RobotPlayer extends Player {
           if (points.commonPoints < 50) {
             // TODO: calculateRaiseAmount(privatePoints, commonPoints, sizeOfBlind, moneyLeft)
             // getRaiseAmount
-            raiseAmount = 300;
+            raiseAmount = blind * 4;
           } else {
             // getRaiseAmount only if no other raises
-            raiseAmount = 50;
+            raiseAmount = blind;
           }
         } else if (points.privatePoints > 100) {
           if (points.commonPoints < 5) {
             // getRaiseAmount if no one else has raised
-            raiseAmount = 75;
+            raiseAmount = blind * 2;
           } else {
             // don't getRaiseAmount, join if blind is cheap otherwise fold
-            raiseAmount = 5;
+            raiseAmount = blind;
           }
         } else if (points.privatePoints > 5) {
           if (points.commonPoints < 5) {
             // getRaiseAmount if no one else has raised
-            raiseAmount = 5;
+            raiseAmount = blind;
           } else {
             // don't getRaiseAmount, join if blind is cheap otherwise fold
             raiseAmount = 0;
@@ -129,10 +129,12 @@ public class RobotPlayer extends Player {
         }
         break;
       case JOIN:
-        raiseAmount = 100;
+        raiseAmount = blind * 2;
         break;
       case JOIN_IF_CHEAP:
-        raiseAmount = 50;
+        if (blind <= 50) {
+          raiseAmount = blind;
+        }
         break;
     }
     if (raiseAmount > getNumberOfMarkers()) {
@@ -147,7 +149,7 @@ public class RobotPlayer extends Player {
     int commonPoints = 0;
     int privatePoints = calculatePrivatePoints(getPrivateHand());
     logger.debug(getName() + " private points: " + privatePoints);
-   // privatePoints = compensatePrivateHandWithNumberOfPlayers(privatePoints, numberOfRemainingPlayers);
+    // privatePoints = compensatePrivateHandWithNumberOfPlayers(privatePoints, numberOfRemainingPlayers);
     if (draw != Draw.BEFORE_FLOP) {
       commonPoints = calculateCommonPoints(numberOfRemainingPlayers, commonHand);
     }

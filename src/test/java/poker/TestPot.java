@@ -141,7 +141,7 @@ public class TestPot {
   }
 
   @Test
-  public void testPotOneRaiseOneCheck() {
+  public void testPotOneRaiseOneCheck() { // TODO: re-write as template for other unit tests
     final List<Player> players = pokerGame.createNumberOfRobotPlayers(2, 2500);
     players.stream().forEach(pokerGame::registerPlayer);
     final Player player0 = players.get(0);
@@ -156,27 +156,29 @@ public class TestPot {
 
     String decision = pokerGame.playBeforeFlop(players);
     assertEquals(decision, "Player Thomas Action :[RAISE]. Player Jörn Action :[CHECK]. ");
-    assertEquals(pokerGame.getPot(), 25+50+75+75);
-    assertEquals(player0.getNumberOfMarkers(), 2500-50-75);
-    assertEquals(player1.getNumberOfMarkers(), 2500-25-75);
+    int potRaiseBeforeFlop = 100;
+    assertEquals(pokerGame.getPot(), 25+50+2*potRaiseBeforeFlop);
+    assertEquals(player0.getNumberOfMarkers(), 2500-50-potRaiseBeforeFlop);
+    assertEquals(player1.getNumberOfMarkers(), 2500-25-potRaiseBeforeFlop);
 
     pokerGame.increaseDraw();
     pokerGame.addToCommonHand(Arrays.asList(drawCard(Color.hearts, Ordinal.queen)));
     pokerGame.playTurn(players);
     assertEquals(decision, "Player Thomas Action :[RAISE]. Player Jörn Action :[CHECK]. ");
-    assertEquals(pokerGame.getPot(), 25+50+75+75+5+5);
-    assertEquals(player0.getNumberOfMarkers(), 2500-50-75-5);
-    assertEquals(player1.getNumberOfMarkers(), 2500-25-75-5);
+    int potRaiseFlop = 50;
+    assertEquals(pokerGame.getPot(), 25+50+2*potRaiseBeforeFlop+2*potRaiseFlop);
+    assertEquals(player0.getNumberOfMarkers(), 2500-50-potRaiseBeforeFlop-potRaiseFlop);
+    assertEquals(player1.getNumberOfMarkers(), 2500-25-potRaiseBeforeFlop-potRaiseFlop);
 
     pokerGame.increaseDraw();
     pokerGame.addToCommonHand(Arrays.asList(drawCard(Color.spades, Ordinal.two)));
     pokerGame.playRiver(players);
     assertEquals(decision, "Player Thomas Action :[RAISE]. Player Jörn Action :[CHECK]. ");
-    final int potAfterRiver = 25 + 50 + 75 + 75 + 5 + 5 + 5 + 5;
-    assertEquals(pokerGame.getPot(), potAfterRiver);
-    final int player0ExpectedMarkersAfterRiver = 2500 - 50 - 75 - 5 - 5;
+    final int potRaiseTurn = 50;
+    assertEquals(pokerGame.getPot(), 25 + 50 + 2* potRaiseBeforeFlop + 2*potRaiseFlop + 2*potRaiseTurn);
+    final int player0ExpectedMarkersAfterRiver = 2500 - 50 - potRaiseBeforeFlop - potRaiseFlop - potRaiseTurn;
     assertEquals(player0.getNumberOfMarkers(), player0ExpectedMarkersAfterRiver);
-    final int player1ExpectedMarkersAfterRiver = 2500 - 25 - 75 - 5 - 5;
+    final int player1ExpectedMarkersAfterRiver = 2500 - 25 - potRaiseBeforeFlop - potRaiseFlop - potRaiseTurn;
     assertEquals(player1.getNumberOfMarkers(), player1ExpectedMarkersAfterRiver);
 
     pokerGame.getTheWinner(players);
@@ -187,8 +189,8 @@ public class TestPot {
     System.out.println("Player 0 has :[" + numberOfMarkersForPlayer0 + "] markers.");
     System.out.println("Player 1 has :[" + numberOfMarkersForPlayer1 + "] markers.");
     assertEquals(numberOfMarkersForPlayer0 + numberOfMarkersForPlayer1, 2 * PokerGame.TOTAL_MARKERS_PER_PLAYER);
-    assertEquals(player0.getNumberOfMarkers(), player0ExpectedMarkersAfterRiver + potAfterRiver);
-    assertEquals(player1.getNumberOfMarkers() , player1ExpectedMarkersAfterRiver);
+    assertEquals(player0ExpectedMarkersAfterRiver + 25 + 50 + 2* potRaiseBeforeFlop + 2*potRaiseFlop + 2*potRaiseTurn, player0.getNumberOfMarkers());
+    assertEquals(player1ExpectedMarkersAfterRiver, player1.getNumberOfMarkers());
   }
 
   @Test
@@ -229,8 +231,8 @@ public class TestPot {
     System.out.println("Player 0 has :[" + numberOfMarkersForPlayer0 + "] markers.");
     System.out.println("Player 1 has :[" + numberOfMarkersForPlayer1 + "] markers.");
     assertEquals(numberOfMarkersForPlayer0 + numberOfMarkersForPlayer1, 2 * PokerGame.TOTAL_MARKERS_PER_PLAYER);
-    assertEquals(numberOfMarkersForPlayer0, 2445);
-    assertEquals(numberOfMarkersForPlayer1 , 2555);
+    assertEquals(numberOfMarkersForPlayer0, 2400);
+    assertEquals(numberOfMarkersForPlayer1 , 2600);
   }
 
   private List<Card> drawPairOfKnightsNegative() {
