@@ -308,26 +308,19 @@ public class PokerGame {
     StringBuffer result = new StringBuffer();
     Boolean[] doRaise = initDoRaise(remainingPlayers);
 
-    int maxRaiseFromOtherplayer = 0;
+    int maxRaiseFromAPlayer = 0;
     do {
       for (Player player : remainingPlayers) {
         int raiseAmount = 0;
-        int totalRaiseAmount = 0;
         if (getPlayersStillInTheGame(player)) {
-          logger.debug("player :[" + player + "] doRaise: [" + doRaise[remainingPlayers.indexOf(player)] + "]. maxRaiseFromOtherPlayer:[" + maxRaiseFromOtherplayer + "] numbersOfMarkers :[" + player.getNumberOfMarkers() + "] pot :[" + pot + "]");
+          logger.debug("player :[" + player + "] doRaise: [" + doRaise[remainingPlayers.indexOf(player)] + "]. maxRaiseFromOtherPlayer:[" + maxRaiseFromAPlayer + "] numbersOfMarkers :[" + player.getNumberOfMarkers() + "] pot :[" + pot + "]");
           Boolean isRaise = false;
 
-          player.decideAction(draw, remainingPlayers.size(), dealer.getCommonHand(), blind, maxRaiseFromOtherplayer);
+          player.decideAction(draw, remainingPlayers.size(), dealer.getCommonHand(), blind, maxRaiseFromAPlayer);
           final Action action = player.getAction();
-          if (action.isRaise() || action.isAllIn()) {
-            raiseAmount = action.getRaiseAmount();  // E.g. players 1 rasies 100 player 2 raises 200
-            totalRaiseAmount += raiseAmount + maxRaiseFromOtherplayer; // pot = 200 + 100
-            maxRaiseFromOtherplayer = totalRaiseAmount;   // max rise from another player is 300
-            logger.debug("Player :[" + player.getName() + "] raises with totalRaiseAmount :[" + totalRaiseAmount + "]. ");
-          } else if (action.isCheck()) {
-            raiseAmount = maxRaiseFromOtherplayer;
-            logger.debug("Player :[" + player.getName() + "] checks with totalRaiseAmount :[" + totalRaiseAmount + "]. ");
-          }
+
+          raiseAmount = getRaiseAmount(action, maxRaiseFromAPlayer, player);
+          maxRaiseFromAPlayer = calculateEventualNewMaxRaiseFromAnotherPlayer(raiseAmount, maxRaiseFromAPlayer, action, player);
           pot += raiseAmount;
           logger.debug("Pot size :[" + pot + "]. ");
           doRaise[remainingPlayers.indexOf(player)] = isRaise;
@@ -337,6 +330,26 @@ public class PokerGame {
     }
     while (anyOneIsRaising(doRaise));
     return result.toString();
+  }
+
+  private int getRaiseAmount(Action action, int maxRaiseFromOtherplayer, Player player) {
+    if (action.isRaise() || action.isAllIn()) {
+      int raiseAmount = action.getRaiseAmount();  // E.g. players 1 rasies 100 player 2 raises 200
+      return raiseAmount;
+    } else if (action.isCheck()) {
+      logger.debug("Player :[" + player.getName() + "] checks with totalRaiseAmount :[" + maxRaiseFromOtherplayer + "]. ");
+      return maxRaiseFromOtherplayer;
+    }
+    return 0;
+  }
+
+  private int calculateEventualNewMaxRaiseFromAnotherPlayer(int raiseAmount, int maxRaiseFromOtherplayer, Action action, Player player) {
+    if (action.isRaise() || action.isAllIn()) {
+      int totalRaiseAmount = raiseAmount + maxRaiseFromOtherplayer; // pot = 200 + 100
+      logger.debug("Player :[" + player.getName() + "] raises with totalRaiseAmount :[" + totalRaiseAmount + "]. ");
+      return totalRaiseAmount;   // max rise from another player is 300
+    }
+    return 0;
   }
 
   private Boolean[] initDoRaise(List<Player> remainingPlayers) {
