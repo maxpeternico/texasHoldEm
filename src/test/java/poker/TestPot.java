@@ -3,7 +3,6 @@ package poker;
 import com.google.common.collect.Lists;
 import org.junit.After;
 import org.junit.Test;
-import sun.audio.AudioPlayer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,7 +10,6 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static sun.audio.AudioPlayer.player;
 
 public class TestPot {
   final PokerGame pokerGame = PokerGame.getInstance();
@@ -21,20 +19,22 @@ public class TestPot {
     final List<Player> players = pokerGame.createNumberOfRobotPlayers(2, 2500);
     players.stream().forEach(pokerGame::registerPlayer);
     final Player player0 = players.get(0);
-    pokerGame.setPrivateHand(player0, drawPairOfAces1());
     final Player player1 = players.get(1);
-    pokerGame.setPrivateHand(player1, drawKingAndQueenOfDifferentColor());
 
-    pokerGame.setTurnForUnitTest(Draw.BEFORE_FLOP);
-    pokerGame.initBlinds(players);
-    pokerGame.payBlinds(players, 50);
+    final int blindAmount = 50;
+    prepareBeforeFlop(players, blindAmount, drawPairOfAces1(), drawKingAndQueenOfDifferentColor());
     String decision = pokerGame.playBeforeFlop(players);
-    assertEquals(decision, "Player Thomas Action :[ALL_IN]. Player Jörn Action :[FOLD]. ");
+    assertEquals("Player Thomas Action :[ALL_IN]. Player Jörn Action :[FOLD]. ", decision);
+    int potRaisePerPlayerBeforeFlop = 2450;
+    int potRaisePerPlayerTotalRound = potRaisePerPlayerBeforeFlop;
+    assertPotAndMarkers(player0, player1, potRaisePerPlayerBeforeFlop, blindAmount);
 
-    pokerGame.increaseDraw();
-    pokerGame.addToCommonHand(getBadFlop());
-    decision = pokerGame.playFlop(players);
-    assertEquals(decision, "");
+    prepareFlop(getBadFlop());
+    decision = pokerGame.playBeforeFlop(players);
+    assertEquals("", decision);
+    int potRaisePerPlayerFlop = 0;
+    potRaisePerPlayerTotalRound = potRaisePerPlayerTotalRound + potRaisePerPlayerFlop;
+    assertPotAndMarkers(player0, player1, potRaisePerPlayerTotalRound, blindAmount);
 
     prepareRiver(Color.hearts, Ordinal.queen);
     pokerGame.playTurn(players);
@@ -191,10 +191,42 @@ public class TestPot {
     List<Player> players = Lists.newArrayList();
     players.add(player0);
     players.add(player1);
-    assertEquals( (int)(1.5 * bigBlind + 2 * potRaise), pokerGame.getPot());
+    assertEquals(pokerGame.getPot(), cacluatePot(bigBlind, potRaise, players));
     for (Player player:players) {
-      assertEquals(PokerGame.TOTAL_MARKERS_PER_PLAYER - calculateBlindCost(player, bigBlind) - potRaise, player.getNumberOfMarkers());
+      assertEquals(PokerGame.TOTAL_MARKERS_PER_PLAYER - calculateBlindCost(player, bigBlind) - calculatePotRaise(player, players, potRaise), player.getNumberOfMarkers());
     }
+  }
+
+  private int cacluatePot(int bigBlind, int potRaisePerPlayer, List<Player> players) {
+    int totalPot = (int)(bigBlind * 1.5);
+    for (Player player:players) {
+      if (!player.getAction().isFold()) {
+        totalPot += potRaisePerPlayer;
+      }
+    }
+    return totalPot;
+  }
+
+  private int calculatePotRaise(Player player, List<Player> players, int potRaisePerPlayer) {
+    if (player.getAction().isFold()) {
+      return 0;
+    }
+    int totalPotRaise = 0;
+    for (Player tempPlayer:players) {
+      if (!tempPlayer.getAction().isFold()) {
+        totalPotRaise += potRaisePerPlayer;
+      }
+    }
+    return totalPotRaise;
+  }
+
+  private boolean anyPlayerFolds(List<Player> players) {
+    for (Player player:players) {
+      if (player.getAction().isFold()) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private int calculateBlindCost(Player player, int bigBlind) {
