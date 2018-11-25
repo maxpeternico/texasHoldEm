@@ -61,15 +61,18 @@ public class RobotPlayer extends Player {
     if (strategy.equals(ALL_IN)) {
       action = new Action(ActionEnum.ALL_IN);
       action.setRaiseValue(raiseAmount);
+      partInPot += raiseAmount;
       return raiseAmount;
     }
     if (raiseAmount > maxRaiseFromOtherPlayer) {
       action = new Action(ActionEnum.RAISE);
       action.setRaiseValue(raiseAmount);
+      partInPot += raiseAmount;
       return raiseAmount;
     }
     if (isWithin(raiseAmount, maxRaiseFromOtherPlayer)) {
       action = new Action(ActionEnum.CHECK);
+      partInPot += maxRaiseFromOtherPlayer;
       return maxRaiseFromOtherPlayer;
     } else {
       action = new Action(ActionEnum.FOLD);

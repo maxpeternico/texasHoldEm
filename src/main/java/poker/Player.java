@@ -20,7 +20,7 @@ public abstract class Player {
   private boolean littleBlind = false;
   Strategy strategy = Strategy.NOT_DECIDED;
   protected Action action = new Action(ActionEnum.NOT_DECIDED);
-
+  protected int partInPot = 0;
 
   public Action getAction() {
     return action;
@@ -195,7 +195,11 @@ public abstract class Player {
     logger.debug("Player :[" + getName() + "] gets :[" + markers + "]. Total number of markers :[" + numberOfMarkers + "]. ");
   }
 
-  public boolean hasFolded() {
+  boolean hasFolded() {
     return action.isFold();
+  }
+
+  int getPartInPot() {
+    return partInPot;
   }
 }
