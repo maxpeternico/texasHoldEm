@@ -69,7 +69,7 @@ public class PokerGame {
     resetTurn(players);
   }
 
-  void getTheWinner(List<Player> players) {
+  Player getTheWinner(List<Player> players) {
     final Player theWinner = dealer.findTheWinner(getPlayersThatDidNotFold(players));
     checkTotalHand(dealer, theWinner.getName(), theWinner.getPrivateHand());
     theWinner.addMarkers(this.pot);
@@ -83,6 +83,7 @@ public class PokerGame {
     if (totalNumberOfMarkers != theoreticalNumberOfMarkers) {
       throw new RuntimeException("Total number of markers is :[" + totalNumberOfMarkers + "] but should be :[" + theoreticalNumberOfMarkers + "]");
     }
+    return theWinner;
   }
 
   String playRiver(List<Player> players) {

@@ -1,7 +1,6 @@
 package poker;
 
 import com.google.common.collect.Lists;
-
 import org.junit.After;
 import org.junit.Test;
 
@@ -44,15 +43,15 @@ public class TestPotBetAtPrivateHand {
 
     final int calculatedPot = calculatePot(potRaisePerPlayerTotalRound, players, bigBlindAmount);
     System.out.println(calculatedPot);
-    assertEquals(createIncorrectNumberOfMarkersForWinnerMessage(potRaisePerPlayerTotalRound, calculatedPot),
+    assertEquals(createIncorrectNumberOfMarkersForWinnerMessage(potRaisePerPlayerTotalRound, calculatedPot, player0),
                  player0NumberOfMarkersAfterRound + calculatedPot,
                  player0.getNumberOfMarkers());
     assertEquals(player1NumberOfMarkersAfterRound, player1.getNumberOfMarkers());
     pokerGame.resetTurn(players);
   }
 
-  private String createIncorrectNumberOfMarkersForWinnerMessage(int potRaisePerPlayerTotalRound, int calculatedPot) {
-    return "Incorrect number of markers for player, potRaisePerPlayerTotalRound :[" + potRaisePerPlayerTotalRound + "] calculated pot :[" + calculatedPot + "]";
+  private String createIncorrectNumberOfMarkersForWinnerMessage(int potRaisePerPlayerTotalRound, int calculatedPot, Player player) {
+    return "Incorrect number of markers for player :[" + player.getName() + "], potRaisePerPlayerTotalRound :[" + potRaisePerPlayerTotalRound + "] calculated pot :[" + calculatedPot + "]";
   }
 
   private String createMarkersDisappearErrorMessage(Player player0, Player player1) {
@@ -107,7 +106,9 @@ public class TestPotBetAtPrivateHand {
     final int calculatedPot = calculatePot(potRaisePerPlayerTotalRound, players, bigBlindAmount);
 
     assertEquals(createMarkersDisappearErrorMessage(player0, player1), numberOfMarkersForPlayer0 + numberOfMarkersForPlayer1, 2 * PokerGame.TOTAL_MARKERS_PER_PLAYER);
-    assertEquals(createIncorrectNumberOfMarkersForWinnerMessage(potRaisePerPlayerTotalRound, calculatedPot), player0NumberOfMarkersAfterRound + calculatedPot, player0.getNumberOfMarkers());
+    assertEquals(createIncorrectNumberOfMarkersForWinnerMessage(potRaisePerPlayerTotalRound, calculatedPot, player0),
+        player0NumberOfMarkersAfterRound + calculatedPot,
+        player0.getNumberOfMarkers());
     assertEquals(player1NumberOfMarkersAfterRound, player1.getNumberOfMarkers());
 
     pokerGame.resetTurn(players);
@@ -120,45 +121,50 @@ public class TestPotBetAtPrivateHand {
     final Player player0 = players.get(0);
     final Player player1 = players.get(1);
 
-    final int blindAmount = 50;
-    prepareBeforeFlop(players, blindAmount, drawBadPrivateHand1(), drawBadPrivateHand2());
+    final int bigBlindAmount = 50;
+    prepareBeforeFlop(players, bigBlindAmount, drawBadPrivateHand1(), drawBadPrivateHand2());
     String decision = pokerGame.playBeforeFlop(players);
     assertEquals("Player Thomas Action :[CHECK]. Player Jörn Action :[CHECK]. ", decision);
     int potRaisePerPlayerBeforeFlop = 0;
     int potRaisePerPlayerTotalRound = potRaisePerPlayerBeforeFlop;
-    assertPotAndMarkers(player0, player1, blindAmount, blindAmount);
+    assertPotAndMarkers(player0, player1, potRaisePerPlayerTotalRound, bigBlindAmount);
 
     prepareFlop(getBadFlop());
     decision = pokerGame.playBeforeFlop(players);
     assertEquals("Player Thomas Action :[CHECK]. Player Jörn Action :[CHECK]. ", decision);
     int potRaisePerPlayerFlop = 0;
     potRaisePerPlayerTotalRound = potRaisePerPlayerTotalRound + potRaisePerPlayerFlop;
-    assertPotAndMarkers(player0, player1, blindAmount, blindAmount);
+    assertPotAndMarkers(player0, player1, potRaisePerPlayerTotalRound, bigBlindAmount);
 
     prepareTurn(Color.hearts, Ordinal.queen);
     decision = pokerGame.playTurn(players);
     assertEquals("Player Thomas Action :[CHECK]. Player Jörn Action :[CHECK]. ", decision);
     int potRaisePerPlayerTurn = 0;
     potRaisePerPlayerTotalRound = potRaisePerPlayerTotalRound + potRaisePerPlayerTurn;
-    assertPotAndMarkers(player0, player1, blindAmount, blindAmount);
+    assertPotAndMarkers(player0, player1, potRaisePerPlayerTotalRound, bigBlindAmount);
 
-    prepareRiver(Color.spades, Ordinal.two);
+    prepareRiver(Color.spades, Ordinal.seven);
     decision = pokerGame.playRiver(players);
     assertEquals("Player Thomas Action :[CHECK]. Player Jörn Action :[CHECK]. ", decision);
-    final int potRaiseRiver = 0;
+    int potRaiseRiver = 0;
     potRaisePerPlayerTotalRound = potRaisePerPlayerTotalRound + potRaiseRiver;
-    assertPotAndMarkers(player0, player1, blindAmount, blindAmount);
+    assertPotAndMarkers(player0, player1, potRaisePerPlayerTotalRound, bigBlindAmount);
+
+    final int player0NumberOfMarkersAfterRound = player0.getNumberOfMarkers();
+    final int player1NumberOfMarkersAfterRound = player1.getNumberOfMarkers();
 
     pokerGame.getTheWinner(players);
-    pokerGame.resetTurn(players);
 
-    final int numberOfMarkersForPlayer0 = player0.getNumberOfMarkers();
-    final int numberOfMarkersForPlayer1 = player1.getNumberOfMarkers();
-    System.out.println("Player 0 has :[" + numberOfMarkersForPlayer0 + "] markers.");
-    System.out.println("Player 1 has :[" + numberOfMarkersForPlayer1 + "] markers.");
-    assertEquals(numberOfMarkersForPlayer0 + numberOfMarkersForPlayer1, 2 * PokerGame.TOTAL_MARKERS_PER_PLAYER);
-    assertEquals(numberOfMarkersForPlayer0, 2525);
-    assertEquals(numberOfMarkersForPlayer1, 2475);
+    assertEquals(createMarkersDisappearErrorMessage(player0, player1),
+        2 * PokerGame.TOTAL_MARKERS_PER_PLAYER,
+        player0.getNumberOfMarkers() + player1.getNumberOfMarkers());
+
+    final int calculatedPot = calculatePot(potRaisePerPlayerTotalRound, players, bigBlindAmount);
+    assertEquals(createIncorrectNumberOfMarkersForWinnerMessage(potRaisePerPlayerTotalRound, calculatedPot, player1),
+        player1NumberOfMarkersAfterRound + calculatedPot,
+        player1.getNumberOfMarkers());
+    assertEquals(player0NumberOfMarkersAfterRound, player0.getNumberOfMarkers());
+    pokerGame.resetTurn(players);
   }
 
   @Test
@@ -484,60 +490,8 @@ public class TestPotBetAtPrivateHand {
     final ArrayList<Card> cards = Lists.newArrayList();
     cards.add(drawCard(Color.diamonds, Ordinal.three));
     cards.add(drawCard(Color.clubs, Ordinal.nine));
-    cards.add(drawCard(Color.hearts, Ordinal.knight));
+    cards.add(drawCard(Color.hearts, Ordinal.two));
     return cards;
-  }
-
-  @Test
-  public void playUntilAPlayerWinsTheGame() {
-    Player jorn = new RobotPlayer("Jörn", PokerGame.TOTAL_MARKERS_PER_PLAYER);
-    pokerGame.registerPlayer(jorn);
-    List<Card> jornsPrivateHand = new ArrayList<>();
-    jornsPrivateHand.add(new Card(Color.hearts, Ordinal.ace));
-    jornsPrivateHand.add(new Card(Color.spades, Ordinal.ace));
-    pokerGame.setPrivateHand(jorn, jornsPrivateHand);
-    Player staffan = new RobotPlayer("Staffan", PokerGame.TOTAL_MARKERS_PER_PLAYER);
-    pokerGame.registerPlayer(staffan);
-    List<Card> staffansPrivateHand = new ArrayList<>();
-    staffansPrivateHand.add(new Card(Color.hearts, Ordinal.king));
-    staffansPrivateHand.add(new Card(Color.spades, Ordinal.queen));
-    pokerGame.setPrivateHand(staffan, staffansPrivateHand);
-    List<Player> players = new ArrayList<>();
-    players.add(jorn);
-    players.add(staffan);
-
-    pokerGame.initBlinds(players);
-    do {
-      pokerGame.setTurnForUnitTest(Draw.BEFORE_FLOP);
-      pokerGame.playRound(players);
-    } while (moreThanOnePlayerHasMarkers(players));
-  }
-
-  @Test
-  public void playUntilAPlayerWinsTheGameMaxPlayers() {
-    List<Player> players = pokerGame.createNumberOfRobotPlayers(7, PokerGame.TOTAL_MARKERS_PER_PLAYER);
-    for (Player player : players) {
-      pokerGame.registerPlayer(player);
-    }
-
-    pokerGame.initBlinds(players);
-    do {
-      pokerGame.setTurnForUnitTest(Draw.BEFORE_FLOP);
-      pokerGame.playRound(players);
-    } while (moreThanOnePlayerHasMarkers(players));
-  }
-
-  private boolean moreThanOnePlayerHasMarkers(List<Player> players) {
-    int i = 0;
-    for (Player player : players) {
-      if (player.hasAnyMarkers()) {
-        i++;
-      }
-    }
-    if (i > 1) {
-      return true;
-    }
-    return false;
   }
 
   @After
