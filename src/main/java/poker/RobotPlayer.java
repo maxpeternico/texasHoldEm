@@ -39,6 +39,9 @@ public class RobotPlayer extends Player {
         }
         break;
       case FLOP:
+        if (points.totalPoints > 100) {
+          strategy = OFFENSIVE;
+        }
         // Pair of aces is good or anything higher, getRaiseAmount or go all in if pott is big
         // Low pair, join unless too expensive
         // Bad cards, try to join if cheap otherwise fold
@@ -101,7 +104,7 @@ public class RobotPlayer extends Player {
         break;
       case OFFENSIVE:
         // TODO: Set percentage of number of markers instead
-        if (points.privatePoints > 113) { // Pair of aces and higher
+        if (points.totalPoints > 113) { // Pair of aces and higher
           if (points.commonPoints < 50) {
             // TODO: calculateRaiseAmount(privatePoints, commonPoints, sizeOfBlind, moneyLeft)
             // getRaiseAmount
@@ -110,7 +113,7 @@ public class RobotPlayer extends Player {
             // getRaiseAmount only if no other raises
             raiseAmount = blind;
           }
-        } else if (points.privatePoints > 100) {
+        } else if (points.totalPoints > 100) {
           if (points.commonPoints < 5) {
             // getRaiseAmount if no one else has raised
             raiseAmount = blind * 2;
@@ -118,7 +121,7 @@ public class RobotPlayer extends Player {
             // don't getRaiseAmount, join if blind is cheap otherwise fold
             raiseAmount = blind;
           }
-        } else if (points.privatePoints > 5) {
+        } else if (points.totalPoints > 5) {
           if (points.commonPoints < 5) {
             // getRaiseAmount if no one else has raised
             raiseAmount = blind;
