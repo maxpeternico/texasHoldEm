@@ -20,13 +20,9 @@ public abstract class TestBase {
     return currentPot;
   }
 
-  protected void assertPotAndMarkers(Player player0,
-                                   Player player1,
-                                   int totalPotRaisePerPlayer,
-                                   int bigBlind) {
-    List<Player> players = Lists.newArrayList();
-    players.add(player0);
-    players.add(player1);
+  protected void assertPotAndMarkers(List<Player> players,
+                                     int totalPotRaisePerPlayer,
+                                     int bigBlind) {
     assertEquals(calculatePot(totalPotRaisePerPlayer, players, bigBlind), getPokerGame().getPot());
     for (Player player : players) {
       final int blindCost = calculateBlindCost(player, bigBlind);
@@ -41,8 +37,13 @@ public abstract class TestBase {
     return "Incorrect number of markers for player :[" + player.getName() + "], potRaisePerPlayerTotalRound :[" + potRaisePerPlayerTotalRound + "] calculated pot :[" + calculatedPot + "]";
   }
 
-  protected String createMarkersDisappearErrorMessage(Player player0, Player player1) {
-    return "Pot size not equal. Number of markers for player0 :[" + player0.getNumberOfMarkers() + "] number of markers for player1 :[" + player1.getNumberOfMarkers() + "]";
+  protected String createMarkersDisappearErrorMessage(List<Player> players) {
+    StringBuilder stringBuilder = new StringBuilder();
+    stringBuilder.append("Pot size not equal. Number of markers for players :[");
+    for (Player player:players) {
+      stringBuilder.append(player.getNumberOfMarkers() + "]");
+    }
+    return stringBuilder.toString();
   }
 
 
@@ -94,14 +95,14 @@ public abstract class TestBase {
   }
 
   protected void prepareBeforeFlop(List<Player> players,
-                                 int blindAmount,
-                                 List<Card> privateHandPlayer0,
-                                 List<Card> privateHandPlayer1) {
+                                   int blindAmount,
+                                   List<List<Card>> privateHands) {
     getPokerGame().setTurnForUnitTest(Draw.BEFORE_FLOP);
     getPokerGame().initBlinds(players);
     getPokerGame().payBlinds(players, blindAmount);
-    getPokerGame().setPrivateHand(players.get(0), privateHandPlayer0);
-    getPokerGame().setPrivateHand(players.get(1), privateHandPlayer1);
+    for (int i=0;i < players.size();i++) {
+      getPokerGame().setPrivateHand(players.get(i), privateHands.get(i));
+    }
   }
 
   protected void prepareFlop(List<Card> flopCards) {
@@ -128,11 +129,20 @@ public abstract class TestBase {
     return hand;
   }
 
-  protected List<Card> drawPairOfKnights() {
+  protected List<Card> drawPairOfKnightsAtFlop() {
     final ArrayList<Card> hand = Lists.newArrayList();
     final Card aceOfHearts = drawCard(Color.spades, Ordinal.knight);
     hand.add(aceOfHearts);
     final Card aceOfSpades = drawCard(Color.spades, Ordinal.queen);
+    hand.add(aceOfSpades);
+    return hand;
+  }
+
+  protected List<Card> drawPairOfKnights() {
+    final ArrayList<Card> hand = Lists.newArrayList();
+    final Card aceOfHearts = drawCard(Color.diamonds, Ordinal.knight);
+    hand.add(aceOfHearts);
+    final Card aceOfSpades = drawCard(Color.clubs, Ordinal.knight);
     hand.add(aceOfSpades);
     return hand;
   }
@@ -155,7 +165,7 @@ public abstract class TestBase {
     return hand;
   }
 
-  protected List<Card> drawPairOfNines() {
+  protected List<Card> drawPairOfNinesAtFlop() {
     final ArrayList<Card> hand = Lists.newArrayList();
     final Card aceOfHearts = drawCard(Color.hearts, Ordinal.nine);
     hand.add(aceOfHearts);

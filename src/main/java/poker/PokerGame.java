@@ -301,6 +301,16 @@ public class PokerGame {
     return blind * 2;
   }
 
+  /*
+  *kalle (max raise from antoher player:0 )  höjer 100
+  *thomas (max raise from another player: 100) checks 100
+  *jörn (max raise from another player 100) raises 100, maxraise from anohter player 200
+
+  *runda 2:
+  *kalle (max raise from another player 200) checks 100
+  *thomas (max raise from another player 200) fold
+  *jörn checks
+   */
   String decideBet(List<Player> remainingPlayers) {
     if (remainingPlayers.size() < 2) {
       // A player already won
@@ -312,7 +322,6 @@ public class PokerGame {
     int maxRaiseFromAPlayer = 0;
     do {
       for (Player player : remainingPlayers) {
-        int raiseAmount = 0;
         if (getPlayersStillInTheGame(player)) {
           logger.debug("player :[" + player + "] doRaise: [" + doRaise[remainingPlayers.indexOf(player)] + "]. maxRaiseFromOtherPlayer:[" + maxRaiseFromAPlayer + "] numbersOfMarkers :[" + player.getNumberOfMarkers() + "] pot :[" + pot + "]");
           Boolean isRaise = false;
@@ -320,7 +329,7 @@ public class PokerGame {
           player.decideAction(draw, remainingPlayers.size(), dealer.getCommonHand(), blind, maxRaiseFromAPlayer);
           final Action action = player.getAction();
 
-          raiseAmount = getRaiseAmount(action, maxRaiseFromAPlayer, player);
+          int raiseAmount = getRaiseAmount(action, maxRaiseFromAPlayer, player);
           maxRaiseFromAPlayer = calculateEventualNewMaxRaiseFromAnotherPlayer(raiseAmount, maxRaiseFromAPlayer, action, player);
           pot += raiseAmount;
           logger.debug("Pot size :[" + pot + "]. ");

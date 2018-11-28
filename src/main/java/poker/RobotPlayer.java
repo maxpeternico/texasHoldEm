@@ -163,7 +163,7 @@ public class RobotPlayer extends Player {
     totalHand.addAll(getPrivateHand());
     totalHand.addAll(commonHand);
     int totalHandPoints = calculateTotalHandPoints(totalHand);
-    logger.debug(getName() + " private points compensated: " + privatePoints + " common points compensated: " + commonPoints);
+    logger.debug(getName() + " total points: " + totalHandPoints + " private points compensated: " + privatePoints + " common points compensated: " + commonPoints);
     points.privatePoints = privatePoints;
     points.commonPoints = commonPoints;
     points.totalPoints = totalHandPoints;
