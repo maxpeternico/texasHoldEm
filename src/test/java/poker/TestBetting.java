@@ -131,36 +131,6 @@ public class TestBetting {
     assertEquals("Player Peter Action :[ALL_IN]. Player Thomas Action :[ALL_IN]. ", result);
   }
 
-//  @Test
-//  public void testPot() {
-//    // User 1 gets pair of aces and raises high
-//    Player jorn = new RobotPlayer("Jörn", PokerGame.TOTAL_MARKERS_PER_PLAYER);
-//    pokerGame.registerPlayer(jorn);
-//    List<Card> jornsPrivateHand = new ArrayList<>();
-//    jornsPrivateHand.add(new Card(Color.hearts, Ordinal.six));
-//    jornsPrivateHand.add(new Card(Color.spades, Ordinal.two));
-//    pokerGame.setPrivateHand(jorn, jornsPrivateHand);
-//    Player staffan = new RobotPlayer("Staffan", PokerGame.TOTAL_MARKERS_PER_PLAYER);
-//    pokerGame.registerPlayer(staffan);
-//    List<Card> staffansPrivateHand = new ArrayList<>();
-//    staffansPrivateHand.add(new Card(Color.hearts, Ordinal.seven));
-//    staffansPrivateHand.add(new Card(Color.spades, Ordinal.three));
-//    pokerGame.setPrivateHand(staffan, staffansPrivateHand);
-//    List<Player> playerList = new ArrayList<>();
-//    playerList.add(jorn);
-//    playerList.add(staffan);
-//
-//    pokerGame.initBlinds(playerList);
-//    pokerGame.setTurnForUnitTest(Draw.BEFORE_FLOP);
-//    pokerGame.playRound(playerList);
-//    final int jornsMarkers = jorn.getNumberOfMarkers();
-//    final int staffansMarkers = staffan.getNumberOfMarkers();
-//
-//    assertEquals(jornsMarkers, 2450);
-//    assertEquals(staffansMarkers, 2400);
-//
-//  }
-
   @After
   public void clearGame() {
     pokerGame.clearGame();

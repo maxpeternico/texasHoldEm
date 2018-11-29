@@ -458,4 +458,8 @@ public class PokerGame {
   int getPot() {
     return pot;
   }
+
+  public void setBlindAmount(int bigBlindAmount) {
+    blind = bigBlindAmount;
+  }
 }
