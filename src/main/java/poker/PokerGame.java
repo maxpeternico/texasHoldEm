@@ -14,7 +14,7 @@ public class PokerGame {
   private int blind = 50;
   static final int TOTAL_MARKERS_PER_PLAYER = 2500;
   private Draw draw;
-  private Pot pot = new Pot();
+  private List<Pot> pots = Lists.newArrayList();
 
   public static void main(String[] args) {
     final PokerGame pokerGame = getInstance();
@@ -55,6 +55,7 @@ public class PokerGame {
 
   void playRound(List<Player> players) {
     System.out.println("Blind is: [" + blind / 2 + "] resp: [" + blind + "]");
+    pots.add(new Pot());
     payBlinds(getPlayersStillInTheGame(players), blind);
 
     playBeforeFlop(players);
@@ -72,7 +73,7 @@ public class PokerGame {
   Player getTheWinner(List<Player> players) {
     final Player theWinner = dealer.findTheWinner(getPlayersThatDidNotFold(players));
     checkTotalHand(dealer, theWinner.getName(), theWinner.getPrivateHand());
-    theWinner.addMarkers(pot.getPots().getMarkers());
+    theWinner.addMarkers(getMarkersFromAllPots());
     System.out.println("Player :[" + theWinner.getName() + "] wins :[" + this.pot + "] markers.");
     int totalNumberOfMarkers = 0;
     for (Player player : players) {
@@ -84,6 +85,14 @@ public class PokerGame {
       throw new RuntimeException("Total number of markers is :[" + totalNumberOfMarkers + "] but should be :[" + theoreticalNumberOfMarkers + "]");
     }
     return theWinner;
+  }
+
+  private int getMarkersFromAllPots() {
+    int numberOfMarkers = 0;
+    for (Pot pot:pots) {
+      numberOfMarkers += pot.getNumberOfMarkers();
+    }
+    return numberOfMarkers;
   }
 
   String playRiver(List<Player> players) {
@@ -118,7 +127,7 @@ public class PokerGame {
       player.action = new Action(ActionEnum.NOT_DECIDED);
     }
     blind = increaseBlind();
-    this.pot = 0;
+    pots.clear();
     dealer.putCardsBackIntoDeck();
   }
 
@@ -154,9 +163,9 @@ public class PokerGame {
       // A player has won the game, no need to continue
       return;
     }
-    pot = 0;
-    pot += payLittleBlind(players, blindAmount / 2);
-    pot += payBigBlind(players, blindAmount, getPlayerWithLittleBlind(players));
+    players.stream().forEach(e->pots.get(0).addMember(e, 0));
+    payLittleBlind(players, blindAmount / 2);
+    payBigBlind(players, blindAmount, getPlayerWithLittleBlind(players));
   }
 
   private int payLittleBlind(List<Player> players, int blindAmount) {
@@ -177,7 +186,9 @@ public class PokerGame {
         pot += blindAmount;
         littleBlindNotFound = false;
       } else {
-        // Set player to broke and put all money to pot
+        // Go all in for player and create new pot
+
+
         System.out.println("Player :[" + newLittleBlindPlayer.getName() + "] has to fold due to insufficient number of markers. All markers are paid to the pot :[" + newLittleBlindPlayer.getNumberOfMarkers() + "]");
         pot += newLittleBlindPlayer.getNumberOfMarkers();
         newLittleBlindPlayer.decreaseMarkers(newLittleBlindPlayer.getNumberOfMarkers());
