@@ -61,7 +61,8 @@ public class RobotPlayer extends Player {
   protected int setAction(int raiseAmount, int maxRaiseFromOtherPlayer) {
     logger.debug("Player :[" + getName() + "] raiseAmount: [" + raiseAmount + "] maxRaiseFromOtherPlayer :[" + maxRaiseFromOtherPlayer + "]");
 
-    if (strategy.equals(ALL_IN)) {
+    // If player has no more markers player need to go all in
+    if (strategy.equals(ALL_IN) || needToGoAllIn(raiseAmount)) {
       action = new Action(ActionEnum.ALL_IN);
       action.setRaiseValue(raiseAmount);
       partInPot += raiseAmount;

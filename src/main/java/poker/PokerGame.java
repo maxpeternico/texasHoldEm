@@ -14,7 +14,7 @@ public class PokerGame {
   private int blind = 50;
   static final int TOTAL_MARKERS_PER_PLAYER = 2500;
   private Draw draw;
-  private int pot = 0;
+  private Pot pot = new Pot();
 
   public static void main(String[] args) {
     final PokerGame pokerGame = getInstance();
@@ -72,7 +72,7 @@ public class PokerGame {
   Player getTheWinner(List<Player> players) {
     final Player theWinner = dealer.findTheWinner(getPlayersThatDidNotFold(players));
     checkTotalHand(dealer, theWinner.getName(), theWinner.getPrivateHand());
-    theWinner.addMarkers(this.pot);
+    theWinner.addMarkers(pot.getPots().getMarkers());
     System.out.println("Player :[" + theWinner.getName() + "] wins :[" + this.pot + "] markers.");
     int totalNumberOfMarkers = 0;
     for (Player player : players) {
@@ -328,6 +328,9 @@ public class PokerGame {
 
           player.decideAction(draw, remainingPlayers.size(), dealer.getCommonHand(), blind, maxRaiseFromAPlayer);
           final Action action = player.getAction();
+          if (action.isAllIn()) {
+            pots.add(new Integer());
+          }
 
           int raiseAmount = getRaiseAmount(action, maxRaiseFromAPlayer, player);
           maxRaiseFromAPlayer = calculateEventualNewMaxRaiseFromAnotherPlayer(raiseAmount, maxRaiseFromAPlayer, action, player);

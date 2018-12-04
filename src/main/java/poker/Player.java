@@ -175,15 +175,23 @@ public abstract class Player {
     return true;
   }
 
+  public boolean needToGoAllIn(int amount) {
+    if (amount >= numberOfMarkers) {
+      return true;
+    }
+    return false;
+  }
+
   public abstract void decideStrategy(Draw draw, int numberOfRemainingPlayers, List<Card> commonHand, int blind);
 
-  public void decideAction(Draw draw, int numberOfRemainingPlayers, List<Card> commonHand, int blind, int maxRaiseFromOtherPlayer) {
+  public Action decideAction(Draw draw, int numberOfRemainingPlayers, List<Card> commonHand, int blind, int maxRaiseFromOtherPlayer) {
     decideStrategy(draw, numberOfRemainingPlayers, commonHand, blind);
 
     int raiseAmount = calculateRaiseAmount(blind);
     int checkOrRaiseAmount = setAction(raiseAmount, maxRaiseFromOtherPlayer);
     logger.debug("Player " + getName() + " decides to :[" + action + "]");
     decreaseMarkers(checkOrRaiseAmount);
+    return getAction();
   }
 
   protected abstract int setAction(int raiseAmount, int maxRaiseFromOtherPlayer);
