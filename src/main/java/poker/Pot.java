@@ -1,8 +1,13 @@
 package poker;
 
+import java.awt.*;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /*
   Use case: Jörn, Bosse, Thomas, Peter plays card
@@ -17,24 +22,36 @@ import com.google.common.collect.Lists;
   Pot 3 has 2 x 500 = 1000
  */
 public class Pot {
-  private int numberOfMarkers = 0;
-  private List<Player> members = Lists.newArrayList();
+  private Map<Player, Integer> members = Maps.newHashMap();
 
   public void addMember(Player player, int numberOfMarkers) {
-    this.numberOfMarkers = numberOfMarkers;
-    members.add(player);
+    members.put(player, numberOfMarkers);
   }
 
   public int getNumberOfMarkers() {
+    int numberOfMarkers = 0;
+    final Iterator<Player> iterator = members.keySet().iterator();
+    while (iterator.hasNext()) {
+      numberOfMarkers += iterator.next().getNumberOfMarkers();
+    }
     return numberOfMarkers;
   }
 
-  public int splitPot(int numberOfMarkersToSplit) {
-    numberOfMarkers -= (markersToTransferToNewPot(numberOfMarkersToSplit));
-    return markersToTransferToNewPot(numberOfMarkersToSplit);
+  public int splitPot(int allInValue, int raiseValue) {
+    List<Player> playersWhoBetMoreThanAllIn = Lists.newArrayList();
+    Iterator<Player> iterator = members.keySet().iterator();
+    while (iterator.hasNext()) {
+      final Player player = iterator.next();
+      if (player.getNumberOfMarkers() > allInValue) {
+        playersWhoBetMoreThanAllIn.add(player);
+      }
+    }
+    for (Player player:playersWhoBetMoreThanAllIn) {
+
+    }
   }
 
-  private int markersToTransferToNewPot(int numberOfMarkersToSplit) {
-    return numberOfMarkersToSplit * members.size();
+  public List<Player> getMembers() {
+    return members.keySet().stream().collect(Collectors.toList());
   }
 }
