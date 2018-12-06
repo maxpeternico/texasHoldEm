@@ -1,6 +1,5 @@
 package poker;
 
-import java.awt.*;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -32,26 +31,43 @@ public class Pot {
     int numberOfMarkers = 0;
     final Iterator<Player> iterator = members.keySet().iterator();
     while (iterator.hasNext()) {
-      numberOfMarkers += iterator.next().getNumberOfMarkers();
+      numberOfMarkers += members.get(iterator.next());
     }
     return numberOfMarkers;
   }
 
-  public int splitPot(int allInValue, int raiseValue) {
+  private Map<Player, Integer> getMembersWithPot() {
+    return members;
+  }
+
+  public List<Player> getMembers() {
+    return members.keySet().stream().collect(Collectors.toList());
+  }
+
+  public static Pot splitPot(Pot oldPot, int allInValue) {
     List<Player> playersWhoBetMoreThanAllIn = Lists.newArrayList();
-    Iterator<Player> iterator = members.keySet().iterator();
+    Iterator<Player> iterator = oldPot.getMembersWithPot().keySet().iterator();
     while (iterator.hasNext()) {
       final Player player = iterator.next();
       if (player.getNumberOfMarkers() > allInValue) {
         playersWhoBetMoreThanAllIn.add(player);
       }
     }
+    Pot newPot = new Pot();
     for (Player player:playersWhoBetMoreThanAllIn) {
-
+      int markersToNewPot = oldPot.takeMarkersFromMember(player, allInValue);
+      newPot.addMember(player, markersToNewPot);
     }
+    return newPot;
   }
 
-  public List<Player> getMembers() {
-    return members.keySet().stream().collect(Collectors.toList());
+  private int takeMarkersFromMember(Player player, int allInValue) {
+    int oldNumberOfMarkers = members.get(player);
+    members.replace(player, allInValue);
+    return oldNumberOfMarkers - allInValue;
+  }
+
+  public void addMarkersForMember(Player player, int raiseAmount) {
+
   }
 }

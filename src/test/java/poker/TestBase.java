@@ -23,7 +23,7 @@ public abstract class TestBase {
   protected void assertPotAndMarkers(List<Player> players,
                                      int totalPotRaisePerPlayer,
                                      int bigBlind) {
-    assertEquals(calculatePot(totalPotRaisePerPlayer, players, bigBlind), getPokerGame().getPot());
+    assertEquals(calculatePot(totalPotRaisePerPlayer, players, bigBlind), getPokerGame().getCurrentPot());
     for (Player player : players) {
       final int blindCost = calculateBlindCost(player, bigBlind);
       final int playersPartInPot = getPlayersPartInPot(player, totalPotRaisePerPlayer);
