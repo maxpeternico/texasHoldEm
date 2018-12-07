@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -22,6 +25,7 @@ import com.google.common.collect.Maps;
  */
 public class Pot {
   private Map<Player, Integer> members = Maps.newHashMap();
+  private static final Logger logger = LogManager.getLogger(PokerGame.class);
 
   public void addMember(Player player, int numberOfMarkers) {
     members.put(player, numberOfMarkers);
@@ -44,27 +48,33 @@ public class Pot {
     return members.keySet().stream().collect(Collectors.toList());
   }
 
-  public static Pot splitPot(Pot oldPot, int allInValue) {
+  public Pot splitPot(int allInValue) {
     List<Player> playersWhoBetMoreThanAllIn = Lists.newArrayList();
-    Iterator<Player> iterator = oldPot.getMembersWithPot().keySet().iterator();
+    Iterator<Player> iterator = getMembersWithPot().keySet().iterator();
     while (iterator.hasNext()) {
       final Player player = iterator.next();
-      if (player.getNumberOfMarkers() > allInValue) {
+      if (members.get(player) < allInValue) {
+        throw new RuntimeException("Player :[" + player.getName() + "] can't afford AllInVale!");
+      }
+      if (members.get(player) > allInValue) {
         playersWhoBetMoreThanAllIn.add(player);
       }
     }
     Pot newPot = new Pot();
     for (Player player:playersWhoBetMoreThanAllIn) {
-      int markersToNewPot = oldPot.takeMarkersFromMember(player, allInValue);
+      int markersToNewPot = takeMarkersFromMember(player, allInValue);
       newPot.addMember(player, markersToNewPot);
+      logger.debug("Adding :[" + player.getName() + "] to new pot.");
     }
     return newPot;
   }
 
   private int takeMarkersFromMember(Player player, int allInValue) {
     int oldNumberOfMarkers = members.get(player);
+    final int markersToNewPot = oldNumberOfMarkers - allInValue;
+    logger.debug("Removing [{}] markers for player [{}] from old pot to new pot.", markersToNewPot, player.getName());
     members.replace(player, allInValue);
-    return oldNumberOfMarkers - allInValue;
+    return markersToNewPot;
   }
 
   public void addMarkersForMember(Player player, int raiseAmount) {

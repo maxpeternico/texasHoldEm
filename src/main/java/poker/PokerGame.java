@@ -369,7 +369,7 @@ public class PokerGame {
   }
 
   private void splitPot(Pot oldPot, int allInAmount) {
-    Pot newPot = Pot.splitPot(oldPot, allInAmount);
+    Pot newPot = oldPot.splitPot(allInAmount);
     pots.add(newPot);
   }
 
