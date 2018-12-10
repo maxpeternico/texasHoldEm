@@ -29,6 +29,7 @@ public class Pot {
 
   public void addMember(Player player, int numberOfMarkers) {
     members.put(player, numberOfMarkers);
+    logger.debug("Adding player [{}] to pot with number of markers [{}]", player.getName(), numberOfMarkers);
   }
 
   public int getNumberOfMarkers() {
@@ -54,7 +55,7 @@ public class Pot {
     while (iterator.hasNext()) {
       final Player player = iterator.next();
       if (members.get(player) < allInValue) {
-        throw new RuntimeException("Player :[" + player.getName() + "] can't afford AllInVale!");
+        throw new RuntimeException("Player :[" + player.getName() + "] has [" + members.get(player) + "] markers and can't afford AllInVale! [" + allInValue + "]");
       }
       if (members.get(player) > allInValue) {
         playersWhoBetMoreThanAllIn.add(player);

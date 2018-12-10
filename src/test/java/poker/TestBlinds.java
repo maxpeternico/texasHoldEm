@@ -33,12 +33,11 @@ public class TestBlinds {
   }
 
   @Test
-  public void testClearAndSetOfBlinds() {
+  public void testInitBlinds() {
     players.add(peter);
     players.add(thomas);
     players.add(ingemar);
     pokerGame.initBlinds(players);
-//    pokerGame.payBlinds(players, 50);
     assertEquals(peter.hasBlind(), true);
     assertEquals(peter.hasLittleBlind(), true);
     assertEquals(peter.hasBigBlind(), false);
@@ -47,7 +46,15 @@ public class TestBlinds {
     assertEquals(thomas.hasLittleBlind(), false);
     assertEquals(thomas.hasBigBlind(), true);
     assertEquals(ingemar.hasBlind(), false);
+  }
 
+  @Test
+  public void testSetBlinds() {
+    players.add(peter);
+    players.add(thomas);
+    players.add(ingemar);
+    pokerGame.initBlinds(players);
+    pokerGame.addPot();
     pokerGame.payBlinds(players, 50);
     assertEquals(peter.hasBlind(), false);
     assertEquals(thomas.hasLittleBlind(), true);
@@ -57,58 +64,58 @@ public class TestBlinds {
   @Test
   public void testBlinds() {
     final PokerGame pokerGame = PokerGame.getInstance();
-    List<Player> players = getThreePlayers(pokerGame);
+    List<Player> players = pokerGame.createNumberOfRobotPlayers(3, 2500);
     pokerGame.initBlinds(players);
-//    pokerGame.payBlinds(players, 50);
-    int indexOfLittleBlind = getIndexOfBlind(players, Player::hasLittleBlind);
-    int indexOfBigBlind = getIndexOfBlind(players, Player::hasBigBlind);
-    assertEquals(indexOfLittleBlind, 0);
-    assertEquals(indexOfBigBlind, 1);
+    pokerGame.addPot();
+    assertEquals(0, getIndexOfBlind(players, Player::hasLittleBlind));
+    assertEquals(1, getIndexOfBlind(players, Player::hasBigBlind));
+    assertEquals(false, players.get(2).hasBlind());
+    assertEquals(pokerGame.getCurrentPot().getNumberOfMarkers(), 0);
     pokerGame.payBlinds(players, 50);
-    indexOfLittleBlind = getIndexOfBlind(players, Player::hasLittleBlind);
-    indexOfBigBlind = getIndexOfBlind(players, Player::hasBigBlind);
-    assertEquals(indexOfLittleBlind, 1);
-    assertEquals(indexOfBigBlind, 2);
+    assertEquals(1, getIndexOfBlind(players, Player::hasLittleBlind));
+    assertEquals(2, getIndexOfBlind(players, Player::hasBigBlind));
+    assertEquals(false, players.get(0).hasBlind());
     pokerGame.payBlinds(players, 50);
-    indexOfLittleBlind = getIndexOfBlind(players, Player::hasLittleBlind);
-    indexOfBigBlind = getIndexOfBlind(players, Player::hasBigBlind);
-    assertEquals(indexOfLittleBlind, 2);
-    assertEquals(indexOfBigBlind, 0);
+    assertEquals(pokerGame.getCurrentPot().getNumberOfMarkers(), 75);
+    assertEquals(2, getIndexOfBlind(players, Player::hasLittleBlind));
+    assertEquals(0, getIndexOfBlind(players, Player::hasBigBlind));
+    assertEquals(false, players.get(1).hasBlind());
     pokerGame.payBlinds(players, 50);
-    indexOfLittleBlind = getIndexOfBlind(players, Player::hasLittleBlind);
-    indexOfBigBlind = getIndexOfBlind(players, Player::hasBigBlind);
-    assertEquals(indexOfLittleBlind, 0);
-    assertEquals(indexOfBigBlind, 1);
+    assertEquals(pokerGame.getCurrentPot().getNumberOfMarkers(), 75);
+    assertEquals(0, getIndexOfBlind(players, Player::hasLittleBlind));
+    assertEquals(1, getIndexOfBlind(players, Player::hasBigBlind));
+    assertEquals(false, players.get(2).hasBlind());
+    assertEquals(pokerGame.getCurrentPot().getNumberOfMarkers(), 75);
+    pokerGame.clearGame();
+  }
+
+  @Test
+  public void testBlindHighBlind() {
+    final PokerGame pokerGame = PokerGame.getInstance();
+    List<Player> players = pokerGame.createNumberOfRobotPlayers(3, 2500);
+    pokerGame.initBlinds(players);
+    pokerGame.addPot();
+    assertEquals(pokerGame.getCurrentPot().getNumberOfMarkers(), 0);
+    pokerGame.payBlinds(players, 1200);
+    assertEquals(pokerGame.getCurrentPot().getNumberOfMarkers(), 1800);
     pokerGame.clearGame();
   }
 
   @Test
   public void testOnePlayerCantPayBlinds() {
     final PokerGame pokerGame = PokerGame.getInstance();
-    List<Player> players = getTwoPlayers();
-
-    Player thomas = new RobotPlayer("Thomas", 10);
-    List<Card> thomasPrivateHand = new ArrayList<>();
-    thomasPrivateHand.add(new Card(Color.clubs, Ordinal.king));
-    thomasPrivateHand.add(new Card(Color.diamonds, Ordinal.king));
-    pokerGame.setPrivateHand(thomas, thomasPrivateHand);
-    players.add(thomas);
-
+    List<Player> players = pokerGame.createNumberOfRobotPlayers(3, 2500);
+    players.get(2).decreaseMarkers(2499);
     pokerGame.initBlinds(players);
-
-    final Player staffan = players.get(0);
-    final Player jorn = players.get(1);
-
-    assertEquals(staffan.hasLittleBlind(), true);
-    assertEquals(jorn.hasBigBlind(), true);
-    assertEquals(thomas.hasBlind(), false);
+    pokerGame.addPot();
 
     pokerGame.payBlinds(players, 50);
 
-    assertEquals(staffan.hasBigBlind(), true);
-    assertEquals(jorn.hasLittleBlind(), true);
-    assertEquals(thomas.hasBlind(), false);
-    assertEquals(pokerGame.getCurrentPot(), 85);
+    assertEquals(24, pokerGame.getCurrentPot().getNumberOfMarkers());
+    assertEquals(2, pokerGame.getOlderPots(1).getNumberOfMarkers());
+    assertEquals(0, getIndexOfBlind(players, Player::hasLittleBlind));
+    assertEquals(1, getIndexOfBlind(players, Player::hasBigBlind));
+    assertEquals(false, players.get(2).hasBlind());
 
     pokerGame.clearGame();
   }
