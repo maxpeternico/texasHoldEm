@@ -25,7 +25,8 @@ import com.google.common.collect.Maps;
  */
 public class Pot {
   private Map<Player, Integer> members = Maps.newHashMap();
-  private static final Logger logger = LogManager.getLogger(PokerGame.class);
+  private static final Logger logger = LogManager.getLogger(Pot.class);
+  private int allInAmount;
 
   public void addMember(Player player, int numberOfMarkers) {
     members.put(player, numberOfMarkers);
@@ -50,6 +51,7 @@ public class Pot {
   }
 
   public Pot splitPot(int allInValue) {
+    allInAmount = allInValue;
     List<Player> playersWhoBetMoreThanAllIn = Lists.newArrayList();
     Iterator<Player> iterator = getMembersWithPot().keySet().iterator();
     while (iterator.hasNext()) {
@@ -79,6 +81,19 @@ public class Pot {
   }
 
   public void addMarkersForMember(Player player, int raiseAmount) {
+    int oldMarkersInPot = members.get(player);
+    members.replace(player, oldMarkersInPot, oldMarkersInPot+ raiseAmount);
+  }
 
+  public int getAllInAmount() {
+    return this.allInAmount;
+  }
+
+  public int getMarkersForMember(Player player) {
+    return members.get(player);
+  }
+
+  public boolean isMember(Player player) {
+    return members.containsKey(player);
   }
 }

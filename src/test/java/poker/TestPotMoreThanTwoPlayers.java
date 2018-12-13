@@ -63,7 +63,7 @@ public class TestPotMoreThanTwoPlayers extends TestBase {
     final int player1NumberOfMarkersAfterRound = player1.getNumberOfMarkers();
     final int player2NumberOfMarkersAfterRound = player2.getNumberOfMarkers();
 
-    pokerGame.getTheWinner(getPokerGame().getCurrentPot(), players);
+    pokerGame.getTheWinner(getPokerGame().getPotHandler().getPots().get(0), players);
 
     assertEquals(createMarkersDisappearErrorMessage(players),
         2 * PokerGame.TOTAL_MARKERS_PER_PLAYER,
