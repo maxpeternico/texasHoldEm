@@ -63,8 +63,8 @@ public class TestPot {
     assertEquals(newestPotMembers, newestPot.getMembers());
   }
 
-  @Test
-  public void testThreePlayersSplitWithTooHighValueNegativeTest() {
+  @Test // TODO: pot.splitPot() should return list
+  public void testThreePlayersSplitOnePlayerCantAfford() {
     Pot pot = new Pot();
     Player peter = new RobotPlayer("Peter", 500);
     Player thomas = new RobotPlayer("Thomas", 100);
@@ -72,12 +72,7 @@ public class TestPot {
     pot.addMember(peter, 500);
     pot.addMember(thomas, 100);
     pot.addMember(ingemar, 1000);
-
-    try {
-      pot.splitPot(200);
-      fail("Exception should have been received.");
-    } catch (RuntimeException e) {
-      assertEquals(e.getMessage(), "Player :[Thomas] can't afford AllInVale!");
-    }
+    //List<Pot> pots = pot.splitPot(200);
+    //assertEquals(pot);
   }
 }

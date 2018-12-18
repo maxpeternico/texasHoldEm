@@ -57,30 +57,34 @@ public class RobotPlayer extends Player {
     logger.debug("Player " + getName() + " has strategy " + strategy + ". ");
   }
 
+
+  /*
+
+  Thomas raises with 100, jörn checks wiht 100. maxRaiseFromAnotherPlayer = 0
+  Thomas checks. maxraise still 100. check value should be 0.
+  Jörn checks. maxRaise still 100. check value should be 0.
+
+   */
   @Override
-  protected int setAction(int raiseAmount, int maxRaiseFromOtherPlayer) {
+  protected void setAction(int raiseAmount, int maxRaiseFromOtherPlayer) {
     logger.debug("Player :[" + getName() + "] raiseAmount: [" + raiseAmount + "] maxRaiseFromOtherPlayer :[" + maxRaiseFromOtherPlayer + "]");
+    previousAction = getAction();
 
     // If player has no more markers player need to go all in
     if (strategy.equals(ALL_IN) || needToGoAllIn(raiseAmount)) {
       action = new Action(ActionEnum.ALL_IN);
       action.setRaiseValue(raiseAmount);
       partInPot += raiseAmount;
-      return raiseAmount;
-    }
-    if (raiseAmount > maxRaiseFromOtherPlayer) {
+    } else if (raiseAmount > maxRaiseFromOtherPlayer) {
       action = new Action(ActionEnum.RAISE);
       action.setRaiseValue(raiseAmount);
       partInPot += raiseAmount;
-      return raiseAmount;
-    }
-    if (isWithin(raiseAmount, maxRaiseFromOtherPlayer)) {
+    } else if (isWithin(raiseAmount, maxRaiseFromOtherPlayer)) {
       action = new Action(ActionEnum.CHECK);
+      action.setCheckValue(maxRaiseFromOtherPlayer);
       partInPot += maxRaiseFromOtherPlayer;
-      return maxRaiseFromOtherPlayer;
     } else {
       action = new Action(ActionEnum.FOLD);
-      return 0;
     }
   }
 
@@ -93,7 +97,7 @@ public class RobotPlayer extends Player {
 
   @Override
   protected int calculateRaiseAmount(int blind) {
-    int raiseAmount = 0;
+    int individualRaiseAmount = 0;
 
     // Depending on strategy, pot and blind
     // low blind, offensive raises more, the rest joins
@@ -101,7 +105,7 @@ public class RobotPlayer extends Player {
     // high blind offensive sets rise as blind, rest folds
     switch (strategy) {
       case ALL_IN:
-        raiseAmount = getNumberOfMarkers();
+        individualRaiseAmount = getNumberOfMarkers();
         break;
       case OFFENSIVE:
         // TODO: Set percentage of number of markers instead
@@ -109,46 +113,46 @@ public class RobotPlayer extends Player {
           if (points.commonPoints < 50) {
             // TODO: calculateRaiseAmount(privatePoints, commonPoints, sizeOfBlind, moneyLeft)
             // getRaiseAmount
-            raiseAmount = blind * 4;
+            individualRaiseAmount = blind * 4;
           } else {
             // getRaiseAmount only if no other raises
-            raiseAmount = blind;
+            individualRaiseAmount = blind;
           }
         } else if (points.totalPoints > 100) {
           if (points.commonPoints < 5) {
             // getRaiseAmount if no one else has raised
-            raiseAmount = blind * 2;
+            individualRaiseAmount = blind * 2;
           } else {
             // don't getRaiseAmount, join if blind is cheap otherwise fold
-            raiseAmount = blind;
+            individualRaiseAmount = blind;
           }
         } else if (points.totalPoints > 5) {
           if (points.commonPoints < 5) {
             // getRaiseAmount if no one else has raised
-            raiseAmount = blind;
+            individualRaiseAmount = blind;
           } else {
             // don't getRaiseAmount, join if blind is cheap otherwise fold
-            raiseAmount = 0;
+            individualRaiseAmount = 0;
           }
         } else {
           // don't getRaiseAmount, join if blind is cheap otherwise fold
-          raiseAmount = 0;
+          individualRaiseAmount = 0;
         }
         break;
       case JOIN:
-        raiseAmount = blind * 2;
+        individualRaiseAmount = blind * 2;
         break;
       case JOIN_IF_CHEAP:
         if (blind <= 50) {
-          raiseAmount = blind;
+          individualRaiseAmount = blind;
         }
         break;
     }
-    if (raiseAmount > getNumberOfMarkers()) {
-      raiseAmount = getNumberOfMarkers();
+    if (individualRaiseAmount > getNumberOfMarkers()) {
+      individualRaiseAmount = getNumberOfMarkers();
     }
-    logger.debug(getName() + " getRaiseAmount amount: " + raiseAmount);
-    return raiseAmount;
+    logger.debug(getName() + " getRaiseAmount amount: " + individualRaiseAmount);
+    return individualRaiseAmount;
   }
 
   Points calculatePoints(int numberOfRemainingPlayers, Draw draw, List<Card> commonHand) {
@@ -172,9 +176,9 @@ public class RobotPlayer extends Player {
   }
 
   private int calculateTotalHandPoints(List<Card> totalHand) {
-    final Map<Card, PokerResult> commonPointsMap = EvaluationHandler.evaluateHand("common", totalHand);
-    int commonHandPoints = EvaluationHandler.getResultFromCardPokerResultMap(commonPointsMap).getPoints();
-    return commonHandPoints;
+    final Map<Card, PokerResult> totalPointsMap = EvaluationHandler.evaluateHand("common", totalHand);
+    int totalHandPoints = EvaluationHandler.getResultFromCardPokerResultMap(totalPointsMap).getPoints();
+    return totalHandPoints;
   }
 
   private int calculatePrivatePoints(List<Card> hand) {

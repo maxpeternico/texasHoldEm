@@ -36,16 +36,15 @@ public class HumanPlayer extends Player {
   }
 
   @Override
-  protected int setAction(int raiseAmount, int maxRaiseFromOtherPlayer) {
-    int raiseOrCheckAmount = 0;
+  protected void setAction(int raiseAmount, int maxRaiseFromOtherPlayer) {
     switch (strategy) {
       case OFFENSIVE:
         action = new Action(ActionEnum.RAISE);
         action.setRaiseValue(raiseAmount);
-        raiseOrCheckAmount = raiseAmount;
         break;
       case JOIN:
         action = new Action(ActionEnum.CHECK);
+        action.setCheckValue(raiseAmount);
         break;
       case QUIT:
         action = new Action(ActionEnum.FOLD);
@@ -53,8 +52,6 @@ public class HumanPlayer extends Player {
       default:
         throw new RuntimeException("This should not happen. strategy:[" + strategy + "]");
     }
-    // Already checked that raiseamount is equal or higher than blind (or 0)
-    return raiseOrCheckAmount;
   }
 
   @Override

@@ -7,8 +7,8 @@ import java.util.Map;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-
 public abstract class Player {
+
   private String name;
   private int numberOfMarkers = 0;
 
@@ -21,6 +21,7 @@ public abstract class Player {
   Strategy strategy = Strategy.NOT_DECIDED;
   protected Action action = new Action(ActionEnum.NOT_DECIDED);
   protected int partInPot = 0;
+  protected Action previousAction = new Action(ActionEnum.NOT_DECIDED);
 
   public Action getAction() {
     return action;
@@ -47,7 +48,6 @@ public abstract class Player {
   public String toString() {
     return "Player [name=" + name + "]";
   }
-
 
   public void addPrivateCards(List<Card> newCards) {
     cardsOnHand.addAll(newCards);
@@ -80,18 +80,23 @@ public abstract class Player {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     Player other = (Player) obj;
     if (name == null) {
-      if (other.name != null)
+      if (other.name != null) {
         return false;
-    } else if (!name.equals(other.name))
+      }
+    } else if (!name.equals(other.name)) {
       return false;
+    }
     return true;
   }
 
@@ -184,17 +189,38 @@ public abstract class Player {
 
   public abstract void decideStrategy(Draw draw, int numberOfRemainingPlayers, List<Card> commonHand, int blind);
 
-  public Action decideAction(Draw draw, int numberOfRemainingPlayers, List<Card> commonHand, int blind, int maxRaiseFromOtherPlayer) {
+  public Action decideAction(Draw draw,
+                             int numberOfRemainingPlayers,
+                             List<Card> commonHand,
+                             int blind,
+                             int maxRaiseFromAPlayer) {
     decideStrategy(draw, numberOfRemainingPlayers, commonHand, blind);
 
-    int raiseAmount = calculateRaiseAmount(blind);
-    int checkOrRaiseAmount = setAction(raiseAmount, maxRaiseFromOtherPlayer);
-    logger.debug("Player " + getName() + " decides to :[" + action + "]");
-    decreaseMarkers(checkOrRaiseAmount);
+    int individualRaiseAmount = calculateRaiseAmount(blind);
+    setAction(individualRaiseAmount, maxRaiseFromAPlayer);
+    logger.debug("Player " + getName() + " decides to :[" + getAction() + "]");
+    decreaseMarkers(getRaiseOrCheckValue(maxRaiseFromAPlayer));
     return getAction();
   }
 
-  protected abstract int setAction(int raiseAmount, int maxRaiseFromOtherPlayer);
+  public int getRaiseOrCheckValue(int maxRaiseFromAPlayer) {
+    if (partInPot == maxRaiseFromAPlayer) {
+      logger.debug("Player [{}] has already paied to pot");
+      return 0;
+    }
+    if (getAction().isAllIn()) {
+      return getAction().getRaiseAmount();
+    }
+    if (getAction().isRaise()) {
+      return getAction().getRaiseAmount();
+    }
+    if (getAction().isCheck()) {
+      return getAction().getCheckAmount();
+    }
+    return 0;
+  }
+
+  protected abstract void setAction(int raiseAmount, int maxRaiseFromOtherPlayer);
 
   protected abstract int calculateRaiseAmount(int blind);
 
@@ -207,7 +233,26 @@ public abstract class Player {
     return action.isFold();
   }
 
-  int getPartInPot() {
-    return partInPot;
+  public boolean isAllIn() {
+    if (strategy.equals(Strategy.ALL_IN)) {
+      return true;
+    }
+    return false;
+  }
+
+  public boolean isRaising() {
+    return getAction().isRaise();
+  }
+
+  public boolean hasNotDecided() {
+    return getAction().isNotDecided();
+  }
+
+  void setActionToNotDecided() {
+    action = new Action(ActionEnum.NOT_DECIDED);
+  }
+
+  void setActionToCheck() {
+    action = new Action(ActionEnum.CHECK);
   }
 }

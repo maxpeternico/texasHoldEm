@@ -188,7 +188,7 @@ public class TestPotBetAtPrivateHand extends TestBase {
     privateHands.add(drawPairOfEights2());
     prepareBeforeFlop(players, bigBlindAmount, privateHands);
     String decision = pokerGame.playBeforeFlop(players);
-    assertEquals("Player Thomas Action :[RAISE]. Player Jörn Action :[CHECK]. ", decision);
+    assertEquals("Player Thomas Action :[RAISE]. Player Jörn Action :[CHECK]. Player Thomas Action :[CHECK]. Player Jörn Action :[CHECK]. ", decision);
     int potRaisePerPlayerBeforeFlop = 100;
     int potRaisePerPlayerTotalRound = potRaisePerPlayerBeforeFlop;
     assertPotAndMarkers(players, potRaisePerPlayerTotalRound, bigBlindAmount);

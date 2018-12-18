@@ -42,9 +42,9 @@ public class PokerGame {
     draw = Draw.BEFORE_FLOP;
     List<Player> playersStillInTheGame;
     do {
-      playersStillInTheGame = getPlayersStillInTheGame(players);
+      playersStillInTheGame = playerCanBet(players);
       playRound(playersStillInTheGame);
-    } while (!doWeHaveAWinner(getPlayersStillInTheGame(players)));
+    } while (!doWeHaveAWinner(playerCanBet(players)));
     final Player theWinner = playersStillInTheGame.get(0);
     System.out.println("Player :[" + theWinner.getName() + "] is the winner and won :[" + theWinner.getNumberOfMarkers() + "] markers.");
   }
@@ -61,7 +61,7 @@ public class PokerGame {
 
   void playRound(List<Player> players) {
     System.out.println("Blind is: [" + blind / 2 + "] resp: [" + blind + "]");
-    payBlinds(getPlayersStillInTheGame(players), blind);
+    payBlinds(playerCanBet(players), blind);
 
     playBeforeFlop(players);
     increaseDraw();
@@ -122,6 +122,9 @@ public class PokerGame {
   void resetTurn(List<Player> players) {
     for (Player player : players) {
       player.action = new Action(ActionEnum.NOT_DECIDED);
+      player.previousAction = new Action(ActionEnum.NOT_DECIDED);
+      player.action.setRaiseValue(0);
+      player.action.setCheckValue(0);
     }
     blind = increaseBlind();
     potHandler.clear();
@@ -141,7 +144,7 @@ public class PokerGame {
     return false;
   }
 
-  private List<Player> getPlayersStillInTheGame(List<Player> players) {
+  private List<Player> playerCanBet(List<Player> players) {
     final ArrayList<Player> playersStillInTheGame = Lists.newArrayList();
     players.stream().forEach(e -> {
       if (e.hasFolded()) {
@@ -160,7 +163,7 @@ public class PokerGame {
     players.stream().forEach(e -> {
       if (e.getAction().isAllIn()) {
         System.out.println("Player :[" + e.getName() + "] is all in, no bet.");
-      } else if (!e.hasFolded()) {
+      } else if (e.hasFolded()) {
         System.out.println("Player :[" + e.getName() + "] has folded, no bet.");
       } else {
         playersStillInTheGame.add(e);
@@ -306,14 +309,20 @@ public class PokerGame {
   }
 
   /*
-   *kalle (max raise from antoher player:0 )  höjer 100
-   *thomas (max raise from another player: 100) checks 100
-   *jörn (max raise from another player 100) raises 100, maxraise from anohter player 200
+   *kalle (max raise from antoher player:0 )  höjer 100. maxraise 100  pot; 100
+   *thomas (max raise from another player: 100) checks 100 maxraise 100 . pot: 200
 
-   *runda 2:
-   *kalle (max raise from another player 200) checks 100
-   *thomas (max raise from another player 200) fold
-   *jörn checks
+    kalle checks. maxraiserFromAnoutbherPlayer 100
+    Kalle har redan 100 i pot, ska inte betala
+    thomas checks Har redan 100 i pot, ska inte betala
+   *
+   * use case 2:
+   *
+   *kalle höjer 100, maxraise 100 pot 100
+   * thomas höjer 200, maxraise 200, pot 200
+   * kalle checkar, har 100 i pot, ska betala 100
+   * thomas checkar, har 200 i pot, ska inte betlaa ngt
+   *
    */
   String decideBet(List<Player> remainingPlayers) {
     if (remainingPlayers.size() < 2) {
@@ -321,79 +330,96 @@ public class PokerGame {
       return "";
     }
     StringBuffer result = new StringBuffer();
-    Boolean[] doRaise = initDoRaise(remainingPlayers);
 
     int maxRaiseFromAPlayer = 0;
     do {
       for (Player player : remainingPlayers) {
-        if (getPlayersStillInTheGame(player)) {
-          logger.debug("player :[" + player + "] doRaise: [" + doRaise[remainingPlayers.indexOf(player)] + "]. maxRaiseFromOtherPlayer:[" + maxRaiseFromAPlayer + "] numbersOfMarkers :[" + player.getNumberOfMarkers() + "] pot :[" + potHandler.getNumberOfMarkersInAllPots() + "]");
-          Boolean isRaise = false;
-
+        if (playerCanBet(player)) {
+          logger.debug("player :[{}] action  maxRaiseFromOtherPlayer:[{}] numbersOfMarkers :[{}] markers in all pots :[{}]", player, maxRaiseFromAPlayer, player.getNumberOfMarkers(), potHandler.getNumberOfMarkersInAllPots());
           player.decideAction(draw, remainingPlayers.size(), dealer.getCommonHand(), blind, maxRaiseFromAPlayer);
           final Action action = player.getAction();
-          if (action.isAllIn()) {
-            potHandler.splitPot(action.getRaiseAmount());
+          if (action.isRaise() || action.isAllIn()) {
+            clearPreviousPlayersWithActionCheck(remainingPlayers, player);
           }
-
-          int raiseAmount = getRaiseAmount(action, maxRaiseFromAPlayer, player);
-          maxRaiseFromAPlayer = calculateEventualNewMaxRaiseFromAnotherPlayer(raiseAmount, maxRaiseFromAPlayer, action, player);
-          potHandler.joinPot(player, raiseAmount);
-          logger.debug("Pot size :[" + potHandler.getNumberOfMarkersInAllPots() + "]. ");
-          doRaise[remainingPlayers.indexOf(player)] = isRaise;
+          maxRaiseFromAPlayer = calculateEventualNewMaxRaiseFromAnotherPlayer(maxRaiseFromAPlayer, action);
+          if (shallPayToPot(potHandler.getPlayerPartInPots(player), maxRaiseFromAPlayer)) {
+            final int raiseOrCheckValue = player.getRaiseOrCheckValue(maxRaiseFromAPlayer);
+            potHandler.joinPot(player, raiseOrCheckValue);
+            logger.debug("Pot size :[{}]. ", potHandler.getNumberOfMarkersInAllPots());
+          }
           result.append("Player " + player.getName() + " " + action.toString() + ". ");
         }
       }
     }
-    while (anyOneIsRaising(doRaise));
+    while (!allPlayersSatisfied(remainingPlayers));
     return result.toString();
   }
 
-  private int getRaiseAmount(Action action, int maxRaiseFromOtherplayer, Player player) {
+  private boolean shallPayToPot(int numberOfMarkersForPlayerInPot, int maxRaiseFromAPlayer) {
+    if (numberOfMarkersForPlayerInPot == maxRaiseFromAPlayer) {
+      return false;
+    }
+    return true;
+  }
+
+  void clearPreviousPlayersWithActionCheck(List<Player> remainingPlayers, Player player) {
+    for (int i = 0; i < remainingPlayers.indexOf(player); i++) {
+      final Player tempPlayer = remainingPlayers.get(i);
+      if (tempPlayer.getAction().isCheck()) {
+        tempPlayer.setActionToNotDecided();
+        logger.debug("Player [{}] decision chached from check to decided", player.getName());
+      }
+    }
+  }
+
+  private int calculateEventualNewMaxRaiseFromAnotherPlayer(int maxRaiseFromAPlayer, Action action) {
     if (action.isRaise() || action.isAllIn()) {
-      int raiseAmount = action.getRaiseAmount();  // E.g. players 1 rasies 100 player 2 raises 200
-      return raiseAmount;
-    } else if (action.isCheck()) {
-      logger.debug("Player :[" + player.getName() + "] checks with totalRaiseAmount :[" + maxRaiseFromOtherplayer + "]. ");
-      return maxRaiseFromOtherplayer;
+      final int raiseAmount = action.getRaiseAmount();
+      if (raiseAmount > maxRaiseFromAPlayer) {
+        return raiseAmount;
+      }
     }
-    return 0;
+    return maxRaiseFromAPlayer;
   }
 
-  private int calculateEventualNewMaxRaiseFromAnotherPlayer(int raiseAmount,
-                                                            int maxRaiseFromOtherplayer,
-                                                            Action action,
-                                                            Player player) {
-    if (action.isRaise() || action.isAllIn()) {
-      int totalRaiseAmount = raiseAmount + maxRaiseFromOtherplayer; // pot = 200 + 100
-      logger.debug("Player :[" + player.getName() + "] raises with totalRaiseAmount :[" + totalRaiseAmount + "]. ");
-      return totalRaiseAmount;   // max rise from another player is 300
+  boolean allPlayersSatisfied(List<Player> players) {
+    if (isAnyoneRaising(players)) {
+      return false;
     }
-    return 0;
+    if (isAnyoneNotDecided(players)) {
+      return false;
+    }
+    return true;
   }
 
-  private Boolean[] initDoRaise(List<Player> remainingPlayers) {
-    Boolean[] doRaise = new Boolean[remainingPlayers.size()];
-    for (int i = 0; i < remainingPlayers.size(); i++) {
-      doRaise[i] = false;
-    }
-    return doRaise;
-  }
-
-  private boolean anyOneIsRaising(Boolean[] doRaise) {
-    for (Boolean b : doRaise) {
-      if (b.equals(true)) {
+  private boolean isAnyoneNotDecided(List<Player> players) {
+    for (Player player : players) {
+      if (player.hasNotDecided()) {
+        logger.debug("Player [{}] has still not decided", player.getName());
         return true;
       }
     }
     return false;
   }
 
-  private boolean getPlayersStillInTheGame(Player player) {
+  private boolean isAnyoneRaising(List<Player> players) {
+    for (Player player : players) {
+      if (player.isRaising()) {
+        logger.debug("Player [{}] is still raising", player.getName());
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private boolean playerCanBet(Player player) {
     if (player.hasFolded()) {
       return false;
     }
     if (!player.hasAnyMarkers()) {
+      return false;
+    }
+    if (player.isAllIn()) {
       return false;
     }
     return true;
@@ -458,7 +484,7 @@ public class PokerGame {
 
   void playPrivateHands(List<Player> players) {
     dealer.playPrivateHands();
-    decideBet(getPlayersStillInTheGame(players));
+    decideBet(playerCanBet(players));
   }
 
   void addToCommonHand(List<Card> cards) {

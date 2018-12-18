@@ -4,6 +4,8 @@ public class Action {
   private ActionEnum decision;
   private int raiseAmount;
 
+  private int checkValue;
+
   public Action(ActionEnum decision) {
     this.decision = decision;
   }
@@ -44,10 +46,25 @@ public class Action {
     return false;
   }
 
+  public boolean isNotDecided() {
+    if (decision.equals(ActionEnum.NOT_DECIDED)) {
+      return true;
+    }
+    return false;
+  }
+
   @Override
   public String toString() {
     return "Action :[" +
             decision +
             ']';
+  }
+
+  public void setCheckValue(int checkValue) {
+    this.checkValue = checkValue;
+  }
+
+  public int getCheckAmount() {
+    return checkValue;
   }
 }
