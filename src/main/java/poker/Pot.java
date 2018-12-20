@@ -51,24 +51,21 @@ public class Pot implements Comparable {
     return members.keySet().stream().collect(Collectors.toList());
   }
 
-  public Pot splitPot(int allInValue) {
-    List<Player> playersWhoBetMoreThanAllIn = Lists.newArrayList();
-    Iterator<Player> iterator = getMembersWithPot().keySet().iterator();
+
+  public Pot splitPot(int splitValue) {
+    logger.debug("Split pot [{}] with splitValue [{}]", toString(), splitValue);
+    Iterator<Player> iterator = members.keySet().iterator();
+    Pot newPot = new Pot();
     while (iterator.hasNext()) {
       final Player player = iterator.next();
-      if (members.get(player) < allInValue) {
-
-        // TODO: split pot
-        logger.debug("Player :[" + player.getName() + "] has [" + members.get(player) + "] markers and can't afford AllInVale! [" + allInValue + "]. Will not be added to new pot.");
-      } else if (members.get(player) > allInValue) {
-        playersWhoBetMoreThanAllIn.add(player);
+      final Integer markersForPlayer = members.get(player);
+      if (markersForPlayer > splitValue) {
+        logger.debug("Move [{}] markers for player [{}] to new pot. ",  members.get(player), player.getName());
+        newPot.addMember(player, splitValue);
+        members.replace(player, markersForPlayer - splitValue);
+      } else {
+        logger.debug("Player [{}] is not moved to new pot.", player.getName());
       }
-    }
-    Pot newPot = new Pot();
-    for (Player player : playersWhoBetMoreThanAllIn) {
-      int markersToNewPot = takeMarkersFromMember(player, allInValue);
-      newPot.addMember(player, markersToNewPot);
-      logger.debug("Adding :[{}] to new pot witch highest amount [{}].", player.getName(), markersToNewPot);
     }
     return newPot;
   }
@@ -113,8 +110,8 @@ public class Pot implements Comparable {
   public int compareTo(Object o) {
     Pot potToCompare = ((Pot)o);
     if (potToCompare.getHighestAmount() > getHighestAmount()) {
-      return -1;
+      return 1;
     }
-    return 1;
+    return -1;
   }
 }

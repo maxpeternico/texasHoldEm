@@ -7,7 +7,6 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 
 import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.fail;
 
 public class TestPot {
 
@@ -22,13 +21,13 @@ public class TestPot {
     pot.addMember(peter, 500);
     pot.addMember(thomas, 100);
 
-    final Pot newPot = pot.splitPot(100);
+    final List<Pot> pots = pot.splitPot(100);
     assertEquals(pot.getMembers(), oldPotMembers);
     assertEquals(pot.getNumberOfMarkers(), 200);
-    assertEquals(newPot.getNumberOfMarkers(), 400);
+    assertEquals(pots.get(0).getNumberOfMarkers(), 400);
     final List<Player> newPotMemberList = Lists.newArrayList();
     newPotMemberList.add(peter);
-    assertEquals(newPot.getMembers(), newPotMemberList);
+    assertEquals(pots.get(0).getMembers(), newPotMemberList);
   }
 
   @Test
@@ -45,17 +44,17 @@ public class TestPot {
     pot.addMember(thomas, 100);
     pot.addMember(ingemar, 1000);
 
-    final Pot newPot = pot.splitPot(100);
+    final List<Pot> pots = pot.splitPot(100);
     assertEquals(pot.getMembers(), oldPotMembers);
     assertEquals(pot.getNumberOfMarkers(), 300);
-    assertEquals(newPot.getNumberOfMarkers(), 1300);
+    assertEquals(pots.get(0).getNumberOfMarkers(), 1300);
 
     final List<Player> newPotMemberList = Lists.newArrayList();
     newPotMemberList.add(peter);
     newPotMemberList.add(ingemar);
-    assertEquals(newPot.getMembers(), newPotMemberList);
+    assertEquals(pots.get(0).getMembers(), newPotMemberList);
 
-    final Pot newestPot = newPot.splitPot(400);
+    final Pot newestPot = pots.get(0); // TODO does not work
     List<Player> newestPotMembers = Lists.newArrayList();
     newestPotMembers.add(ingemar);
     assertEquals(newestPotMembers, newestPot.getMembers());

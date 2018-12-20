@@ -1,6 +1,5 @@
 package poker;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -17,20 +16,34 @@ public class PotHandler {
     pots.add(new Pot());
   }
 
+  /*
+  Use case 1: 450 markers, 4 pots, size 100, 200, 50, 100. Player checks 450. Pays to all pots
+
+  Use case 2: 450 markers, 4 pots, size 100, 200, 50, 100. Player goes all in on 310. Pay 100 to first pot, 200 to second pot and split 3rd pot to 10 and 40.
+  Result: 5 pots 100, 200, 10, 40, 50, 100
+   */
+
   public void joinPot(Player player, int raiseCheckValue) {
     int raiseCheckValueLeft = raiseCheckValue;
     int moneyToPot = 0;
 
-    // Do player owe debt to older pot?
-    // Pay allIn amounts for all pots but the last one, if markers left put it in last pot
-    // if can't afford split pot
-    splitPotIfNecessary(pots, raiseCheckValue);
+    Pot potToSplit = new Pot();
     for (Pot pot : pots) {
+      // Pay highest amount in pot until raiseCheckValueLeft is 0
+      if (pots.indexOf(pot) == pots.size() - 1) {
+        if (raiseCheckValueLeft >= pot.getHighestAmount()) {
+          putMarkersToPot(pot, player, raiseCheckValueLeft);
+        } else {
+          potToSplit = pot;
+        }
+        break;
+      }
       moneyToPot = pot.getHighestAmount();
       if (moneyToPot > raiseCheckValueLeft) {
-        splitPot(raiseCheckValueLeft);
-        moneyToPot = raiseCheckValueLeft;
-      } else if (moneyToPot == 0) {
+        potToSplit = pot;
+      }
+      if (moneyToPot == 0) {
+        // Pot is empty, add rest of markers to pot
         putMarkersToPot(pot, player, raiseCheckValueLeft);
         moneyToPot = raiseCheckValueLeft;
       } else {
@@ -41,11 +54,14 @@ public class PotHandler {
         break;
       }
     }
-    if (raiseCheckValueLeft > 0) {
-      Pot pot = new Pot();
-      pot.addMember(player, raiseCheckValueLeft);
-      pots.add(pot);
-      Collections.sort(pots);
+    if (potToSplit != null) {
+      Pot newPot = potToSplit.splitPot(raiseCheckValueLeft);
+      // Sort new pot before old pot in list
+      pots.add(new Pot());
+      for (int i = pots.indexOf(potToSplit);i<pots.size();i++) {
+        pots.get(i) =
+      }
+
     }
   }
 
@@ -62,31 +78,15 @@ public class PotHandler {
       raiseCheckValueLeft -= checkAmount;
     }
     if (potToSplit != null) {
-      Pot newPot = potToSplit.splitPot(raiseCheckValueLeft);
-      pots.add(newPot);
-      Collections.sort(pots);
+      pots.add(potToSplit.splitPot(raiseCheckValueLeft));
     }
   }
 
   private void putMarkersToPot(Pot pot,
                                Player player,
-                               int raiseCheckValue) {
-    final List<Player> members = pot.getMembers();
-    if (members.contains(player)) {
-      int numberOfMarkersAlreadyInPot = pot.getMarkersForMember(player);
-      final int raiseCheckValueForThisRound = raiseCheckValue + numberOfMarkersAlreadyInPot;
-      if (pot.getHighestAmount() > raiseCheckValueForThisRound) {
-        // can't afford more, go all in and split pot
-        Pot newPot = pot.splitPot(raiseCheckValue);
-        pots.add(newPot);
-      } else {
-        logger.debug("Adding [{}] to pot. ", raiseCheckValueForThisRound);
-        pot.addMarkersForMember(player, raiseCheckValueForThisRound);
-      }
-    } else {
-      pot.addMember(player, raiseCheckValue);
-      logger.debug("Adding new member [{}] to pot. ", player.getName());
-    }
+                               int raiseCheckValueLeft) {
+    logger.debug("Adding [{}] to pot [{}]. ", raiseCheckValueLeft, pots.indexOf(pot));
+    pot.addMarkersForMember(player, raiseCheckValueLeft);
   }
 
   public List<Pot> getPots() {
@@ -99,8 +99,7 @@ public class PotHandler {
   }
 
   public void splitPot2(int allInAmount) {
-    Pot pot = pots.get(getCurrentPot()).splitPot(allInAmount);
-    pots.add(pot);
+    pots.add(pots.get(getCurrentPot()).splitPot(allInAmount));
   }
 
   /*
@@ -123,8 +122,7 @@ public class PotHandler {
         potToSplit = pot;
       }
     }
-    Pot pot = potToSplit.splitPot(allInAmount);
-    pots.add(pot);
+    pots.add(potToSplit.splitPot(allInAmount));
   }
 
   private int getCurrentPot() {
