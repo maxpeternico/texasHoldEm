@@ -31,7 +31,7 @@ public class Pot implements Comparable {
 
   public void addMember(Player player, int numberOfMarkers) {
     members.put(player, numberOfMarkers);
-    logger.debug("Adding player [{}] to pot with number of markers [{}]", player.getName(), numberOfMarkers);
+    logger.debug("Adding [{}] with [{}] markers to pot [{}]. ", player.getName(), numberOfMarkers, this);
   }
 
   public int getNumberOfMarkers() {
@@ -51,20 +51,22 @@ public class Pot implements Comparable {
     return members.keySet().stream().collect(Collectors.toList());
   }
 
-
+  /*
+   * Adds all members that has more markers than splitValue to a new pot and returns it
+   */
   public Pot splitPot(int splitValue) {
     logger.debug("Split pot [{}] with splitValue [{}]", toString(), splitValue);
     Iterator<Player> iterator = members.keySet().iterator();
     Pot newPot = new Pot();
     while (iterator.hasNext()) {
       final Player player = iterator.next();
-      final Integer markersForPlayer = members.get(player);
-      if (markersForPlayer > splitValue) {
-        logger.debug("Move [{}] markers for player [{}] to new pot. ",  members.get(player), player.getName());
-        newPot.addMember(player, splitValue);
-        members.replace(player, markersForPlayer - splitValue);
+      final Integer numberOfmarkersForPlayer = members.get(player);
+      if (numberOfmarkersForPlayer > splitValue) {
+        logger.debug("Move [{}] markers for player [{}] to new pot. ",  numberOfmarkersForPlayer - splitValue, player.getName());
+        newPot.addMember(player, numberOfmarkersForPlayer-splitValue);
+        members.replace(player, splitValue);
       } else {
-        logger.debug("Player [{}] is not moved to new pot.", player.getName());
+        logger.debug("Player [{}] is not added to new pot.", player.getName());
       }
     }
     return newPot;
@@ -102,7 +104,7 @@ public class Pot implements Comparable {
     return members.get(player);
   }
 
-  public boolean isMember(Player player) {
+  public boolean hasMember(Player player) {
     return members.containsKey(player);
   }
 

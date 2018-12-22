@@ -61,23 +61,22 @@ public class TestPotHandler {
     assertEquals(800, potHandler.getPlayerPartInPots(peter));
     assertEquals(300, potHandler.getPlayerPartInPots(thomas));
     assertEquals(100, potHandler.getPlayerPartInPots(ingemar));
-    assertEquals(300, potHandler.getPots().get(0).getNumberOfMarkers());
-    assertEquals(400, potHandler.getPots().get(1).getNumberOfMarkers());
-    assertEquals(500, potHandler.getPots().get(2).getNumberOfMarkers());
+    assertEquals(3*100, potHandler.getPots().get(0).getNumberOfMarkers());
+    assertEquals(2*(300-100), potHandler.getPots().get(1).getNumberOfMarkers());
+    assertEquals(800-100-200, potHandler.getPots().get(2).getNumberOfMarkers());
   }
 
   @Test
-  public void testSplitAfterRaise() {
+  public void testSplitAfterRaiseAndThreeAllIns() {
     PotHandler potHandler = new PotHandler();
     Player peter = new RobotPlayer("Peter", 550);
     Player thomas = new RobotPlayer("Thomas", 500);
     Player ingemar = new RobotPlayer("Ingemar", 125);
     potHandler.joinPot(peter, 100);
     potHandler.joinPot(thomas, 100);
-    potHandler.joinPot(ingemar, 100);
+    potHandler.joinPot(ingemar, 125);
     potHandler.joinPot(peter, 450);
     potHandler.joinPot(thomas, 400);
-    potHandler.joinPot(ingemar, 25);
     assertEquals(3, potHandler.getPots().size());
     assertEquals(550, potHandler.getPlayerPartInPots(peter));
     assertEquals(500, potHandler.getPlayerPartInPots(thomas));
