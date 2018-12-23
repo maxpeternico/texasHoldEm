@@ -31,6 +31,7 @@ public class PotHandler {
     // Pay highest amount in pot until joinAmountLeft is 0
     for (Pot pot : pots) {
       amountToJoinPot = getAmountToJoinPot(player, pot, joinAmountLeft);
+      int markersPaidToPot = 0;
       if (pots.indexOf(pot) == pots.size() - 1) {
         putMarkersToPot(pot, player, joinAmountLeft);
         if (!canJoinPot(joinAmountLeft, amountToJoinPot)) {
@@ -43,17 +44,15 @@ public class PotHandler {
           potToSplit = setPotToSplit(joinAmountLeft, amountToJoinPot, pot, player);
           break;
         }
-        if (amountToJoinPot == 0) {
-          putMarkersToPot(pot, player, joinAmountLeft);
-          amountToJoinPot = joinAmountLeft;
-        } else {
+        if (amountToJoinPot != 0) {
           putMarkersToPot(pot, player, amountToJoinPot);
+          markersPaidToPot = amountToJoinPot;
         }
         if (joinAmountLeft == 0) {
           break;
         }
       }
-      joinAmountLeft -= amountToJoinPot;
+      joinAmountLeft -= markersPaidToPot;
       logger.debug("Join amount left [{}]", joinAmountLeft);
     }
     if (isPotSplit(potToSplit)) {
