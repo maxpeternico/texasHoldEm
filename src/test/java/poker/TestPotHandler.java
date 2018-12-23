@@ -81,8 +81,8 @@ public class TestPotHandler {
     assertEquals(550, potHandler.getPlayerPartInPots(peter));
     assertEquals(500, potHandler.getPlayerPartInPots(thomas));
     assertEquals(125, potHandler.getPlayerPartInPots(ingemar));
-    assertEquals(50, potHandler.getPots().get(0).getNumberOfMarkers());
-    assertEquals((500-125)*3, potHandler.getPots().get(1).getNumberOfMarkers());
-    assertEquals(125*3, potHandler.getPots().get(2).getNumberOfMarkers());
+    assertEquals(125*3, potHandler.getPots().get(0).getNumberOfMarkers());
+    assertEquals((500-100-125)*2, potHandler.getPots().get(1).getNumberOfMarkers());
+    assertEquals(100+150, potHandler.getPots().get(2).getNumberOfMarkers());
   }
 }

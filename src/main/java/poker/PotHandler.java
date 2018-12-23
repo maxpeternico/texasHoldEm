@@ -57,10 +57,31 @@ public class PotHandler {
       logger.debug("Join amount left [{}]", joinAmountLeft);
     }
     if (isPotSplit(potToSplit)) {
-      Pot newPot = potToSplit.splitPot(joinAmountLeft);
-      // Sort new pot after old pot in list
-      pots.add(new Pot());
-      int i;
+      int splitAmount = joinAmountLeft;
+      do {
+        createNewPot(splitAmount, potToSplit);
+        // Old pot may have been even
+        splitAmount = getEventualNewSplitValueFromOldPot(potToSplit);
+      } while (splitAmount != 0);
+    }
+  }
+
+  private int getEventualNewSplitValueFromOldPot(Pot pot) {
+    final int highestAmount = pot.getHighestAmount();
+    for (Player player:pot.getMembers()) {
+      final int markersForMember = pot.getMarkersForMember(player);
+      if (markersForMember != highestAmount) {
+        return markersForMember;
+      }
+    }
+    return 0;
+  }
+
+  private void createNewPot(int joinAmountLeft, Pot potToSplit) {
+    Pot newPot = potToSplit.splitPot(joinAmountLeft);
+    // Sort new pot after old pot in list
+    pots.add(new Pot());
+    int i;
       /*
       Use case 1, One pot has been split, pot 0 is old pot, new pot shall be put at position 1
       pots.size() = 2, start condition i=1, end condition i==1 index of pot to split = 0
@@ -70,20 +91,17 @@ public class PotHandler {
       Mot
 
        */
-      for (i = pots.size()-1; i > pots.indexOf(potToSplit) + 1; i--) {
-        pots.set(i, pots.get(i - 1));
-        logger.debug("Moving pot [{}] from position [{}] to position [{}]", pots.get(i-1), i-1, i);
-      }
-      pots.set(i, newPot);
+    for (i = pots.size()-1; i > pots.indexOf(potToSplit) + 1; i--) {
+      pots.set(i, pots.get(i - 1));
+      logger.debug("Moving pot [{}] from position [{}] to position [{}]", pots.get(i-1), i-1, i);
     }
+    pots.set(i, newPot);
   }
 
   private int getAmountToJoinPot(Player player, Pot pot, int joinPot) {
     if (pot.getHighestAmount() == 0) {
       return joinPot;
     }
-    System.out.println(pot.getHighestAmount());
-    System.out.println(previouslyPaied(player, pot));
     return pot.getHighestAmount() - previouslyPaied(player, pot);
   }
 
