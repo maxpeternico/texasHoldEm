@@ -129,23 +129,6 @@ public class PotHandler {
     return potToSplit != null;
   }
 
-  private void splitPotIfNecessary(List<Pot> pots, int raiseCheckValue) {
-    Pot potToSplit = null;
-    int raiseCheckValueLeft = raiseCheckValue;
-    for (Pot pot : pots) {
-      int checkAmount = pot.getHighestAmount();
-      if (raiseCheckValue < checkAmount) {
-        logger.debug("Too few markers [{}] for pot [{}], split pot. ", raiseCheckValue, checkAmount);
-        potToSplit = pot;
-        break;
-      }
-      raiseCheckValueLeft -= checkAmount;
-    }
-    if (isPotSplit(potToSplit)) {
-      pots.add(potToSplit.splitPot(raiseCheckValueLeft));
-    }
-  }
-
   private void putMarkersToPot(Pot pot, Player player, int markers) {
     logger.debug("Adding [{}] with [{}] markers to pot [{}]. ", player.getName(), markers, pots.indexOf(pot));
     if (pot.hasMember(player)) {
@@ -162,37 +145,6 @@ public class PotHandler {
   public void clear() {
     pots.clear();
     pots.add(new Pot());
-  }
-
-  public void splitPot2(int allInAmount) {
-    pots.add(pots.get(getCurrentPot()).splitPot(allInAmount));
-  }
-
-  /*
-  use case 1:
-
-  One pot exists with markers 200, player split with 100
-
-  use case 2:
-
-  Two pots exists with markers 200 each, player split with 100
-
-  use case 3:
-
-  Two pots exists with markers 50 and 100, player split with 75
-   */
-  public void splitPot(int allInAmount) {
-    Pot potToSplit = null;
-    for (Pot pot : pots) {
-      if (pot.getHighestAmount() > allInAmount) {
-        potToSplit = pot;
-      }
-    }
-    pots.add(potToSplit.splitPot(allInAmount));
-  }
-
-  private int getCurrentPot() {
-    return pots.size() - 1;
   }
 
   public int getNumberOfMarkersInAllPots() {

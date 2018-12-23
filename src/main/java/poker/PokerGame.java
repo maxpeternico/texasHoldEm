@@ -54,9 +54,9 @@ public class PokerGame {
       throw new RuntimeException("At least 2 players has to play.");
     }
     players.get(0).setLittleBlind();
-    logger.debug("Init blind.  Little blind is set to :[" + players.get(0).getName() + "]");
+    logger.trace("Init blind.  Little blind is set to :[" + players.get(0).getName() + "]");
     players.get(1).setBigBlind();
-    logger.debug("Init blind. Big blind is set to :[" + players.get(1).getName() + "]");
+    logger.trace("Init blind. Big blind is set to :[" + players.get(1).getName() + "]");
   }
 
   void playRound(List<Player> players) {
@@ -200,7 +200,6 @@ public class PokerGame {
       potHandler.joinPot(newLittleBlindPlayer, allInAmount);
       newLittleBlindPlayer.decreaseMarkers(allInAmount);
       newLittleBlindPlayer.action = new Action(ActionEnum.ALL_IN);
-      potHandler.splitPot(allInAmount);
     }
   }
 
@@ -223,7 +222,6 @@ public class PokerGame {
       potHandler.joinPot(newBigBlindPlayer, allInAmount);
       newBigBlindPlayer.decreaseMarkers(allInAmount);
       newBigBlindPlayer.action = new Action(ActionEnum.ALL_IN);
-      potHandler.splitPot(allInAmount);
     }
   }
 

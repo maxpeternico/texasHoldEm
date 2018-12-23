@@ -125,8 +125,8 @@ public class TestBlinds {
 
     pokerGame.payBlinds(players, 50);
 
-    assertEquals(2, pokerGame.getPotHandler().getPot(0).getNumberOfMarkers());
-    assertEquals(49, pokerGame.getPotHandler().getPot(1).getNumberOfMarkers());
+    assertEquals(51, pokerGame.getPotHandler().getPot(0).getNumberOfMarkers());
+    assertEquals(1, pokerGame.getPotHandler().getPots().size());
     assertEquals(1, getIndexOfBlind(players, Player::hasLittleBlind));
     assertEquals(2, getIndexOfBlind(players, Player::hasBigBlind));
     assertEquals(false, players.get(0).hasBlind());
