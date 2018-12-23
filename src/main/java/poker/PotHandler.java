@@ -48,11 +48,11 @@ public class PotHandler {
           putMarkersToPot(pot, player, amountToJoinPot);
           markersPaidToPot = amountToJoinPot;
         }
-        if (joinAmountLeft == 0) {
-          break;
-        }
       }
       joinAmountLeft -= markersPaidToPot;
+      if (joinAmountLeft == 0) {
+        break;
+      }
       logger.debug("Join amount left [{}]", joinAmountLeft);
     }
     if (isPotSplit(potToSplit)) {
