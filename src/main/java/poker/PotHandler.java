@@ -30,15 +30,13 @@ public class PotHandler {
     Pot potToSplit = null;
     // Pay highest amount in pot until joinAmountLeft is 0
     for (Pot pot : pots) {
-      amountToJoinPot = pot.getHighestAmount();
+      amountToJoinPot = getAmountToJoinPot(player, pot, joinAmountLeft);
       if (pots.indexOf(pot) == pots.size() - 1) {
-        if (canJoinPot(joinAmountLeft, amountToJoinPot)) {
-          putMarkersToPot(pot, player, joinAmountLeft);
-        } else {
-          putMarkersToPot(pot, player, joinAmountLeft);
+        putMarkersToPot(pot, player, joinAmountLeft);
+        if (!canJoinPot(joinAmountLeft, amountToJoinPot)) {
           potToSplit = setPotToSplit(joinAmountLeft, amountToJoinPot, pot, player);
-          break;
         }
+        break;
       } else {
         if (amountToJoinPot > joinAmountLeft) {
           putMarkersToPot(pot, player, joinAmountLeft);
@@ -51,19 +49,18 @@ public class PotHandler {
         } else {
           putMarkersToPot(pot, player, amountToJoinPot);
         }
-        joinAmountLeft -= amountToJoinPot;
         if (joinAmountLeft == 0) {
           break;
         }
       }
+      joinAmountLeft -= amountToJoinPot;
+      logger.debug("Join amount left [{}]", joinAmountLeft);
     }
     if (isPotSplit(potToSplit)) {
       Pot newPot = potToSplit.splitPot(joinAmountLeft);
       // Sort new pot after old pot in list
       pots.add(new Pot());
       int i;
-      System.out.println(pots.size());
-      System.out.println(pots.indexOf(potToSplit));
       /*
       Use case 1, One pot has been split, pot 0 is old pot, new pot shall be put at position 1
       pots.size() = 2, start condition i=1, end condition i==1 index of pot to split = 0
@@ -81,6 +78,22 @@ public class PotHandler {
     }
   }
 
+  private int getAmountToJoinPot(Player player, Pot pot, int joinPot) {
+    if (pot.getHighestAmount() == 0) {
+      return joinPot;
+    }
+    System.out.println(pot.getHighestAmount());
+    System.out.println(previouslyPaied(player, pot));
+    return pot.getHighestAmount() - previouslyPaied(player, pot);
+  }
+
+  private int previouslyPaied(Player player, Pot pot) {
+    if (!pot.hasMember(player)) {
+      return 0;
+    }
+    return pot.getMarkersForMember(player);
+  }
+
   private Pot setPotToSplit(int raiseCheckValueLeft, int amountToJoinPot, Pot pot, Player player) {
     Pot potToSplit;
     logger.debug("Player [{}] can't afford pot, has [{}] markers need [{}]. Split pot. ", player.getName(), raiseCheckValueLeft, amountToJoinPot);
@@ -89,9 +102,6 @@ public class PotHandler {
   }
 
   private boolean canJoinPot(int numberOfMarkers, int amountToJoinPot) {
-    if (amountToJoinPot == 0) {
-      return true;
-    }
     if (numberOfMarkers >= amountToJoinPot) {
       return true;
     }
@@ -122,7 +132,6 @@ public class PotHandler {
   private void putMarkersToPot(Pot pot, Player player, int markers) {
     logger.debug("Adding [{}] with [{}] markers to pot [{}]. ", player.getName(), markers, pots.indexOf(pot));
     if (pot.hasMember(player)) {
-      markers += pot.getMarkersForMember(player);
       pot.addMarkersForMember(player, markers);
     } else {
       pot.addMember(player, markers);
