@@ -43,7 +43,7 @@ public class TestPotBetAtPrivateHand extends TestBase {
     final int player0NumberOfMarkersAfterRound = player0.getNumberOfMarkers();
     final int player1NumberOfMarkersAfterRound = player1.getNumberOfMarkers();
 
-    pokerGame.getTheWinner(getPokerGame().getPotHandler().getPots().get(0), players);
+    pokerGame.getPotHandler().getPots().stream().forEach(e-> pokerGame.getTheWinner(e, players));
 
     assertEquals(createMarkersDisappearErrorMessage(players),
                  2 * PokerGame.TOTAL_MARKERS_PER_PLAYER,
@@ -101,7 +101,7 @@ public class TestPotBetAtPrivateHand extends TestBase {
     final int player0NumberOfMarkersAfterRound = player0.getNumberOfMarkers();
     final int player1NumberOfMarkersAfterRound = player1.getNumberOfMarkers();
 
-    pokerGame.getTheWinner(getPokerGame().getPotHandler().getPots().get(0), players);
+    pokerGame.getPotHandler().getPots().stream().forEach(e-> pokerGame.getTheWinner(e, players));
 
     final int numberOfMarkersForPlayer0 = player0.getNumberOfMarkers();
     final int numberOfMarkersForPlayer1 = player1.getNumberOfMarkers();

@@ -39,17 +39,15 @@ public abstract class TestBase {
 
   protected String createMarkersDisappearErrorMessage(List<Player> players) {
     StringBuilder stringBuilder = new StringBuilder();
-    stringBuilder.append("Pot size not equal. Number of markers for players :[");
+    stringBuilder.append("Pot size not equal. Number of markers for players :");
     for (Player player:players) {
-      stringBuilder.append(player.getNumberOfMarkers() + "]");
+      stringBuilder.append("[").append(player.getNumberOfMarkers()).append("]");
     }
     return stringBuilder.toString();
   }
 
 
   protected int calculatePot(int totalPotRaisePerPlayer, List<Player> players, int bigBlindAmount) {
-    System.out.println(getTotalBlindCost(bigBlindAmount));
-    System.out.println(getTotalPotRaiseForAllPlayers(totalPotRaisePerPlayer, players));
     return getTotalBlindCost(bigBlindAmount) + getTotalPotRaiseForAllPlayers(totalPotRaisePerPlayer, players);
   }
 

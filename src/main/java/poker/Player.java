@@ -205,7 +205,7 @@ public abstract class Player {
 
   public int getRaiseOrCheckValue(int maxRaiseFromAPlayer) {
     if (partInPot == maxRaiseFromAPlayer) {
-      logger.debug("Player [{}] has already paied to pot");
+      logger.debug("Player [{}] has already paied to pot", getName());
       return 0;
     }
     if (getAction().isAllIn()) {
