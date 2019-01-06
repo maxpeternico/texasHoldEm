@@ -193,21 +193,22 @@ public abstract class Player {
                              int numberOfRemainingPlayers,
                              List<Card> commonHand,
                              int blind,
-                             int maxRaiseFromAPlayer) {
+                             int maxRaiseFromAPlayer,
+                             int amountToJoinPot) {
     decideStrategy(draw, numberOfRemainingPlayers, commonHand, blind);
-
     int individualRaiseAmount = calculateRaiseAmount(blind);
-    setAction(individualRaiseAmount, maxRaiseFromAPlayer);
+    setAction(individualRaiseAmount, amountToJoinPot);
     logger.debug("Player " + getName() + " decides to :[" + getAction() + "]");
-    decreaseMarkers(getRaiseOrCheckValue(maxRaiseFromAPlayer));
+    decreaseMarkers(getActionAmount(maxRaiseFromAPlayer));
     return getAction();
   }
 
-  public int getRaiseOrCheckValue(int maxRaiseFromAPlayer) {
-    if (partInPot == maxRaiseFromAPlayer) {
-      logger.debug("Player [{}] has already paied to pot", getName());
-      return 0;
-    }
+
+  public int getActionAmount(int maxRaiseFromAPlayer) {
+//    if (partInPot == maxRaiseFromAPlayer) {
+//      logger.debug("Player [{}] has already paied to pot", getName());
+//      return 0;
+//    }
     if (getAction().isAllIn()) {
       return getAction().getRaiseAmount();
     }
@@ -220,7 +221,7 @@ public abstract class Player {
     return 0;
   }
 
-  protected abstract void setAction(int raiseAmount, int maxRaiseFromOtherPlayer);
+  protected abstract void setAction(int raiseAmount, int amountToJoinPot);
 
   protected abstract int calculateRaiseAmount(int blind);
 

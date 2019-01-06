@@ -17,6 +17,7 @@ public class TestPotHandler {
     assertEquals(1, potHandler.getPots().size());
     assertEquals(500, potHandler.getPlayerPartInPots(peter));
     assertEquals(500, potHandler.getPlayerPartInPots(thomas));
+    assertEquals(500, potHandler.getAmountToJoinPot());
   }
 
   @Test
@@ -64,6 +65,7 @@ public class TestPotHandler {
     assertEquals(3*100, potHandler.getPots().get(0).getNumberOfMarkers());
     assertEquals(2*(300-100), potHandler.getPots().get(1).getNumberOfMarkers());
     assertEquals(800-100-200, potHandler.getPots().get(2).getNumberOfMarkers());
+    assertEquals(800, potHandler.getAmountToJoinPot());
   }
 
   @Test
@@ -135,5 +137,7 @@ public class TestPotHandler {
     assertEquals(25*3, potHandler.getPots().get(2).getNumberOfMarkers());
     assertEquals(250+250, potHandler.getPots().get(3).getNumberOfMarkers());
     assertEquals(100+150, potHandler.getPots().get(4).getNumberOfMarkers());
+    assertEquals(550, potHandler.getAmountToJoinPot());
+
   }
 }

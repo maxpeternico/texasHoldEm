@@ -168,4 +168,12 @@ public class PotHandler {
     }
     return markersInPot;
   }
+
+  public int getAmountToJoinPot() {
+    int amountToJoinPot = 0;
+    for (Pot pot:pots) {
+      amountToJoinPot += pot.getHighestAmount();
+    }
+    return amountToJoinPot;
+  }
 }

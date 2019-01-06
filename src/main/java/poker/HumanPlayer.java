@@ -36,7 +36,7 @@ public class HumanPlayer extends Player {
   }
 
   @Override
-  protected void setAction(int raiseAmount, int maxRaiseFromOtherPlayer) {
+  protected void setAction(int raiseAmount, int amountToJoinPot) {
     switch (strategy) {
       case OFFENSIVE:
         action = new Action(ActionEnum.RAISE);

@@ -66,23 +66,23 @@ public class RobotPlayer extends Player {
 
    */
   @Override
-  protected void setAction(int raiseAmount, int maxRaiseFromOtherPlayer) {
-    logger.debug("Player :[" + getName() + "] raiseAmount: [" + raiseAmount + "] maxRaiseFromOtherPlayer :[" + maxRaiseFromOtherPlayer + "]");
+  protected void setAction(int raiseAmount, int amountToJoinPot) {
+    logger.debug("Player :[" + getName() + "] raiseAmount: [" + raiseAmount + "] amountToJoinPot :[" + amountToJoinPot + "]");
     previousAction = getAction();
 
     // If player has no more markers player need to go all in
     if (strategy.equals(ALL_IN) || needToGoAllIn(raiseAmount)) {
       action = new Action(ActionEnum.ALL_IN);
-      action.setRaiseValue(raiseAmount);
+      action.setRaiseValue(raiseAmount); // TODO: number of markers?
       partInPot += raiseAmount;
-    } else if (raiseAmount > maxRaiseFromOtherPlayer) {
+    } else if (raiseAmount > amountToJoinPot) {
       action = new Action(ActionEnum.RAISE);
       action.setRaiseValue(raiseAmount);
       partInPot += raiseAmount;
-    } else if (isWithin(raiseAmount, maxRaiseFromOtherPlayer)) {
+    } else if (isWithin(raiseAmount, amountToJoinPot)) {
       action = new Action(ActionEnum.CHECK);
-      action.setCheckValue(maxRaiseFromOtherPlayer);
-      partInPot += maxRaiseFromOtherPlayer;
+      action.setCheckValue(amountToJoinPot);
+      partInPot += amountToJoinPot;
     } else {
       action = new Action(ActionEnum.FOLD);
     }
@@ -90,6 +90,9 @@ public class RobotPlayer extends Player {
 
   private boolean isWithin(int raiseAmount, int maxRaiseFromOtherPlayer) {
     if (raiseAmount >= maxRaiseFromOtherPlayer * 0.9 && raiseAmount <= maxRaiseFromOtherPlayer * 1.1) {
+      return true;
+    }
+    if (Math.abs(raiseAmount-maxRaiseFromOtherPlayer) <= 25) {
       return true;
     }
     return false;
@@ -152,7 +155,19 @@ public class RobotPlayer extends Player {
       individualRaiseAmount = getNumberOfMarkers();
     }
     logger.debug(getName() + " getRaiseAmount amount: " + individualRaiseAmount);
-    return individualRaiseAmount;
+    int individualRaiseAmountAfterBlind = individualRaiseAmount - calculateEventualBlindCost(blind);
+    logger.debug(getName() + " getRaiseAmount amount compensated after eventual blind: " + individualRaiseAmountAfterBlind);
+    return individualRaiseAmountAfterBlind;
+  }
+
+  private int calculateEventualBlindCost(int blind) {
+    if (hasLittleBlind()) {
+      return blind/2;
+    }
+    if (hasBigBlind()) {
+      return blind;
+    }
+    return 0;
   }
 
   Points calculatePoints(int numberOfRemainingPlayers, Draw draw, List<Card> commonHand) {
