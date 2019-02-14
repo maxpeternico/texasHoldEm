@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 import static org.junit.Assert.assertEquals;
 
 public abstract class TestBase {
+  protected static final String ALL_IN_PREVIOUSLY = "";
   protected abstract PokerGame getPokerGame();
   
   protected int calculatePotRaise(List<Player> players, int potRaisePerPlayerTotalRound) {
@@ -20,12 +21,8 @@ public abstract class TestBase {
     return currentPot;
   }
 
-  protected void assertPotAndMarkers(List<Player> players,
-                                     int totalPotRaisePerPlayer,
-                                     int bigBlind) {
-    //assertEquals(calculatePot(totalPotRaisePerPlayer, players, bigBlind), getPokerGame().getPotHandler().getNumberOfMarkersInAllPots()); TODO: How to assert pot
+  protected void assertMarkersForPlayers(List<Player> players) {
     for (Player player : players) {
-      final int blindCost = calculateBlindCost(player, bigBlind);
       final int playersPartInPot = getPokerGame().getPotHandler().getPlayerPartInPots(player);
       assertEquals("Number of markers not correct for player :[" + player.getName() + "] playersPartInPot :[" + playersPartInPot + "]",
                    PokerGame.TOTAL_MARKERS_PER_PLAYER - playersPartInPot,

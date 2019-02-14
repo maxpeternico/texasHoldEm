@@ -53,9 +53,9 @@ public class PokerGame {
     if (players.size() < 2) {
       throw new RuntimeException("At least 2 players has to play.");
     }
-    players.get(0).setLittleBlind();
+    players.get(0).setLittleBlind(blind);
     logger.trace("Init blind.  Little blind is set to :[" + players.get(0).getName() + "]");
-    players.get(1).setBigBlind();
+    players.get(1).setBigBlind(blind);
     logger.trace("Init blind. Big blind is set to :[" + players.get(1).getName() + "]");
   }
 
@@ -129,8 +129,8 @@ public class PokerGame {
     for (Player player : players) {
       player.action = new Action(ActionEnum.NOT_DECIDED);
       player.previousAction = new Action(ActionEnum.NOT_DECIDED);
-      player.action.setRaiseValue(0);
-      player.action.setCheckValue(0);
+      player.action.setAmount(0);
+      player.blindAmount = 0;
     }
     blind = increaseBlind();
     potHandler.clear();
@@ -192,20 +192,22 @@ public class PokerGame {
     Player newLittleBlindPlayer = players.get(getNewBlindIndex(players, indexOfOldLittleBlindPlayer));
     final Player playerWithOldLittleBlind = players.get(indexOfOldLittleBlindPlayer);
     logger.trace("Clear little blind for :[" + playerWithOldLittleBlind.getName() + "]");
-    newLittleBlindPlayer.setLittleBlind();
+    newLittleBlindPlayer.setLittleBlind(blindAmount);
     logger.debug("Set little blind for :[" + newLittleBlindPlayer.getName() + "]");
     playerWithOldLittleBlind.clearLittleBlind();
-    if (newLittleBlindPlayer.canPay(blindAmount)) {
-      newLittleBlindPlayer.decreaseMarkers(blindAmount);
-      potHandler.joinPot(newLittleBlindPlayer, blindAmount);
+    int raiseAmount = blindAmount;
+    if (newLittleBlindPlayer.canPay(raiseAmount)) {
+      newLittleBlindPlayer.decreaseMarkers(raiseAmount);
+      potHandler.joinPot(newLittleBlindPlayer, raiseAmount);
     } else {
       // Go all in for player and create new pot
-      final int allInAmount = newLittleBlindPlayer.getNumberOfMarkers();
-      System.out.println("Player :[" + newLittleBlindPlayer.getName() + "] does not have markers for blind :[" + blindAmount + "], has to go all in with :[" + allInAmount + "].");
-      potHandler.joinPot(newLittleBlindPlayer, allInAmount);
-      newLittleBlindPlayer.decreaseMarkers(allInAmount);
+      raiseAmount = newLittleBlindPlayer.getNumberOfMarkers();
+      System.out.println("Player :[" + newLittleBlindPlayer.getName() + "] does not have markers for blind :[" + blindAmount + "], has to go all in with :[" + raiseAmount + "].");
+      potHandler.joinPot(newLittleBlindPlayer, raiseAmount);
+      newLittleBlindPlayer.decreaseMarkers(raiseAmount);
       newLittleBlindPlayer.action = new Action(ActionEnum.ALL_IN);
     }
+    newLittleBlindPlayer.action.setAmount(raiseAmount);
   }
 
   private void payBigBlind(List<Player> players, int blindAmount) {
@@ -213,25 +215,27 @@ public class PokerGame {
     Player newBigBlindPlayer = players.get(getNewBlindIndex(players, indexOfOldBigBlindPlayer));
     Player playerWithOldBigBlind = players.get(indexOfOldBigBlindPlayer);
     logger.debug("Set big blind for :[" + newBigBlindPlayer.getName() + "]");
-    newBigBlindPlayer.setBigBlind();
+    newBigBlindPlayer.setBigBlind(blindAmount);
     logger.trace("Clear big blind for :[" + playerWithOldBigBlind.getName() + "]");
     playerWithOldBigBlind.clearBigBlind();
-    if (newBigBlindPlayer.canPay(blindAmount)) {
-      newBigBlindPlayer.decreaseMarkers(blindAmount);
-      potHandler.joinPot(newBigBlindPlayer, blindAmount);
+    int raiseAmount = blindAmount;
+    if (newBigBlindPlayer.canPay(raiseAmount)) {
+      newBigBlindPlayer.decreaseMarkers(raiseAmount);
+      potHandler.joinPot(newBigBlindPlayer, raiseAmount);
     } else {
       // Go all in for player and create new pot
-      final int allInAmount = newBigBlindPlayer.getNumberOfMarkers();
-      System.out.println("Player :[" + newBigBlindPlayer.getName() + "] does not have markers for blind :[" + blindAmount + "], has to go all in with :[" + allInAmount + "].");
-      potHandler.joinPot(newBigBlindPlayer, allInAmount);
-      newBigBlindPlayer.decreaseMarkers(allInAmount);
+      raiseAmount = newBigBlindPlayer.getNumberOfMarkers();
+      System.out.println("Player :[" + newBigBlindPlayer.getName() + "] does not have markers for blind :[" + blindAmount + "], has to go all in with :[" + raiseAmount + "].");
+      potHandler.joinPot(newBigBlindPlayer, raiseAmount);
+      newBigBlindPlayer.decreaseMarkers(raiseAmount);
       newBigBlindPlayer.action = new Action(ActionEnum.ALL_IN);
     }
+    newBigBlindPlayer.action.setAmount(raiseAmount);
   }
 
   private int getNewBlindIndex(List<Player> players, int blindIndex) {
     int newIndexOfBlind = (blindIndex + 1) % players.size();
-    logger.debug("New blind index :[" + newIndexOfBlind + "]");
+    logger.trace("New blind index :[" + newIndexOfBlind + "]");
     return newIndexOfBlind;
   }
 
@@ -332,41 +336,43 @@ public class PokerGame {
       return "";
     }
     StringBuffer result = new StringBuffer();
-
-    int maxRaiseFromAPlayer = 0;
-    do {
-      for (Player player : remainingPlayers) {
-        if (playerCanBet(player)) {
-          logger.debug(
-              "player :[{}] action [{}] maxRaiseFromOtherPlayer:[{}] numbersOfMarkers :[{}] markers in all pots :[{}]",
-              player.getName(),
-              player.getAction(),
-              maxRaiseFromAPlayer,
-              player.getNumberOfMarkers(),
-              potHandler.getNumberOfMarkersInAllPots());
-          player.decideAction(draw,
-                              remainingPlayers.size(),
-                              dealer.getCommonHand(),
-                              blind,
-                              maxRaiseFromAPlayer,
-                              calculateIndividualAmountToJoinPot(player));
-          final Action action = player.getAction();
-          if (action.isRaise() || action.isAllIn()) {
-            clearPreviousPlayersWithActionCheck(remainingPlayers, player);
-            // TODO: Clear previous players with action raise. Or will that put me in an eternal loop?
-            maxRaiseFromAPlayer = calculateEventualNewMaxRaiseFromAnotherPlayer(maxRaiseFromAPlayer, action);
-          }
-          if (shallPayToPot(potHandler.getPlayerPartInPots(player), maxRaiseFromAPlayer)) {
-            final int raiseOrCheckValue = player.getActionAmount(maxRaiseFromAPlayer);
-            potHandler.joinPot(player, raiseOrCheckValue);
-            logger.debug("Pot size :[{}]. ", potHandler.getNumberOfMarkersInAllPots());
-          }
-          result.append("Player " + player.getName() + " " + action.toString() + ". ");
-        }
-      }
-    }
-    while (!allPlayersSatisfied(remainingPlayers));
-    return result.toString();
+    List<Player> remainingPlayerInRaiseOrder = remainingPlayers.stream().collect(Collectors.toList());
+    int maxRaiseFromAPlayer = blind;
+    final BetManager betManager = new BetManager(remainingPlayers, draw, dealer.getCommonHand(), blind, potHandler);
+    return betManager.bet();
+//    do {
+//      for (Player player : remainingPlayers) {
+//        if (playerCanBet(player)) {
+//          logger.debug(
+//              "player :[{}] action [{}] maxRaiseFromOtherPlayer:[{}] numbersOfMarkers :[{}] markers in all pots :[{}]",
+//              player.getName(),
+//              player.getAction(),
+//              maxRaiseFromAPlayer,
+//              player.getNumberOfMarkers(),
+//              potHandler.getNumberOfMarkersInAllPots());
+//          player.decideAction(draw,
+//                              remainingPlayers.size(),
+//                              dealer.getCommonHand(),
+//                              blind,
+//                              maxRaiseFromAPlayer
+//          );
+//          final Action action = player.getAction();
+//          if (action.isRaise() || action.isAllIn()) {
+//            clearPreviousPlayersWithActionCheck(remainingPlayers, player);
+//            // TODO: Clear previous players with action raise. Or will that put me in an eternal loop?
+//            maxRaiseFromAPlayer = calculateEventualNewMaxRaiseFromAnotherPlayer(maxRaiseFromAPlayer, action);
+//          }
+//          if (shallPayToPot(potHandler.getPlayerPartInPots(player), maxRaiseFromAPlayer)) {
+//            final int raiseOrCheckValue = player.getActionAmount();
+//            potHandler.joinPot(player, raiseOrCheckValue);
+//            logger.debug("Pot size :[{}]. ", potHandler.getNumberOfMarkersInAllPots());
+//          }
+//          result.append("Player " + player.getName() + " " + action.toString() + ". ");
+//        }
+//      }
+//    }
+//    while (!allPlayersSatisfied(remainingPlayers));
+//    return result.toString();
   }
 
   private int calculateIndividualAmountToJoinPot(Player player) {
@@ -394,7 +400,7 @@ public class PokerGame {
 
   private int calculateEventualNewMaxRaiseFromAnotherPlayer(int maxRaiseFromAPlayer, Action action) {
     if (action.isRaise() || action.isAllIn()) {
-      final int raiseAmount = action.getRaiseAmount();
+      final int raiseAmount = action.getAmount();
       if (raiseAmount > maxRaiseFromAPlayer) {
         return raiseAmount;
       }
@@ -518,4 +524,5 @@ public class PokerGame {
   public PotHandler getPotHandler() {
     return this.potHandler;
   }
+
 }

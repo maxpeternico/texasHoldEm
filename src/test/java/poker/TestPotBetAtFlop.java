@@ -33,28 +33,28 @@ public class TestPotBetAtFlop extends TestBase {
     assertEquals("Player Thomas Action :[CHECK]. Player Jörn Action :[CHECK]. ", decision);
     int potRaisePerPlayerBeforeFlop = 0;
     int potRaisePerPlayerTotalRound = potRaisePerPlayerBeforeFlop;
-    assertPotAndMarkers(players, potRaisePerPlayerTotalRound, bigBlindAmount);
+    assertMarkersForPlayers(players);
 
     prepareFlop(getBadFlop());
     decision = pokerGame.playBeforeFlop(players);
     assertEquals("Player Thomas Action :[RAISE]. Player Jörn Action :[CHECK]. ", decision);
     int potRaisePerPlayerFlop = 50;
     potRaisePerPlayerTotalRound = potRaisePerPlayerTotalRound + potRaisePerPlayerFlop;
-    assertPotAndMarkers(players, potRaisePerPlayerTotalRound, bigBlindAmount);
+    assertMarkersForPlayers(players);
 
     prepareTurn(Color.hearts, Ordinal.queen);
     decision = pokerGame.playTurn(players);
     assertEquals("Player Thomas Action :[RAISE]. Player Jörn Action :[CHECK]. ", decision);
     int potRaisePerPlayerTurn = 200;
     potRaisePerPlayerTotalRound = potRaisePerPlayerTotalRound + potRaisePerPlayerTurn;
-    assertPotAndMarkers(players, potRaisePerPlayerTotalRound, bigBlindAmount);
+    assertMarkersForPlayers(players);
 
     prepareRiver(Color.spades, Ordinal.two);
     decision = pokerGame.playRiver(players);
     assertEquals("Player Thomas Action :[RAISE]. Player Jörn Action :[CHECK]. ", decision);
     final int potRaiseRiver = 200;
     potRaisePerPlayerTotalRound = potRaisePerPlayerTotalRound + potRaiseRiver;
-    assertPotAndMarkers(players, potRaisePerPlayerTotalRound, bigBlindAmount);
+    assertMarkersForPlayers(players);
 
     final int player0NumberOfMarkersAfterRound = player0.getNumberOfMarkers();
     final int player1NumberOfMarkersAfterRound = player1.getNumberOfMarkers();

@@ -40,11 +40,11 @@ public class HumanPlayer extends Player {
     switch (strategy) {
       case OFFENSIVE:
         action = new Action(ActionEnum.RAISE);
-        action.setRaiseValue(raiseAmount);
+        action.setAmount(raiseAmount);
         break;
       case JOIN:
         action = new Action(ActionEnum.CHECK);
-        action.setCheckValue(raiseAmount);
+        action.setAmount(raiseAmount);
         break;
       case QUIT:
         action = new Action(ActionEnum.FOLD);

@@ -29,7 +29,7 @@ public class RobotPlayer extends Player {
     switch (draw) {
       case BEFORE_FLOP:
         // No common hand to care
-        // Pair is good, getRaiseAmount or go all in if pot is big
+        // Pair is good, getAmount or go all in if pot is big
         if (points.totalPoints > 113) {
           // Pair of aces and higher
           strategy = ALL_IN;
@@ -42,12 +42,12 @@ public class RobotPlayer extends Player {
         if (points.totalPoints > 100) {
           strategy = OFFENSIVE;
         }
-        // Pair of aces is good or anything higher, getRaiseAmount or go all in if pott is big
+        // Pair of aces is good or anything higher, getAmount or go all in if pott is big
         // Low pair, join unless too expensive
         // Bad cards, try to join if cheap otherwise fold
         break;
       case TURN:
-        // Pair of aces is good or anything higher, getRaiseAmount or go all in if pott is big
+        // Pair of aces is good or anything higher, getAmount or go all in if pott is big
         // Low pair, join unless too expensive
         // Bad cards, try to join if cheap otherwise fold
         break;
@@ -66,23 +66,23 @@ public class RobotPlayer extends Player {
 
    */
   @Override
-  protected void setAction(int raiseAmount, int amountToJoinPot) {
-    logger.debug("Player :[" + getName() + "] raiseAmount: [" + raiseAmount + "] amountToJoinPot :[" + amountToJoinPot + "]");
+  protected void setAction(int raiseAmount, int maxRaiseFromAPlayer) {
+    logger.debug("Player :[" + getName() + "] raiseAmount: [" + raiseAmount + "] maxRaiseFromAPlayer :[" + maxRaiseFromAPlayer + "]");
     previousAction = getAction();
 
     // If player has no more markers player need to go all in
     if (strategy.equals(ALL_IN) || needToGoAllIn(raiseAmount)) {
       action = new Action(ActionEnum.ALL_IN);
-      action.setRaiseValue(raiseAmount); // TODO: number of markers?
+      action.setAmount(raiseAmount); // TODO: number of markers?
       partInPot += raiseAmount;
-    } else if (raiseAmount > amountToJoinPot) {
+    } else if (raiseAmount > maxRaiseFromAPlayer) {
       action = new Action(ActionEnum.RAISE);
-      action.setRaiseValue(raiseAmount);
+      action.setAmount(raiseAmount);
       partInPot += raiseAmount;
-    } else if (isWithin(raiseAmount, amountToJoinPot)) {
+    } else if (isWithin(raiseAmount, maxRaiseFromAPlayer)) {
       action = new Action(ActionEnum.CHECK);
-      action.setCheckValue(amountToJoinPot);
-      partInPot += amountToJoinPot;
+      action.setAmount(maxRaiseFromAPlayer);
+      partInPot += maxRaiseFromAPlayer;
     } else {
       action = new Action(ActionEnum.FOLD);
     }
@@ -115,30 +115,30 @@ public class RobotPlayer extends Player {
         if (points.totalPoints > 113) { // Pair of aces and higher
           if (points.commonPoints < 50) {
             // TODO: calculateRaiseAmount(privatePoints, commonPoints, sizeOfBlind, moneyLeft)
-            // getRaiseAmount
+            // getAmount
             individualRaiseAmount = blind * 4;
           } else {
-            // getRaiseAmount only if no other raises
+            // getAmount only if no other raises
             individualRaiseAmount = blind;
           }
         } else if (points.totalPoints > 100) {
           if (points.commonPoints < 5) {
-            // getRaiseAmount if no one else has raised
+            // getAmount if no one else has raised
             individualRaiseAmount = blind * 2;
           } else {
-            // don't getRaiseAmount, join if blind is cheap otherwise fold
+            // don't getAmount, join if blind is cheap otherwise fold
             individualRaiseAmount = blind;
           }
         } else if (points.totalPoints > 5) {
           if (points.commonPoints < 5) {
-            // getRaiseAmount if no one else has raised
+            // getAmount if no one else has raised
             individualRaiseAmount = blind;
           } else {
-            // don't getRaiseAmount, join if blind is cheap otherwise fold
+            // don't getAmount, join if blind is cheap otherwise fold
             individualRaiseAmount = 0;
           }
         } else {
-          // don't getRaiseAmount, join if blind is cheap otherwise fold
+          // don't getAmount, join if blind is cheap otherwise fold
           individualRaiseAmount = 0;
         }
         break;
@@ -154,10 +154,8 @@ public class RobotPlayer extends Player {
     if (individualRaiseAmount > getNumberOfMarkers()) {
       individualRaiseAmount = getNumberOfMarkers();
     }
-    logger.debug(getName() + " getRaiseAmount amount: " + individualRaiseAmount);
-    int individualRaiseAmountAfterBlind = individualRaiseAmount - calculateEventualBlindCost(blind);
-    logger.debug(getName() + " getRaiseAmount amount compensated after eventual blind: " + individualRaiseAmountAfterBlind);
-    return individualRaiseAmountAfterBlind;
+    logger.debug(getName() + " getAmount amount: " + individualRaiseAmount);
+    return individualRaiseAmount;
   }
 
   private int calculateEventualBlindCost(int blind) {
@@ -174,7 +172,7 @@ public class RobotPlayer extends Player {
     Points points = new Points();
     int commonPoints = 0;
     int privatePoints = calculatePrivatePoints(getPrivateHand());
-    logger.debug(getName() + " private points: " + privatePoints);
+    logger.trace(getName() + " private points: " + privatePoints);
     // privatePoints = compensatePrivateHandWithNumberOfPlayers(privatePoints, numberOfRemainingPlayers);
     if (draw != Draw.BEFORE_FLOP) {
       commonPoints = calculateCommonPoints(numberOfRemainingPlayers, commonHand);

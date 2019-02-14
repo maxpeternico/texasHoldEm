@@ -22,6 +22,7 @@ public abstract class Player {
   protected Action action = new Action(ActionEnum.NOT_DECIDED);
   protected int partInPot = 0;
   protected Action previousAction = new Action(ActionEnum.NOT_DECIDED);
+  int blindAmount = 0;
 
   public Action getAction() {
     return action;
@@ -34,10 +35,6 @@ public abstract class Player {
 
   Player(String name) {
     this.name = name;
-  }
-
-  public void setInt() {
-    this.i++;
   }
 
   public int getInt() {
@@ -122,16 +119,18 @@ public abstract class Player {
     return bigBlind;
   }
 
-  public void setLittleBlind() {
+  public void setLittleBlind(int blindAmount) {
     this.littleBlind = true;
+    this.blindAmount = blindAmount;
   }
 
   public void clearLittleBlind() {
     littleBlind = false;
   }
 
-  public void setBigBlind() {
+  public void setBigBlind(int blindAmount) {
     bigBlind = true;
+    this.blindAmount = blindAmount;
   }
 
   public void clearBigBlind() {
@@ -193,35 +192,46 @@ public abstract class Player {
                              int numberOfRemainingPlayers,
                              List<Card> commonHand,
                              int blind,
-                             int maxRaiseFromAPlayer,
-                             int amountToJoinPot) {
+                             int maxRaiseFromAPlayer) {
     decideStrategy(draw, numberOfRemainingPlayers, commonHand, blind);
     int individualRaiseAmount = calculateRaiseAmount(blind);
-    setAction(individualRaiseAmount, amountToJoinPot);
+    setAction(individualRaiseAmount, maxRaiseFromAPlayer);
     logger.debug("Player " + getName() + " decides to :[" + getAction() + "]");
-    decreaseMarkers(getActionAmount(maxRaiseFromAPlayer));
+    decreaseMarkers(getActionAmount());
     return getAction();
   }
 
 
-  public int getActionAmount(int maxRaiseFromAPlayer) {
-//    if (partInPot == maxRaiseFromAPlayer) {
-//      logger.debug("Player [{}] has already paied to pot", getName());
-//      return 0;
-//    }
-    if (getAction().isAllIn()) {
-      return getAction().getRaiseAmount();
+  public int getActionAmount() {
+    if (hasBigBlind()) {
+      if (getAction().getAmount() == 0) {
+        return getBlindAmount();
+      }
+      if (getAction().getAmount() > getBlindAmount()) {
+        return getAction().getAmount() - getBlindAmount();
+      }
+      throw new RuntimeException("Action amount [" + getAction().getAmount() + " must be higher than big blind amount [" + getBlindAmount() + "]");
     }
-    if (getAction().isRaise()) {
-      return getAction().getRaiseAmount();
+    if (hasLittleBlind()) {
+      if (getAction().getAmount() == 0) {
+        return getBlindAmount();
+      }
+      if (getAction().getAmount() > getBlindAmount()) {
+        return getAction().getAmount() - getBlindAmount();
+      }
+      throw new RuntimeException("Action amount [" + getAction().getAmount() + " must be higher than big blind amount [" + 2 * getBlindAmount() + "]");
     }
-    if (getAction().isCheck()) {
-      return getAction().getCheckAmount();
+    if (getAction().isFold()) {
+      return 0;
     }
-    return 0;
+    return getAction().getAmount();
   }
 
-  protected abstract void setAction(int raiseAmount, int amountToJoinPot);
+  private int getBlindAmount() {
+    return blindAmount;
+  }
+
+  protected abstract void setAction(int raiseAmount, int maxRaiseFromAPlayer);
 
   protected abstract int calculateRaiseAmount(int blind);
 
@@ -257,3 +267,4 @@ public abstract class Player {
     action = new Action(ActionEnum.CHECK);
   }
 }
+

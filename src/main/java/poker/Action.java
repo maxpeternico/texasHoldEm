@@ -2,20 +2,18 @@ package poker;
 
 public class Action {
   private ActionEnum decision;
-  private int raiseAmount;
-
-  private int checkValue;
+  private int amount;
 
   public Action(ActionEnum decision) {
     this.decision = decision;
   }
 
-  public void setRaiseValue(int value) {
-    this.raiseAmount = value;
+  public void setAmount(int value) {
+    this.amount = value;
   }
 
-  public int getRaiseAmount() {
-    return raiseAmount;
+  public int getAmount() {
+    return amount;
   }
 
   public boolean isAllIn() {
@@ -56,15 +54,7 @@ public class Action {
   @Override
   public String toString() {
     return "Action :[" +
-            decision +
-            ']';
-  }
-
-  public void setCheckValue(int checkValue) {
-    this.checkValue = checkValue;
-  }
-
-  public int getCheckAmount() {
-    return checkValue;
+        decision +
+        ']';
   }
 }
