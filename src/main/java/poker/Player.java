@@ -119,18 +119,24 @@ public abstract class Player {
   }
 
   public boolean hasBigBlind() {
+    logger.debug("Clear big blind for " + name);
+
     return bigBlind;
   }
 
   public void setLittleBlind() {
+
+    logger.debug(name + " has little blind.");
     this.littleBlind = true;
   }
 
   public void clearLittleBlind() {
+    logger.debug("Clear little blind for " + name);
     littleBlind = false;
   }
 
   public void setBigBlind() {
+    logger.debug(name + " has big blind.");
     bigBlind = true;
   }
 

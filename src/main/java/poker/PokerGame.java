@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
@@ -177,8 +179,63 @@ public class PokerGame {
       // A player has won the game, no need to continue
       return;
     }
-    payLittleBlind(players, blindAmount / 2);
-    payBigBlind(players, blindAmount);
+    payBlind(
+      allPlayers -> getPlayerWithLittleBlind(players),
+      players,
+      blindAmount,
+      Player::setLittleBlind,
+      Player::clearLittleBlind
+    );
+    payBlind(
+      allPlayers -> getPlayerWithBigBlind(players),
+      players,
+      blindAmount,
+      Player::setBigBlind,
+      Player::clearBigBlind
+    );
+//    payLittleBlind(players, blindAmount / 2);
+//    payBigBlind(players, blindAmount);
+  }
+
+  private void payBlinds() {
+    final Function<List<Player>, Integer> getPlayerWithBigBlind = players -> getPlayerWithBigBlind(players);
+    final Consumer<Player> setBigBlind = player -> player.setBigBlind();
+    final Consumer<Player> clearBigBlind = player -> player.clearBigBlind();
+    payBlind(
+      getPlayerWithBigBlind,
+      createNumberOfRobotPlayers(3, 1000),
+      50,
+      setBigBlind,
+      clearBigBlind
+    );
+  }
+
+  private void payBlind(Function<List<Player>, Integer> getPlayerWithBlind,
+                        List<Player> players,
+                        int blindAmount,
+                        Consumer<Player> setBlind,
+                        Consumer<Player> clearBlind) {
+    final int indexOfOldBlindPlayer = getPlayerWithBlind.apply(players);
+    Player newBlindPlayer = players.get(getNewBlindIndex(players, indexOfOldBlindPlayer));
+  //  logger.debug("Set blind to :[" + newBlindPlayer.getName() + "]");
+    final Player playerWithOldBlind = players.get(indexOfOldBlindPlayer);
+    logger.debug("Clear blind for :[" + playerWithOldBlind.getName() + "]");
+    setBlind.accept(newBlindPlayer);
+  //  logger.debug("Set blind for :[" + newBlindPlayer.getName() + "]");
+    clearBlind.accept(playerWithOldBlind);
+    if (newBlindPlayer.canPay(blindAmount)) {
+      newBlindPlayer.decreaseMarkers(blindAmount);
+//      potHandler.joinPot(newBlindPlayer, blindAmount);
+    } else {
+      // Go all in for player and create new pot
+      final int allInAmount = newBlindPlayer.getNumberOfMarkers();
+      System.out.println("Player :[" + newBlindPlayer.getName() + "] does not have markers for blind :[" + blindAmount + "], has to go all in with :[" + allInAmount + "].");
+//      potHandler.joinPot(newBlindPlayer, allInAmount);
+
+      newBlindPlayer.decreaseMarkers(allInAmount);
+      newBlindPlayer.action = new Action(ActionEnum.ALL_IN);
+//      potHandler.splitPot(allInAmount);
+    }
   }
 
   private void payLittleBlind(List<Player> players, int blindAmount) {

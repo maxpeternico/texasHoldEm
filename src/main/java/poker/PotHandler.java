@@ -54,15 +54,7 @@ public class PotHandler {
         break;
       }
     }
-    if (potToSplit != null) {
-      Pot newPot = potToSplit.splitPot(raiseCheckValueLeft);
-      // Sort new pot before old pot in list
-      pots.add(new Pot());
-      for (int i = pots.indexOf(potToSplit);i<pots.size();i++) {
-        pots.get(i) =
-      }
 
-    }
   }
 
   private void splitPotIfNecessary(List<Pot> pots, int raiseCheckValue) {
