@@ -36,6 +36,7 @@ public class BetManager {
       createBettingDecisionList(playerWithHighestRaise);
       playerWithHighestRaise = betUntilAllAreSatisfied(false);
     }
+    logger.info("Players have finished betting. ");
     return result.toString();
   }
 
@@ -133,6 +134,7 @@ public class BetManager {
   }
 
   private boolean shallPayToPot(int numberOfMarkersForPlayerInPot, int maxRaiseFromAPlayer) {
+    logger.trace("Number of markers for player in pot {{}} maxRaiseFromAPlayer {{}} ", numberOfMarkersForPlayerInPot, maxRaiseFromAPlayer);
     if (numberOfMarkersForPlayerInPot == maxRaiseFromAPlayer) {
       return false;
     }

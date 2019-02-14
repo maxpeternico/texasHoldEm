@@ -340,39 +340,6 @@ public class PokerGame {
     int maxRaiseFromAPlayer = blind;
     final BetManager betManager = new BetManager(remainingPlayers, draw, dealer.getCommonHand(), blind, potHandler);
     return betManager.bet();
-//    do {
-//      for (Player player : remainingPlayers) {
-//        if (playerCanBet(player)) {
-//          logger.debug(
-//              "player :[{}] action [{}] maxRaiseFromOtherPlayer:[{}] numbersOfMarkers :[{}] markers in all pots :[{}]",
-//              player.getName(),
-//              player.getAction(),
-//              maxRaiseFromAPlayer,
-//              player.getNumberOfMarkers(),
-//              potHandler.getNumberOfMarkersInAllPots());
-//          player.decideAction(draw,
-//                              remainingPlayers.size(),
-//                              dealer.getCommonHand(),
-//                              blind,
-//                              maxRaiseFromAPlayer
-//          );
-//          final Action action = player.getAction();
-//          if (action.isRaise() || action.isAllIn()) {
-//            clearPreviousPlayersWithActionCheck(remainingPlayers, player);
-//            // TODO: Clear previous players with action raise. Or will that put me in an eternal loop?
-//            maxRaiseFromAPlayer = calculateEventualNewMaxRaiseFromAnotherPlayer(maxRaiseFromAPlayer, action);
-//          }
-//          if (shallPayToPot(potHandler.getPlayerPartInPots(player), maxRaiseFromAPlayer)) {
-//            final int raiseOrCheckValue = player.getActionAmount();
-//            potHandler.joinPot(player, raiseOrCheckValue);
-//            logger.debug("Pot size :[{}]. ", potHandler.getNumberOfMarkersInAllPots());
-//          }
-//          result.append("Player " + player.getName() + " " + action.toString() + ". ");
-//        }
-//      }
-//    }
-//    while (!allPlayersSatisfied(remainingPlayers));
-//    return result.toString();
   }
 
   private int calculateIndividualAmountToJoinPot(Player player) {
