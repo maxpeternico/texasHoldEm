@@ -188,7 +188,7 @@ public class PokerGame {
     payBlind(
         allPlayers -> getPlayerWithLittleBlind(players),
         players,
-        blindAmount,
+        blindAmount / 2,
         player->player.setLittleBlind(blindAmount / 2),
         Player::clearLittleBlind
     );
@@ -230,62 +230,6 @@ public class PokerGame {
     }
     newBlindPlayer.action.setAmount(raiseAmount);
   }
-
-
-//  void payBlinds(List<Player> players, int blindAmount) {
-//    if (players.size() < 2) {
-//      // A player has won the game, no need to continue
-//      return;
-//    }
-//    payLittleBlind(players, blindAmount / 2);
-//    payBigBlind(players, blindAmount);
-//  }
-//
-//  private void payLittleBlind(List<Player> players, int blindAmount) {
-//    final int indexOfOldLittleBlindPlayer = getPlayerWithLittleBlind(players);
-//    Player newLittleBlindPlayer = players.get(getNewBlindIndex(players, indexOfOldLittleBlindPlayer));
-//    final Player playerWithOldLittleBlind = players.get(indexOfOldLittleBlindPlayer);
-//    logger.trace("Clear little blind for :[" + playerWithOldLittleBlind.getName() + "]");
-//    newLittleBlindPlayer.setLittleBlind(blindAmount);
-//    logger.debug("Set little blind for :[" + newLittleBlindPlayer.getName() + "]");
-//    playerWithOldLittleBlind.clearLittleBlind();
-//    int raiseAmount = blindAmount;
-//    if (newLittleBlindPlayer.canPay(raiseAmount)) {
-//      newLittleBlindPlayer.decreaseMarkers(raiseAmount);
-//      potHandler.joinPot(newLittleBlindPlayer, raiseAmount);
-//    } else {
-//      // Go all in for player and create new pot
-//      raiseAmount = newLittleBlindPlayer.getNumberOfMarkers();
-//      System.out.println("Player :[" + newLittleBlindPlayer.getName() + "] does not have markers for blind :[" + blindAmount + "], has to go all in with :[" + raiseAmount + "].");
-//      potHandler.joinPot(newLittleBlindPlayer, raiseAmount);
-//      newLittleBlindPlayer.decreaseMarkers(raiseAmount);
-//      newLittleBlindPlayer.action = new Action(ActionEnum.ALL_IN);
-//    }
-//    newLittleBlindPlayer.action.setAmount(raiseAmount);
-//  }
-//
-//  private void payBigBlind(List<Player> players, int blindAmount) {
-//    final int indexOfOldBigBlindPlayer = getPlayerWithBigBlind(players);
-//    Player newBigBlindPlayer = players.get(getNewBlindIndex(players, indexOfOldBigBlindPlayer));
-//    Player playerWithOldBigBlind = players.get(indexOfOldBigBlindPlayer);
-//    logger.debug("Set big blind for :[" + newBigBlindPlayer.getName() + "]");
-//    newBigBlindPlayer.setBigBlind(blindAmount);
-//    logger.trace("Clear big blind for :[" + playerWithOldBigBlind.getName() + "]");
-//    playerWithOldBigBlind.clearBigBlind();
-//    int raiseAmount = blindAmount;
-//    if (newBigBlindPlayer.canPay(raiseAmount)) {
-//      newBigBlindPlayer.decreaseMarkers(raiseAmount);
-//      potHandler.joinPot(newBigBlindPlayer, raiseAmount);
-//    } else {
-//      // Go all in for player and create new pot
-//      raiseAmount = newBigBlindPlayer.getNumberOfMarkers();
-//      System.out.println("Player :[" + newBigBlindPlayer.getName() + "] does not have markers for blind :[" + blindAmount + "], has to go all in with :[" + raiseAmount + "].");
-//      potHandler.joinPot(newBigBlindPlayer, raiseAmount);
-//      newBigBlindPlayer.decreaseMarkers(raiseAmount);
-//      newBigBlindPlayer.action = new Action(ActionEnum.ALL_IN);
-//    }
-//    newBigBlindPlayer.action.setAmount(raiseAmount);
-//  }
 
   private int getNewBlindIndex(List<Player> players, int blindIndex) {
     int newIndexOfBlind = (blindIndex + 1) % players.size();
