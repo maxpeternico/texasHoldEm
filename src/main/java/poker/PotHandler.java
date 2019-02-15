@@ -31,12 +31,20 @@ public class PotHandler {
     // Pay highest amount in pot until joinAmountLeft is 0
     for (Pot pot : pots) {
       int markersPaidToPot = 0;
-      if (pots.indexOf(pot) == pots.size() - 1) {
-        putMarkersToPot(pot, player, joinAmountLeft);
-        if (!canJoinPot(joinAmountLeft, amountToJoinPot)) {
-          potToSplit = setPotToSplit(joinAmountLeft, amountToJoinPot, pot, player);
+      amountToJoinPot = getAmountToJoinPot(joinAmount, pot);
+      final int potIndex = pots.indexOf(pot);
+      final int numberOfPots = pots.size() - 1;
+      if (isLatestPot(potIndex, numberOfPots)) {
+        logger.trace("Is latest pot");
+        final int numberOfMarkersForPlayer = player.getNumberOfMarkers();
+        if (canJoinPot(numberOfMarkersForPlayer, amountToJoinPot)) {
+          putMarkersToPot(pot, player, amountToJoinPot);
+          markersPaidToPot = amountToJoinPot;
+        } else {
+          putMarkersToPot(pot, player, numberOfMarkersForPlayer);
+          potToSplit = setPotToSplit(numberOfMarkersForPlayer, amountToJoinPot, pot, player);
+          break;
         }
-        break;
       } else {
         if (amountToJoinPot > joinAmountLeft) {
           putMarkersToPot(pot, player, joinAmountLeft);
@@ -54,6 +62,11 @@ public class PotHandler {
       }
       logger.debug("Join amount left [{}]", joinAmountLeft);
     }
+    if (joinAmountLeft > 0) {
+      final Pot pot = new Pot();
+      pot.addMember(player, joinAmountLeft);
+      pots.add(pot);
+    }
     if (isPotSplit(potToSplit)) {
       int splitAmount = joinAmountLeft;
       do {
@@ -62,6 +75,19 @@ public class PotHandler {
         splitAmount = getEventualNewSplitValueFromOldPot(potToSplit);
       } while (splitAmount != 0);
     }
+  }
+
+  private int getAmountToJoinPot(int joinAmount, Pot pot) {
+    int amountToJoinPot;
+    amountToJoinPot = pot.getHighestAmount();
+    if (amountToJoinPot == 0) {
+      amountToJoinPot = joinAmount;
+    }
+    return amountToJoinPot;
+  }
+
+  private boolean isLatestPot(int potIndex, int numberOfPots) {
+    return potIndex == numberOfPots;
   }
 
   private int getEventualNewSplitValueFromOldPot(Pot pot) {
@@ -114,6 +140,7 @@ public class PotHandler {
     if (numberOfMarkers >= amountToJoinPot) {
       return true;
     }
+    logger.trace("Can't join pot, number of markers {{}} amountToJoinPot {{}}", numberOfMarkers, amountToJoinPot);
     return false;
   }
 
