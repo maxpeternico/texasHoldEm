@@ -103,15 +103,16 @@ public class TestPotHandler {
     potHandler.joinPot(peter, 450);
     potHandler.joinPot(thomas, 400);
     potHandler.joinPot(anders, 25);
-    assertEquals(4, potHandler.getPots().size());
+    assertEquals(5, potHandler.getPots().size());
     assertEquals(550, potHandler.getPlayerPartInPots(peter));
     assertEquals(500, potHandler.getPlayerPartInPots(thomas));
     assertEquals(125, potHandler.getPlayerPartInPots(ingemar));
     assertEquals(150, potHandler.getPlayerPartInPots(anders));
-    assertEquals(125*4, potHandler.getPots().get(0).getNumberOfMarkers());
-    assertEquals(25*3, potHandler.getPots().get(1).getNumberOfMarkers());
-    assertEquals(250+250, potHandler.getPots().get(2).getNumberOfMarkers());
-    assertEquals(100+150, potHandler.getPots().get(3).getNumberOfMarkers());
+    assertEquals(100*4, potHandler.getPots().get(0).getNumberOfMarkers());
+    assertEquals(25*4, potHandler.getPots().get(1).getNumberOfMarkers());
+    assertEquals(25*3, potHandler.getPots().get(2).getNumberOfMarkers());
+    assertEquals(350+350, potHandler.getPots().get(3).getNumberOfMarkers());
+    assertEquals(50, potHandler.getPots().get(4).getNumberOfMarkers());
   }
   @Test
   public void testFourAllInsRecursiveSplit() {
@@ -136,8 +137,8 @@ public class TestPotHandler {
     assertEquals(100*4, potHandler.getPots().get(0).getNumberOfMarkers());
     assertEquals(25*4, potHandler.getPots().get(1).getNumberOfMarkers());
     assertEquals(25*3, potHandler.getPots().get(2).getNumberOfMarkers());
-    assertEquals(250+250, potHandler.getPots().get(3).getNumberOfMarkers());
-    assertEquals(100+150, potHandler.getPots().get(4).getNumberOfMarkers());
+    assertEquals(350+350, potHandler.getPots().get(3).getNumberOfMarkers());
+    assertEquals(50, potHandler.getPots().get(4).getNumberOfMarkers());
     assertEquals(550, potHandler.getAmountToJoinPot());
 
   }
