@@ -79,13 +79,14 @@ public class TestPotHandler {
     potHandler.joinPot(ingemar, 125);
     potHandler.joinPot(peter, 450);
     potHandler.joinPot(thomas, 400);
-    assertEquals(3, potHandler.getPots().size());
+    assertEquals(4, potHandler.getPots().size());
     assertEquals(550, potHandler.getPlayerPartInPots(peter));
     assertEquals(500, potHandler.getPlayerPartInPots(thomas));
     assertEquals(125, potHandler.getPlayerPartInPots(ingemar));
-    assertEquals(125*3, potHandler.getPots().get(0).getNumberOfMarkers());
-    assertEquals((500-100-125)*2, potHandler.getPots().get(1).getNumberOfMarkers());
-    assertEquals(100+150, potHandler.getPots().get(2).getNumberOfMarkers());
+    assertEquals(100*3, potHandler.getPots().get(0).getNumberOfMarkers());
+    assertEquals(25*3, potHandler.getPots().get(1).getNumberOfMarkers());
+    assertEquals((500-25-100)*2, potHandler.getPots().get(2).getNumberOfMarkers());
+    assertEquals(50, potHandler.getPots().get(3).getNumberOfMarkers());
   }
 
   @Test

@@ -28,23 +28,34 @@ public class PotHandler {
     int amountToJoinPot = 0;
 
     Pot potToSplit = null;
+    List<Pot> newPots = Lists.newArrayList();
     // Pay highest amount in pot until joinAmountLeft is 0
     for (Pot pot : pots) {
       int markersPaidToPot = 0;
       amountToJoinPot = getAmountToJoinPot(joinAmount, pot);
       final int potIndex = pots.indexOf(pot);
       final int numberOfPots = pots.size() - 1;
+      if (pot.hasMember(player)) {
+        continue;
+      }
       if (isLatestPot(potIndex, numberOfPots)) {
         logger.trace("Is latest pot");
         final int numberOfMarkersForPlayer = player.getNumberOfMarkers();
-        if (canJoinPot(numberOfMarkersForPlayer, amountToJoinPot)) {
+        if (canJoinPot(joinAmountLeft, amountToJoinPot)) {
           putMarkersToPot(pot, player, amountToJoinPot);
           markersPaidToPot = amountToJoinPot;
+          if (joinAmountLeft > markersPaidToPot) {
+            logger.trace("Player {{}} raises with {{}} markers, creating new pot. ", player.getName(), joinAmount - markersPaidToPot);
+            final Pot newPotForRestOfJoinAmount = new Pot();
+            newPotForRestOfJoinAmount.addMember(player, joinAmountLeft-markersPaidToPot);
+            newPots.add(newPotForRestOfJoinAmount);
+          }
         } else {
-          putMarkersToPot(pot, player, numberOfMarkersForPlayer);
-          potToSplit = setPotToSplit(numberOfMarkersForPlayer, amountToJoinPot, pot, player);
+          putMarkersToPot(pot, player, joinAmountLeft);
+          potToSplit = setPotToSplit(joinAmountLeft, amountToJoinPot, pot, player);
           break;
         }
+
       } else {
         if (amountToJoinPot > joinAmountLeft) {
           putMarkersToPot(pot, player, joinAmountLeft);
@@ -62,10 +73,8 @@ public class PotHandler {
       }
       logger.debug("Join amount left [{}]", joinAmountLeft);
     }
-    if (joinAmountLeft > 0) {
-      final Pot pot = new Pot();
-      pot.addMember(player, joinAmountLeft);
-      pots.add(pot);
+    if (newPots != null) {
+      pots.addAll(newPots);
     }
     if (isPotSplit(potToSplit)) {
       int splitAmount = joinAmountLeft;
