@@ -32,12 +32,12 @@ public class TestPokerGameMethods {
     assertTrue(pokerGame.allPlayersSatisfied(players));
   }
 
-  @Test
+  @Test // TODO: Do we need this test?
   public void testAllPlayersSatisfiedOnePlayerRaises() {
     List<Player> players = pokerGame.createNumberOfRobotPlayers(5, 2500);
-    players.stream().forEach(e->e.setActionToCheck());
+    players.stream().forEach(Player::setActionToCheck);
     players.get(1).setAction(100, 0);
-    assertFalse(pokerGame.allPlayersSatisfied(players));
+    assertTrue(pokerGame.allPlayersSatisfied(players));
   }
 
   @Test
