@@ -13,24 +13,22 @@ public class BetManager {
   Map<Player, Boolean> bettingMap = Maps.newLinkedHashMap();
   private Draw draw;
   private List<Card> commonHand;
-  private int blind;
   private PotHandler potHandler;
   private int maxRaiseFromAPlayer;
   private static final Logger logger = LogManager.getLogger(BetManager.class);
   private StringBuffer result = new StringBuffer();
 
 
-  public BetManager(List<Player> playerList, Draw draw, List<Card> commonHand, int blind, PotHandler potHandler) {
+  public BetManager(List<Player> playerList, Draw draw, List<Card> commonHand, int maxRaiseFromAPlayer, PotHandler potHandler) {
     this.playerList = playerList;
     this.draw = draw;
     this.commonHand = commonHand;
-    this.blind = blind;
+    this.maxRaiseFromAPlayer = maxRaiseFromAPlayer;
     this.potHandler = potHandler;
     initCreateBettingDecisionList(playerList);
   }
 
   public String bet() {
-    maxRaiseFromAPlayer = blind;
     Player playerWithHighestRaise = betUntilAllAreSatisfied(true);
     while(doesAnyPlayersWantToBetMore(playerWithHighestRaise)) {
       createBettingDecisionList(playerWithHighestRaise);

@@ -74,14 +74,17 @@ public class RobotPlayer extends Player {
     if (strategy.equals(ALL_IN) || needToGoAllIn(raiseAmount)) {
       action = new Action(ActionEnum.ALL_IN);
       action.setAmount(raiseAmount); // TODO: number of markers?
+      logger.trace("Set raise amount for player {{}} to {{}}", getName(), raiseAmount);
       partInPot += raiseAmount;
     } else if (raiseAmount > maxRaiseFromAPlayer) {
       action = new Action(ActionEnum.RAISE);
       action.setAmount(raiseAmount);
+      logger.trace("Set raise amount for player {{}} to {{}}", getName(), raiseAmount);
       partInPot += raiseAmount;
     } else if (isWithin(raiseAmount, maxRaiseFromAPlayer)) {
       action = new Action(ActionEnum.CHECK);
       action.setAmount(maxRaiseFromAPlayer);
+      logger.trace("Set raise amount for player {{}} to {{}}", getName(), maxRaiseFromAPlayer);
       partInPot += maxRaiseFromAPlayer;
     } else {
       action = new Action(ActionEnum.FOLD);
@@ -89,13 +92,24 @@ public class RobotPlayer extends Player {
   }
 
   private boolean isWithin(int raiseAmount, int maxRaiseFromOtherPlayer) {
-    if (raiseAmount >= maxRaiseFromOtherPlayer * 0.9 && raiseAmount <= maxRaiseFromOtherPlayer * 1.1) {
+    int raiseAmountIncludingBlind = calculateRaiseAmountIncludingBlind(raiseAmount);
+    if (raiseAmountIncludingBlind >= maxRaiseFromOtherPlayer * 0.9) {
       return true;
     }
-    if (Math.abs(raiseAmount-maxRaiseFromOtherPlayer) <= 25) {
+    if (Math.abs(raiseAmountIncludingBlind-maxRaiseFromOtherPlayer) <= 25) {
       return true;
     }
     return false;
+  }
+
+  private int calculateRaiseAmountIncludingBlind(int raiseAmount) {
+    if (hasBigBlind()) {
+      return blindAmount + raiseAmount;
+    }
+    if (hasLittleBlind()) {
+      return blindAmount/2 + raiseAmount;
+    }
+    return raiseAmount;
   }
 
   @Override
