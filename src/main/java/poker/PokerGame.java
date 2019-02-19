@@ -333,9 +333,6 @@ public class PokerGame {
       // A player already won
       return "";
     }
-    StringBuffer result = new StringBuffer();
-    List<Player> remainingPlayerInRaiseOrder = remainingPlayers.stream().collect(Collectors.toList());
-    int maxRaiseFromAPlayer = blind;
     final BetManager betManager = new BetManager(remainingPlayers, draw, dealer.getCommonHand(), blind, potHandler);
     return betManager.bet();
   }

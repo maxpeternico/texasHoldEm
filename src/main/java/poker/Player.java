@@ -186,21 +186,19 @@ public abstract class Player {
     return false;
   }
 
-  public abstract void decideStrategy(Draw draw, int numberOfRemainingPlayers, List<Card> commonHand, int blind);
+  public abstract void decideStrategy(Draw draw, int numberOfRemainingPlayers, List<Card> commonHand);
 
   public Action decideAction(Draw draw,
                              int numberOfRemainingPlayers,
                              List<Card> commonHand,
                              int blind,
                              int maxRaiseFromAPlayer) {
-    decideStrategy(draw, numberOfRemainingPlayers, commonHand, blind);
+    decideStrategy(draw, numberOfRemainingPlayers, commonHand);
     int individualRaiseAmount = calculateRaiseAmount(blind);
     setAction(individualRaiseAmount, maxRaiseFromAPlayer);
     logger.debug("Player " + getName() + " decides to :[" + getAction() + "]");
-    decreaseMarkers(getActionAmount());
     return getAction();
   }
-
 
   public int getActionAmount() {
     if (hasBigBlind()) {

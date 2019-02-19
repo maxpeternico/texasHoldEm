@@ -204,4 +204,18 @@ public class PotHandler {
     }
     return amountToJoinPot;
   }
+
+  public int getMaxMarkersForAnyPlayer() {
+    if (pots.get(0) == null) return 0;
+
+    final List<Player> members = pots.get(0).getMembers();
+    int maxMarkers = 0;
+    for (Player player:members) {
+      final int playerPartInPots = getPlayerPartInPots(player);
+      if (playerPartInPots > maxMarkers) {
+        maxMarkers = playerPartInPots;
+      }
+    }
+    return maxMarkers;
+  }
 }

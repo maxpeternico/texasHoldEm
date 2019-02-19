@@ -23,7 +23,7 @@ public class RobotPlayer extends Player {
   /**
    * Since privatePoints is compensated by the number of players there is no need to consider number of players here
    */
-  public void decideStrategy(Draw draw, int numberOfRemainingPlayers, List<Card> commonHand, int blind) {
+  public void decideStrategy(Draw draw, int numberOfRemainingPlayers, List<Card> commonHand) {
     points = calculatePoints(numberOfRemainingPlayers, draw, commonHand);
 
     switch (draw) {

@@ -9,8 +9,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class BetManager {
+  private final int blind;
   List<Player> playerList;
-  Map<Player, Boolean> bettingMap = Maps.newLinkedHashMap();
+  private Map<Player, Boolean> bettingMap = Maps.newLinkedHashMap();
   private Draw draw;
   private List<Card> commonHand;
   private PotHandler potHandler;
@@ -19,12 +20,13 @@ public class BetManager {
   private StringBuffer result = new StringBuffer();
 
 
-  public BetManager(List<Player> playerList, Draw draw, List<Card> commonHand, int maxRaiseFromAPlayer, PotHandler potHandler) {
+  public BetManager(List<Player> playerList, Draw draw, List<Card> commonHand, int blind, PotHandler potHandler) {
     this.playerList = playerList;
     this.draw = draw;
     this.commonHand = commonHand;
-    this.maxRaiseFromAPlayer = maxRaiseFromAPlayer;
+    this.blind = blind;
     this.potHandler = potHandler;
+    this.maxRaiseFromAPlayer = potHandler.getMaxMarkersForAnyPlayer();
     initCreateBettingDecisionList(playerList);
   }
 
@@ -126,6 +128,7 @@ public class BetManager {
       if (shallPayToPot(potHandler.getPlayerPartInPots(player), maxRaiseFromAPlayer)) {
         final int raiseOrCheckValue = player.getActionAmount();
         potHandler.joinPot(player, raiseOrCheckValue);
+        player.decreaseMarkers(raiseOrCheckValue);
         logger.debug("Pot size :[{}]. ", potHandler.getNumberOfMarkersInAllPots());
       }
     }
@@ -135,8 +138,10 @@ public class BetManager {
   private boolean shallPayToPot(int numberOfMarkersForPlayerInPot, int maxRaiseFromAPlayer) {
     logger.trace("Number of markers for player in pot {{}} maxRaiseFromAPlayer {{}} ", numberOfMarkersForPlayerInPot, maxRaiseFromAPlayer);
     if (numberOfMarkersForPlayerInPot == maxRaiseFromAPlayer) {
+      logger.trace("Player shall not pay to pot.");
       return false;
     }
+    logger.trace("Player shall pay to pot.");
     return true;
   }
 

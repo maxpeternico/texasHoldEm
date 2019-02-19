@@ -18,7 +18,7 @@ public class HumanPlayer extends Player {
   }
 
   @Override
-  public void decideStrategy(Draw draw, int numberOfRemainingPlayers, List<Card> commonHand, int blind) {
+  public void decideStrategy(Draw draw, int numberOfRemainingPlayers, List<Card> commonHand) {
     String decision = KeyboardHelper.getCharFromKeyboard(Lists.newArrayList("R", "C", "F"), "(R)aise/(C)heck/(F)old:");
     switch (decision) {
       case "R":

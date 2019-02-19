@@ -40,9 +40,7 @@ public class TestPotMoreThanTwoPlayers extends TestBase {
 
     prepareFlop(getBadFlop());
     decision = pokerGame.playBeforeFlop(players);
-    assertEquals("Player Thomas Action :[RAISE]. Player Jörn Action :[CHECK]. Player Anders Action :[CHECK]. ", decision);
-    int potRaisePerPlayerFlop = 100;
-    potRaisePerPlayerTotalRound = potRaisePerPlayerTotalRound + potRaisePerPlayerFlop;
+    assertEquals("Player Thomas Action :[CHECK]. Player Jörn Action :[CHECK]. Player Anders Action :[CHECK]. ", decision);
     assertMarkersForPlayers(players);
 
     prepareTurn(Color.hearts, Ordinal.queen);

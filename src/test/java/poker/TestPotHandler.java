@@ -140,6 +140,6 @@ public class TestPotHandler {
     assertEquals(350+350, potHandler.getPots().get(3).getNumberOfMarkers());
     assertEquals(50, potHandler.getPots().get(4).getNumberOfMarkers());
     assertEquals(550, potHandler.getAmountToJoinPot());
-
+    assertEquals(550, potHandler.getMaxMarkersForAnyPlayer());
   }
 }
