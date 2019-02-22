@@ -7,8 +7,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.List;
 import java.util.Map;
 
-import static poker.Strategy.ALL_IN;
-import static poker.Strategy.OFFENSIVE;
+import static poker.Strategy.*;
 
 public class RobotPlayer extends Player {
   private static final Logger logger = LogManager.getLogger(RobotPlayer.class);
@@ -37,21 +36,44 @@ public class RobotPlayer extends Player {
         } else if (points.totalPoints > 100) {
           strategy = OFFENSIVE;
         }
+        else {
+          strategy = JOIN_IF_CHEAP;
+        }
         break;
       case FLOP:
-        if (points.totalPoints > 100) {
+        if (points.totalPoints > 300) {
+          strategy = ALL_IN;
+        } else if (points.totalPoints > 100) {
           strategy = OFFENSIVE;
+        } else {
+          strategy = QUIT;
         }
         // Pair of aces is good or anything higher, getAmount or go all in if pott is big
         // Low pair, join unless too expensive
         // Bad cards, try to join if cheap otherwise fold
         break;
       case TURN:
+        if (points.totalPoints > 200) {
+          strategy = ALL_IN;
+        } else if (points.totalPoints > 100) {
+          strategy = JOIN;
+        } else {
+          strategy = QUIT;
+        }
         // Pair of aces is good or anything higher, getAmount or go all in if pott is big
         // Low pair, join unless too expensive
         // Bad cards, try to join if cheap otherwise fold
         break;
       case RIVER:
+        if (points.totalPoints > 400) {
+          strategy = ALL_IN;
+        } else if (points.totalPoints > 200) {
+          strategy = OFFENSIVE;
+        } else if (points.totalPoints > 100) {
+          strategy = JOIN;
+        } else {
+          strategy = QUIT;
+        }
         break;
     }
     logger.debug("Player " + getName() + " has strategy " + strategy + ". ");
@@ -102,16 +124,6 @@ public class RobotPlayer extends Player {
     return false;
   }
 
-  private int calculateRaiseAmountIncludingBlind(int raiseAmount) {
-    if (hasBigBlind()) {
-      return blindAmount + raiseAmount;
-    }
-    if (hasLittleBlind()) {
-      return blindAmount/2 + raiseAmount;
-    }
-    return raiseAmount;
-  }
-
   @Override
   protected int calculateRaiseAmount(int blind) {
     int individualRaiseAmount = 0;
@@ -127,32 +139,12 @@ public class RobotPlayer extends Player {
       case OFFENSIVE:
         // TODO: Set percentage of number of markers instead
         if (points.totalPoints > 113) { // Pair of aces and higher
-          if (points.commonPoints < 50) {
-            // TODO: calculateRaiseAmount(privatePoints, commonPoints, sizeOfBlind, moneyLeft)
-            // getAmount
-            individualRaiseAmount = blind * 4;
-          } else {
-            // getAmount only if no other raises
-            individualRaiseAmount = blind;
-          }
+          individualRaiseAmount = blind * 4;
         } else if (points.totalPoints > 100) {
-          if (points.commonPoints < 5) {
-            // getAmount if no one else has raised
             individualRaiseAmount = blind * 2;
-          } else {
-            // don't getAmount, join if blind is cheap otherwise fold
-            individualRaiseAmount = blind;
-          }
         } else if (points.totalPoints > 5) {
-          if (points.commonPoints < 5) {
-            // getAmount if no one else has raised
-            individualRaiseAmount = blind;
-          } else {
-            // don't getAmount, join if blind is cheap otherwise fold
-            individualRaiseAmount = 0;
-          }
+          individualRaiseAmount = blind;
         } else {
-          // don't getAmount, join if blind is cheap otherwise fold
           individualRaiseAmount = 0;
         }
         break;

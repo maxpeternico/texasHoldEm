@@ -205,7 +205,7 @@ public abstract class Player {
       if (getAction().getAmount() == 0) {
         return getBlindAmount();
       }
-      if (getAction().getAmount() > getBlindAmount()) {
+      if (getAction().getAmount() >= getBlindAmount()) {
         return getAction().getAmount() - getBlindAmount();
       }
       throw new RuntimeException("Action amount [" + getAction().getAmount() + " must be higher than big blind amount [" + getBlindAmount() + "]");
@@ -214,7 +214,7 @@ public abstract class Player {
       if (getAction().getAmount() == 0) {
         return getBlindAmount();
       }
-      if (getAction().getAmount() > getBlindAmount()) {
+      if (getAction().getAmount() >= getBlindAmount()) {
         return getAction().getAmount() - getBlindAmount();
       }
       throw new RuntimeException("Action amount [" + getAction().getAmount() + " must be higher than big blind amount [" + 2 * getBlindAmount() + "]");
@@ -264,5 +264,15 @@ public abstract class Player {
   void setActionToCheck() {
     action = new Action(ActionEnum.CHECK);
   }
+
+  public int calculateRaiseAmountIncludingBlind(int raiseAmount) {
+   if (hasBigBlind()) {
+    return blindAmount + raiseAmount;
+        }
+        if (hasLittleBlind()) {
+          return blindAmount/2 + raiseAmount;
+        }
+        return raiseAmount;
+      }
 }
 

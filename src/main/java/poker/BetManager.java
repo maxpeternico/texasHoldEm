@@ -113,7 +113,9 @@ public class BetManager {
           player.getNumberOfMarkers());
 
       Action action = player.decideAction(draw, calculatePlayersAfter(), commonHand, blind, maxRaiseFromAPlayer);
-      maxRaiseFromAPlayer = action.getAmount();
+      if (action.getAmount() > maxRaiseFromAPlayer) {
+        maxRaiseFromAPlayer = action.getAmount();
+      }
       bettingMap.put(player, true);
       result.append("Player " + player.getName() + " " + action.toString() + ". ");
       logger.trace("Player {{}} has made a bet", player.getName());
