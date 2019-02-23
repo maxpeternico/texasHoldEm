@@ -1,7 +1,5 @@
 package poker;
 
-import java.util.function.BiPredicate;
-
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
@@ -62,9 +60,9 @@ public class TestPotHandler {
     assertEquals(800, potHandler.getPlayerPartInPots(peter));
     assertEquals(300, potHandler.getPlayerPartInPots(thomas));
     assertEquals(100, potHandler.getPlayerPartInPots(ingemar));
-    assertEquals(3*100, potHandler.getPots().get(0).getNumberOfMarkers());
-    assertEquals(2*(300-100), potHandler.getPots().get(1).getNumberOfMarkers());
-    assertEquals(800-100-200, potHandler.getPots().get(2).getNumberOfMarkers());
+    assertEquals(3 * 100, potHandler.getPots().get(0).getNumberOfMarkers());
+    assertEquals(2 * (300 - 100), potHandler.getPots().get(1).getNumberOfMarkers());
+    assertEquals(800 - 100 - 200, potHandler.getPots().get(2).getNumberOfMarkers());
     assertEquals(800, potHandler.getAmountToJoinPot());
   }
 
@@ -83,9 +81,9 @@ public class TestPotHandler {
     assertEquals(550, potHandler.getPlayerPartInPots(peter));
     assertEquals(500, potHandler.getPlayerPartInPots(thomas));
     assertEquals(125, potHandler.getPlayerPartInPots(ingemar));
-    assertEquals(100*3, potHandler.getPots().get(0).getNumberOfMarkers());
-    assertEquals(25*3, potHandler.getPots().get(1).getNumberOfMarkers());
-    assertEquals((500-25-100)*2, potHandler.getPots().get(2).getNumberOfMarkers());
+    assertEquals(100 * 3, potHandler.getPots().get(0).getNumberOfMarkers());
+    assertEquals(25 * 3, potHandler.getPots().get(1).getNumberOfMarkers());
+    assertEquals((500 - 25 - 100) * 2, potHandler.getPots().get(2).getNumberOfMarkers());
     assertEquals(50, potHandler.getPots().get(3).getNumberOfMarkers());
   }
 
@@ -108,12 +106,13 @@ public class TestPotHandler {
     assertEquals(500, potHandler.getPlayerPartInPots(thomas));
     assertEquals(125, potHandler.getPlayerPartInPots(ingemar));
     assertEquals(150, potHandler.getPlayerPartInPots(anders));
-    assertEquals(100*4, potHandler.getPots().get(0).getNumberOfMarkers());
-    assertEquals(25*4, potHandler.getPots().get(1).getNumberOfMarkers());
-    assertEquals(25*3, potHandler.getPots().get(2).getNumberOfMarkers());
-    assertEquals(350+350, potHandler.getPots().get(3).getNumberOfMarkers());
+    assertEquals(100 * 4, potHandler.getPots().get(0).getNumberOfMarkers());
+    assertEquals(25 * 4, potHandler.getPots().get(1).getNumberOfMarkers());
+    assertEquals(25 * 3, potHandler.getPots().get(2).getNumberOfMarkers());
+    assertEquals(350 + 350, potHandler.getPots().get(3).getNumberOfMarkers());
     assertEquals(50, potHandler.getPots().get(4).getNumberOfMarkers());
   }
+
   @Test
   public void testFourAllInsRecursiveSplit() {
     PotHandler potHandler = new PotHandler();
@@ -134,12 +133,35 @@ public class TestPotHandler {
     assertEquals(500, potHandler.getPlayerPartInPots(thomas));
     assertEquals(125, potHandler.getPlayerPartInPots(ingemar));
     assertEquals(150, potHandler.getPlayerPartInPots(anders));
-    assertEquals(100*4, potHandler.getPots().get(0).getNumberOfMarkers());
-    assertEquals(25*4, potHandler.getPots().get(1).getNumberOfMarkers());
-    assertEquals(25*3, potHandler.getPots().get(2).getNumberOfMarkers());
-    assertEquals(350+350, potHandler.getPots().get(3).getNumberOfMarkers());
+    assertEquals(100 * 4, potHandler.getPots().get(0).getNumberOfMarkers());
+    assertEquals(25 * 4, potHandler.getPots().get(1).getNumberOfMarkers());
+    assertEquals(25 * 3, potHandler.getPots().get(2).getNumberOfMarkers());
+    assertEquals(350 + 350, potHandler.getPots().get(3).getNumberOfMarkers());
     assertEquals(50, potHandler.getPots().get(4).getNumberOfMarkers());
     assertEquals(550, potHandler.getAmountToJoinPot());
     assertEquals(550, potHandler.getMaxMarkersForAnyPlayer());
+  }
+
+  @Test
+  public void testRaiseCheckForAllPlayersTwice() {
+    PotHandler potHandler = new PotHandler();
+    Player peter = new RobotPlayer("Peter", 500);
+    Player thomas = new RobotPlayer("Thomas", 500);
+    Player ingemar = new RobotPlayer("Ingemar", 500);
+    potHandler.joinPot(peter, 100);
+    potHandler.joinPot(thomas, 100);
+    potHandler.joinPot(ingemar, 100);
+    potHandler.joinPot(peter, 100);
+    potHandler.joinPot(thomas, 100);
+    potHandler.joinPot(ingemar, 100);
+    assertEquals(2, potHandler.getPots().size());
+    assertEquals(200, potHandler.getPlayerPartInPots(peter));
+    assertEquals(200, potHandler.getPlayerPartInPots(thomas));
+    assertEquals(200, potHandler.getPlayerPartInPots(ingemar));
+    assertEquals(300, potHandler.getPots().get(0).getNumberOfMarkers());
+    assertEquals(300, potHandler.getPots().get(1).getNumberOfMarkers());
+    assertEquals(200, potHandler.getAmountToJoinPot());
+    assertEquals(200, potHandler.getMaxMarkersForAnyPlayer());
+
   }
 }

@@ -59,7 +59,7 @@ public class TestPotBetAtFlop extends TestBase {
     final int player0NumberOfMarkersAfterRound = player0.getNumberOfMarkers();
     final int player1NumberOfMarkersAfterRound = player1.getNumberOfMarkers();
 
-    pokerGame.getTheWinner(getPokerGame().getPotHandler().getPots().get(0), players);
+    pokerGame.getTheWinner(getPokerGame().getPotHandler(), players);
 
     assertEquals(createMarkersDisappearErrorMessage(players),
                  2 * PokerGame.TOTAL_MARKERS_PER_PLAYER,

@@ -73,24 +73,33 @@ public class PokerGame {
     increaseDraw();
     playRiver(players);
     increaseDraw();
-    potHandler.getPots().stream().forEach(e -> getTheWinner(e, e.getMembers()));
+    getTheWinner(potHandler, players);
     checkSoNoMarkersDisappeared();
     resetTurn(players);
   }
 
   private void checkSoNoMarkersDisappeared() {
     final int theoreticalNumberOfMarkers = dealer.getPlayers().size() * 2500;
-    int totalNumberOfMarkers = potHandler.getNumberOfMarkersInAllPots();
+  //  int totalNumberOfMarkers = potHandler.getNumberOfMarkersInAllPots() + getMarkersForAllPlayers(dealer.getPlayers());
+    int totalNumberOfMarkers = getMarkersForAllPlayers(dealer.getPlayers());
     if (totalNumberOfMarkers != theoreticalNumberOfMarkers) {
       throw new RuntimeException("Total number of markers is :[" + totalNumberOfMarkers + "] but should be :[" + theoreticalNumberOfMarkers + "]");
     }
   }
 
-  Player getTheWinner(Pot pot, List<Player> players) {
+  private int getMarkersForAllPlayers(List<Player> players) {
+    int totalAmountOfMarkers = 0;
+    for (Player player:players) {
+      totalAmountOfMarkers += player.getNumberOfMarkers();
+    }
+    return totalAmountOfMarkers;
+  }
+
+  Player getTheWinner(PotHandler pot, List<Player> players) {
     final Player theWinner = dealer.findTheWinner(getPlayersThatDidNotFold(players));
     checkTotalHand(dealer, theWinner.getName(), theWinner.getPrivateHand());
-    theWinner.addMarkers(pot.getNumberOfMarkers());
-    logger.info("Player [{}] wins pot [{}] with [{}] markers.", theWinner.getName(), pot, pot.getNumberOfMarkers());
+    theWinner.addMarkers(pot.getNumberOfMarkersInAllPots());
+    logger.info("Player [{}] wins pot [{}] with [{}] markers.", theWinner.getName(), pot, pot.getNumberOfMarkersInAllPots());
     int totalNumberOfMarkers = 0;
     for (Player player : players) {
       logger.info("Number of markers for :[" + player.getName() + "] : [" + player.getNumberOfMarkers() + "]");

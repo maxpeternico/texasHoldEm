@@ -128,13 +128,20 @@ public class BetManager {
         }
       }
       if (shallPayToPot(potHandler.getPlayerPartInPots(player), maxRaiseFromAPlayer)) {
-        final int raiseOrCheckValue = player.getActionAmount();
+        final int raiseOrCheckValue = player.getActionAmount(isBeforeFlop(draw));
         potHandler.joinPot(player, raiseOrCheckValue);
         player.decreaseMarkers(raiseOrCheckValue);
         logger.debug("Pot size :[{}]. ", potHandler.getNumberOfMarkersInAllPots());
       }
     }
     return getPlayersFromBettingMap().get(0);
+  }
+
+  private boolean isBeforeFlop(Draw draw) {
+    if (draw == Draw.BEFORE_FLOP) {
+      return true;
+    }
+    return false;
   }
 
   private boolean shallPayToPot(int numberOfMarkersForPlayerInPot, int maxRaiseFromAPlayer) {

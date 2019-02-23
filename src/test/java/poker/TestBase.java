@@ -45,14 +45,6 @@ public abstract class TestBase {
 
 
   protected int calculatePot(int totalPotRaisePerPlayer, List<Player> players, int bigBlindAmount) {
-    return getTotalBlindCost(bigBlindAmount) + getTotalPotRaiseForAllPlayers(totalPotRaisePerPlayer, players);
-  }
-
-  protected int getTotalBlindCost(int bigBlindAmount) {
-    return (int)(1.5 * bigBlindAmount);
-  }
-
-  protected int getTotalPotRaiseForAllPlayers(int totalPotRaisePerPlayer, List<Player> players) {
     int totalPot = 0;
     for (Player player : players) {
       if (!player.getAction().isFold()) {

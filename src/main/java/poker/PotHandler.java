@@ -36,6 +36,9 @@ public class PotHandler {
       final int potIndex = pots.indexOf(pot);
       final int numberOfPots = pots.size() - 1;
       if (pot.hasMember(player)) {
+        if (isLatestPot(potIndex, numberOfPots)) {
+          createNewPot(player, joinAmount, joinAmountLeft, newPots, markersPaidToPot);
+        }
         continue;
       }
       if (isLatestPot(potIndex, numberOfPots)) {
@@ -45,10 +48,7 @@ public class PotHandler {
           putMarkersToPot(pot, player, amountToJoinPot);
           markersPaidToPot = amountToJoinPot;
           if (joinAmountLeft > markersPaidToPot) {
-            logger.trace("Player {{}} raises with {{}} markers, creating new pot. ", player.getName(), joinAmount - markersPaidToPot);
-            final Pot newPotForRestOfJoinAmount = new Pot();
-            newPotForRestOfJoinAmount.addMember(player, joinAmountLeft-markersPaidToPot);
-            newPots.add(newPotForRestOfJoinAmount);
+            createNewPot(player, joinAmount, joinAmountLeft, newPots, markersPaidToPot);
           }
         } else {
           putMarkersToPot(pot, player, joinAmountLeft);
@@ -84,6 +84,13 @@ public class PotHandler {
         splitAmount = getEventualNewSplitValueFromOldPot(potToSplit);
       } while (splitAmount != 0);
     }
+  }
+
+  private void createNewPot(Player player, int joinAmount, int joinAmountLeft, List<Pot> newPots, int markersPaidToPot) {
+    logger.trace("Player {{}} raises with {{}} markers, creating new pot. ", player.getName(), joinAmount - markersPaidToPot);
+    final Pot newPotForRestOfJoinAmount = new Pot();
+    newPotForRestOfJoinAmount.addMember(player, joinAmountLeft-markersPaidToPot);
+    newPots.add(newPotForRestOfJoinAmount);
   }
 
   private int getAmountToJoinPot(int joinAmount, Pot pot) {

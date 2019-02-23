@@ -40,7 +40,7 @@ public class TestPotBetAtPrivateHand extends TestBase {
 
     // No turn or river since only one player left
 
-    pokerGame.getPotHandler().getPots().stream().forEach(e-> pokerGame.getTheWinner(e, players));
+    pokerGame.getTheWinner(getPokerGame().getPotHandler(), players);
     assertEquals(2525, player0.getNumberOfMarkers());
     assertEquals(2475, player1.getNumberOfMarkers());
 
@@ -87,7 +87,7 @@ public class TestPotBetAtPrivateHand extends TestBase {
     assertEquals(0, player0.getNumberOfMarkers());
     assertEquals(0, player1.getNumberOfMarkers());
 
-    pokerGame.getPotHandler().getPots().stream().forEach(e-> pokerGame.getTheWinner(e, players));
+    pokerGame.getTheWinner(getPokerGame().getPotHandler(), players);
 
     assertEquals(5000, player0.getNumberOfMarkers());
     assertEquals(0, player1.getNumberOfMarkers());
@@ -135,7 +135,7 @@ public class TestPotBetAtPrivateHand extends TestBase {
     assertEquals(2450, player0.getNumberOfMarkers());
     assertEquals(2450, player1.getNumberOfMarkers());
 
-    pokerGame.getPotHandler().getPots().stream().forEach(e-> pokerGame.getTheWinner(e, players));
+    pokerGame.getTheWinner(getPokerGame().getPotHandler(), players);
     assertEquals(2450, player0.getNumberOfMarkers());
     assertEquals(2550, player1.getNumberOfMarkers());
 
@@ -181,7 +181,7 @@ public class TestPotBetAtPrivateHand extends TestBase {
     assertEquals(2150, player0.getNumberOfMarkers());
     assertEquals(2150, player1.getNumberOfMarkers());
 
-    pokerGame.getPotHandler().getPots().stream().forEach(e-> pokerGame.getTheWinner(e, players));
+    pokerGame.getTheWinner(getPokerGame().getPotHandler(), players);
 
     assertEquals(2850, player0.getNumberOfMarkers());
     assertEquals(2150, player1.getNumberOfMarkers());
@@ -237,7 +237,7 @@ public class TestPotBetAtPrivateHand extends TestBase {
     final int player0NumberOfMarkersAfterRound = player0.getNumberOfMarkers();
     final int player1NumberOfMarkersAfterRound = player1.getNumberOfMarkers();
 
-    pokerGame.getTheWinner(getPokerGame().getPotHandler().getPots().get(0), players);
+    pokerGame.getTheWinner(getPokerGame().getPotHandler(), players);
 
     assertEquals(createMarkersDisappearErrorMessage(players),
         2 * PokerGame.TOTAL_MARKERS_PER_PLAYER,

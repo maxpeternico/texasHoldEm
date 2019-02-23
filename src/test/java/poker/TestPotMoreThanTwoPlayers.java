@@ -46,14 +46,14 @@ public class TestPotMoreThanTwoPlayers extends TestBase {
     prepareTurn(Color.hearts, Ordinal.queen);
     decision = pokerGame.playTurn(players);
     assertEquals("Player Thomas Action :[CHECK]. Player Jörn Action :[CHECK]. Player Anders Action :[CHECK]. ", decision);
-    int potRaisePerPlayerTurn = 50;
+    int potRaisePerPlayerTurn = 0;
     potRaisePerPlayerTotalRound = potRaisePerPlayerTotalRound + potRaisePerPlayerTurn;
     assertMarkersForPlayers(players);
 
     prepareRiver(Color.spades, Ordinal.two);
     decision = pokerGame.playRiver(players);
     assertEquals("Player Thomas Action :[RAISE]. Player Jörn Action :[CHECK]. Player Anders Action :[CHECK]. ", decision);
-    final int potRaiseRiver = 50;
+    final int potRaiseRiver = 200;
     potRaisePerPlayerTotalRound = potRaisePerPlayerTotalRound + potRaiseRiver;
     assertMarkersForPlayers(players);
 
@@ -61,11 +61,11 @@ public class TestPotMoreThanTwoPlayers extends TestBase {
     final int player1NumberOfMarkersAfterRound = player1.getNumberOfMarkers();
     final int player2NumberOfMarkersAfterRound = player2.getNumberOfMarkers();
 
-    pokerGame.getTheWinner(getPokerGame().getPotHandler().getPots().get(0), players);
+    pokerGame.getTheWinner(getPokerGame().getPotHandler(), players);
 
     assertEquals(createMarkersDisappearErrorMessage(players),
-        2 * PokerGame.TOTAL_MARKERS_PER_PLAYER,
-        player0.getNumberOfMarkers() + player1.getNumberOfMarkers());
+        3 * PokerGame.TOTAL_MARKERS_PER_PLAYER,
+        player0.getNumberOfMarkers() + player1.getNumberOfMarkers() + player2.getNumberOfMarkers());
 
     final int calculatedPot = calculatePot(potRaisePerPlayerTotalRound, players, bigBlindAmount);
     assertEquals(createIncorrectNumberOfMarkersForWinnerMessage(potRaisePerPlayerTotalRound, calculatedPot, player0),

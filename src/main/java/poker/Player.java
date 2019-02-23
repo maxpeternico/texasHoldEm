@@ -200,7 +200,10 @@ public abstract class Player {
     return getAction();
   }
 
-  public int getActionAmount() {
+  public int getActionAmount(boolean isBeforeFlop) {
+    if (!isBeforeFlop) {
+      return getAction().getAmount();
+    }
     if (hasBigBlind()) {
       if (getAction().getAmount() == 0) {
         return getBlindAmount();
