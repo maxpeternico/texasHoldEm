@@ -148,4 +148,16 @@ public class TestBlinds {
     return players.indexOf(optionalPlayer.get());
   }
 
+  @Test
+  public void testBlindHighBlindOldBlindPlayerGetsBrokeBeforePaying() {
+    final PokerGame pokerGame = PokerGame.getInstance();
+    List<Player> players = pokerGame.createNumberOfRobotPlayers(4, 2500);
+    pokerGame.initBlinds(players);
+    players.get(0).decreaseMarkers(2500);
+    players.get(1).decreaseMarkers(2500);
+    pokerGame.payBlinds(players, 50);
+    assertEquals(2, getIndexOfBlind(players, Player::hasLittleBlind));
+    assertEquals(3, getIndexOfBlind(players, Player::hasBigBlind));
+    pokerGame.clearGameForTests();
+  }
 }

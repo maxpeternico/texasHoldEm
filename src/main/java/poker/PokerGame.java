@@ -44,9 +44,9 @@ public class PokerGame {
     draw = Draw.BEFORE_FLOP;
     List<Player> playersStillInTheGame;
     do {
-      playersStillInTheGame = playerCanBet(players);
+      playersStillInTheGame = playersThatCanBet(players);
       playRound(playersStillInTheGame);
-    } while (!doWeHaveAWinner(playerCanBet(players)));
+    } while (!doWeHaveAWinner(playersThatCanBet(players)));
     final Player theWinner = playersStillInTheGame.get(0);
     System.out.println("Player :[" + theWinner.getName() + "] is the winner and won :[" + theWinner.getNumberOfMarkers() + "] markers.");
   }
@@ -63,7 +63,7 @@ public class PokerGame {
 
   void playRound(List<Player> players) {
     System.out.println("Blind is: [" + blind / 2 + "] resp: [" + blind + "]");
-    payBlinds(playerCanBet(players), blind);
+    payBlinds(players, blind);
 
     playBeforeFlop(players);
     increaseDraw();
@@ -102,7 +102,6 @@ public class PokerGame {
     logger.info("Player [{}] wins pot [{}] with [{}] markers.", theWinner.getName(), pot, pot.getNumberOfMarkersInAllPots());
     int totalNumberOfMarkers = 0;
     for (Player player : players) {
-      logger.info("Number of markers for :[" + player.getName() + "] : [" + player.getNumberOfMarkers() + "]");
       logger.info("Number of markers for player [{}] : [{}]", player.getName(), player.getNumberOfMarkers());
       totalNumberOfMarkers += player.getNumberOfMarkers();
     }
@@ -161,7 +160,7 @@ public class PokerGame {
     return false;
   }
 
-  private List<Player> playerCanBet(List<Player> players) {
+  private List<Player> playersThatCanBet(List<Player> players) {
     final ArrayList<Player> playersStillInTheGame = Lists.newArrayList();
     players.stream().forEach(e -> {
       if (e.hasFolded()) {
@@ -182,6 +181,8 @@ public class PokerGame {
         System.out.println("Player :[" + e.getName() + "] is all in, no bet.");
       } else if (e.hasFolded()) {
         System.out.println("Player :[" + e.getName() + "] has folded, no bet.");
+      } else if (!e.hasAnyMarkers()) {
+        System.out.println("Player :[" + e.getName() + "] has no markers and can not bet.");
       } else {
         playersStillInTheGame.add(e);
       }
@@ -241,7 +242,11 @@ public class PokerGame {
   }
 
   private int getNewBlindIndex(List<Player> players, int blindIndex) {
-    int newIndexOfBlind = (blindIndex + 1) % players.size();
+    int newIndexOfBlind;
+    int i = 1;
+    do {
+      newIndexOfBlind  = (blindIndex + i++) % players.size();
+    } while(!players.get(newIndexOfBlind).hasAnyMarkers());
     logger.trace("New blind index :[" + newIndexOfBlind + "]");
     return newIndexOfBlind;
   }
@@ -409,7 +414,7 @@ public class PokerGame {
     return false;
   }
 
-  private boolean playerCanBet(Player player) {
+  private boolean playersThatCanBet(Player player) {
     if (player.hasFolded()) {
       return false;
     }
@@ -481,7 +486,7 @@ public class PokerGame {
 
   void playPrivateHands(List<Player> players) {
     dealer.playPrivateHands();
-    decideBet(playerCanBet(players));
+    decideBet(playersThatCanBet(players));
   }
 
   void addToCommonHand(List<Card> cards) {

@@ -42,8 +42,6 @@ public class PotHandler {
         continue;
       }
       if (isLatestPot(potIndex, numberOfPots)) {
-        logger.trace("Is latest pot");
-        final int numberOfMarkersForPlayer = player.getNumberOfMarkers();
         if (canJoinPot(joinAmountLeft, amountToJoinPot)) {
           putMarkersToPot(pot, player, amountToJoinPot);
           markersPaidToPot = amountToJoinPot;
@@ -103,6 +101,7 @@ public class PotHandler {
   }
 
   private boolean isLatestPot(int potIndex, int numberOfPots) {
+    logger.trace("Is latest pot");
     return potIndex == numberOfPots;
   }
 

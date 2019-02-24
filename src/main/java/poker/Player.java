@@ -154,6 +154,7 @@ public abstract class Player {
   }
 
   public boolean hasAnyMarkers() {
+    logger.trace("Player {{}} has {{}}} number of markers. ", getName(), numberOfMarkers);
     if (numberOfMarkers > 0) {
       return true;
     }

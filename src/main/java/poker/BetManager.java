@@ -121,18 +121,20 @@ public class BetManager {
       result.append("Player " + player.getName() + " " + action.toString() + ". ");
       logger.trace("Player {{}} has made a bet", player.getName());
 
-      if (action.isRaise() || action.isAllIn()) {
-        logger.trace("Player [{}] is [{}]. ", player.getName(), action);
-        if (getPlayersFromBettingMap().indexOf(player) > 0) {
-          logger.trace("Player is not the first player in the list, create new list.");
-          return player;
+      if (!action.isFold()) {
+        if (shallPayToPot(potHandler.getPlayerPartInPots(player), maxRaiseFromAPlayer)) {
+          final int raiseOrCheckValue = player.getActionAmount(isBeforeFlop(draw));
+          potHandler.joinPot(player, raiseOrCheckValue);
+          player.decreaseMarkers(raiseOrCheckValue);
+          logger.debug("Pot size :[{}]. ", potHandler.getNumberOfMarkersInAllPots());
         }
-      }
-      if (shallPayToPot(potHandler.getPlayerPartInPots(player), maxRaiseFromAPlayer)) {
-        final int raiseOrCheckValue = player.getActionAmount(isBeforeFlop(draw));
-        potHandler.joinPot(player, raiseOrCheckValue);
-        player.decreaseMarkers(raiseOrCheckValue);
-        logger.debug("Pot size :[{}]. ", potHandler.getNumberOfMarkersInAllPots());
+        if (action.isRaise() || action.isAllIn()) {
+          logger.trace("Player [{}] is [{}]. ", player.getName(), action);
+          if (getPlayersFromBettingMap().indexOf(player) > 0) {
+            logger.trace("Player is not the first player in the list, create new list.");
+            return player;
+          }
+        }
       }
     }
     return getPlayersFromBettingMap().get(0);
