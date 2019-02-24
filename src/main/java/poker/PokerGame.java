@@ -467,8 +467,8 @@ public class PokerGame {
     dealer.setPrivateHand(player, privateHand);
   }
 
-  public void clearGame() {
-    dealer.clearGame();
+  public void clearGameForTests() {
+    dealer.clearGameForTests();
   }
 
   void setTurnForUnitTest(Draw beforeFlop) {

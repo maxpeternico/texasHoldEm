@@ -235,14 +235,16 @@ public class Dealer {
     return players;
   }
 
-  void putCardsInHandToDeck(List<Card> cardsInHand) {
-    for (Card card : cardsInHand) {
+  void putBackCardsToDeck(List<Card> cards) {
+    for (Card card : cards) {
       if (deck.contains(card)) {
-        throw new RuntimeException("Deck already contains:[" + card.toString() + "]");
+        throw new RuntimeException("Deck already contains: [" +
+            card.toString() + "] deck size: [" +
+            deck.size() + "] number of cards on hand: [" +
+            cards.size() + "]");
       }
       deck.add(card);
     }
-    cardsInHand.clear();
   }
 
   List<Card> getSkippedCards() {
@@ -412,17 +414,27 @@ public class Dealer {
   }
 
   public void putCardsBackIntoDeck() {
-    dealer.getPlayers().stream().forEach(e -> dealer.putCardsInHandToDeck(e.getPrivateHand()));
-    dealer.putCardsInHandToDeck(dealer.getCommonHand());
-    dealer.putCardsInHandToDeck(dealer.getSkippedCards());
+    logger.debug("Put back private cards to deck for all players. ");
+    for (Player player:players) {
+      putBackCardsToDeck(player.getPrivateHand());
+      player.removeCardsFromHand();
+    }
+    logger.debug("Put back common cards to deck. ");
+    putBackCardsToDeck(dealer.getCommonHand());
+    commonHand.clear();
+    logger.debug("Put back skipped cards to deck. ");
+    putBackCardsToDeck(dealer.getSkippedCards());
+    skippedCards.clear();
     if (!dealer.isDeckFull()) {
       throw new RuntimeException("Cards were lost!");
     }
   }
 
-  void clearGame() {
+  void clearGameForTests() {
+    logger.debug("Clearing tests");
     players.clear();
     deck.clear();
+    commonHand.clear();
     populateDeck();
   }
 

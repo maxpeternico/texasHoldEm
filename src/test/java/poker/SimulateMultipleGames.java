@@ -280,6 +280,6 @@ public class SimulateMultipleGames {
 
   @After
   public void resetGame() {
-    dealer.clearGame();
+    dealer.clearGameForTests();
   }
 }

@@ -18,7 +18,7 @@
         <Logger name="poker.Player" level="debug" additivity="false">
             <AppenderRef ref="Console" />
         </Logger>
-        <Logger name="poker.Dealer" level="info" additivity="false">
+        <Logger name="poker.Dealer" level="debug" additivity="false">
             <AppenderRef ref="Console" />
         </Logger>
         <Logger name="poker.Pot" level="trace" additivity="false">

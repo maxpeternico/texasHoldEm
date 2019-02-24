@@ -7,8 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TestPlayFullGame {
-
-    final PokerGame pokerGame = PokerGame.getInstance();
+  final PokerGame pokerGame = PokerGame.getInstance();
 
   @Test
   public void playUntilAPlayerWinsTheGame() {
@@ -64,7 +63,7 @@ public class TestPlayFullGame {
 
   @After
   public void clearGame() {
-    pokerGame.clearGame();
+    pokerGame.clearGameForTests();
   }
 
 

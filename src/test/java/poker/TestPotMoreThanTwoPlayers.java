@@ -78,6 +78,6 @@ public class TestPotMoreThanTwoPlayers extends TestBase {
 
   @After
   public void clearGame() {
-    pokerGame.clearGame();
+    pokerGame.clearGameForTests();
   }
 }

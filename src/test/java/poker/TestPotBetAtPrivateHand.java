@@ -270,6 +270,6 @@ public class TestPotBetAtPrivateHand extends TestBase {
 
   @After
   public void clearGame() {
-    pokerGame.clearGame();
+    pokerGame.clearGameForTests();
   }
 }

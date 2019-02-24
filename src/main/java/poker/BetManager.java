@@ -31,10 +31,10 @@ public class BetManager {
   }
 
   public String bet() {
-    Player playerWithHighestRaise = betUntilAllAreSatisfied(true);
+    Player playerWithHighestRaise = betUntilAllAreSatisfied(false);
     while(doesAnyPlayersWantToBetMore(playerWithHighestRaise)) {
       createBettingDecisionList(playerWithHighestRaise);
-      playerWithHighestRaise = betUntilAllAreSatisfied(false);
+      playerWithHighestRaise = betUntilAllAreSatisfied(true);
     }
     logger.info("Players have finished betting. ");
     return result.toString();
@@ -102,7 +102,8 @@ public class BetManager {
   Player betUntilAllAreSatisfied(boolean firstPlayerAlreadyBet) {
     for (Player player: getPlayersFromBettingMap()) {
 
-      if (!firstPlayerAlreadyBet) {
+      // If a new betting map is created due to raise of another player, list must be re-ordered with the raising player first. Player has already bet
+      if (firstPlayerAlreadyBet) {
         if (getPlayersFromBettingMap().indexOf(player) == 0) continue;
       }
       logger.debug(

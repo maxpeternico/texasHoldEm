@@ -133,6 +133,6 @@ public class TestBetting {
 
   @After
   public void clearGame() {
-    pokerGame.clearGame();
+    pokerGame.clearGameForTests();
   }
 }

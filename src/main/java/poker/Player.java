@@ -277,5 +277,9 @@ public abstract class Player {
         }
         return raiseAmount;
       }
+
+  public void removeCardsFromHand() {
+    cardsOnHand.clear();
+  }
 }
 

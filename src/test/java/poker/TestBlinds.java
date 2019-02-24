@@ -84,7 +84,7 @@ public class TestBlinds {
     assertEquals(1, getIndexOfBlind(players, Player::hasBigBlind));
     assertEquals(false, players.get(2).hasBlind());
     assertEquals(pokerGame.getPotHandler().getNumberOfMarkersInAllPots(), 75);
-    pokerGame.clearGame();
+    pokerGame.clearGameForTests();
   }
 
   @Test
@@ -95,7 +95,7 @@ public class TestBlinds {
     assertEquals(pokerGame.getPotHandler().getNumberOfMarkersInAllPots(), 0);
     pokerGame.payBlinds(players, 1200);
     assertEquals(pokerGame.getPotHandler().getNumberOfMarkersInAllPots(), 1800);
-    pokerGame.clearGame();
+    pokerGame.clearGameForTests();
   }
 
   @Test
@@ -113,7 +113,7 @@ public class TestBlinds {
     assertEquals(2, getIndexOfBlind(players, Player::hasBigBlind));
     assertEquals(false, players.get(0).hasBlind());
 
-    pokerGame.clearGame();
+    pokerGame.clearGameForTests();
   }
 
   @Test
@@ -137,7 +137,7 @@ public class TestBlinds {
     assertEquals(2, getIndexOfBlind(players, Player::hasBigBlind));
     assertEquals(false, players.get(0).hasBlind());
 
-    pokerGame.clearGame();
+    pokerGame.clearGameForTests();
   }
 
   private int getIndexOfBlind(List<Player> players, Predicate<? super Player> blindType) {
