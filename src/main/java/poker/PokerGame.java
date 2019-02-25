@@ -63,7 +63,7 @@ public class PokerGame {
 
   void playRound(List<Player> players) {
     System.out.println("Blind is: [" + blind / 2 + "] resp: [" + blind + "]");
-    payBlinds(players, blind);
+    payBlinds(playersThatCanBet(players), blind);
 
     playBeforeFlop(players);
     increaseDraw();
@@ -242,11 +242,18 @@ public class PokerGame {
   }
 
   private int getNewBlindIndex(List<Player> players, int blindIndex) {
+    // New player must have markers and must not have blind
     int newIndexOfBlind;
-    int i = 1;
+    int tempIndexOfBlind = blindIndex;
     do {
-      newIndexOfBlind  = (blindIndex + i++) % players.size();
-    } while(!players.get(newIndexOfBlind).hasAnyMarkers());
+      newIndexOfBlind = (tempIndexOfBlind + 1) % players.size();
+      tempIndexOfBlind++;
+      logger.info("Player {{}} index {{}} has markers {{}} ", players.get(newIndexOfBlind), newIndexOfBlind, players.get(newIndexOfBlind).getNumberOfMarkers());
+      if ((tempIndexOfBlind - blindIndex) > players.size()) {
+        // We've looped from all players and did not find anyone that can have blind, set original value
+        return blindIndex;
+      }
+    } while(!players.get(newIndexOfBlind).hasAnyMarkers() || players.get(newIndexOfBlind).hasLittleBlind());  // If player is new big blind player player will have both little and big blind after little blind is payed, big blind will be moved to new player in next method call
     logger.trace("New blind index :[" + newIndexOfBlind + "]");
     return newIndexOfBlind;
   }
