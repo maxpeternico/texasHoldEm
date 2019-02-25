@@ -148,4 +148,96 @@ public class TestBlinds {
     return players.indexOf(optionalPlayer.get());
   }
 
+  @Test
+  public void testPlayersWithOldBlindGetsOutOfMarkers() {
+    final PokerGame pokerGame = PokerGame.getInstance();
+    List<Player> players = pokerGame.createNumberOfRobotPlayers(4, 2500);
+    pokerGame.initBlinds(players);
+    players.get(0).decreaseMarkers(2500);
+    players.get(1).decreaseMarkers(2500);
+
+    pokerGame.payBlinds(players, 50);
+
+    assertEquals(2, getIndexOfBlind(players, Player::hasLittleBlind));
+    assertEquals(3, getIndexOfBlind(players, Player::hasBigBlind));
+    assertEquals(false, players.get(0).hasBlind());
+    assertEquals(false, players.get(1).hasBlind());
+
+    pokerGame.clearGameForTests();
+  }
+
+  @Test
+  public void testPlayersWithNewBlindGetsOutOfMarkers() {
+    final PokerGame pokerGame = PokerGame.getInstance();
+    List<Player> players = pokerGame.createNumberOfRobotPlayers(4, 2500);
+    pokerGame.initBlinds(players);
+    players.get(2).decreaseMarkers(2500);
+    players.get(3).decreaseMarkers(2500);
+
+    pokerGame.payBlinds(players, 50);
+
+    assertEquals(1, getIndexOfBlind(players, Player::hasLittleBlind));
+    assertEquals(0, getIndexOfBlind(players, Player::hasBigBlind));
+    assertEquals(false, players.get(2).hasBlind());
+    assertEquals(false, players.get(3).hasBlind());
+
+    pokerGame.clearGameForTests();
+  }
+
+  @Test
+  public void testFourPlayersEvenPlayerIndexGetsOutOfMarkers() {
+    final PokerGame pokerGame = PokerGame.getInstance();
+    List<Player> players = pokerGame.createNumberOfRobotPlayers(4, 2500);
+    pokerGame.initBlinds(players);
+    players.get(1).decreaseMarkers(2500);
+    players.get(3).decreaseMarkers(2500);
+
+    pokerGame.payBlinds(players, 50);
+
+    assertEquals(2, getIndexOfBlind(players, Player::hasLittleBlind));
+    assertEquals(0, getIndexOfBlind(players, Player::hasBigBlind));
+    assertEquals(false, players.get(1).hasBlind());
+    assertEquals(false, players.get(3).hasBlind());
+
+    pokerGame.clearGameForTests();
+  }
+
+  @Test
+  public void testAllButOnePlayersGetsOutOfMarkers() {
+    final PokerGame pokerGame = PokerGame.getInstance();
+    List<Player> players = pokerGame.createNumberOfRobotPlayers(4, 2500);
+    pokerGame.initBlinds(players);
+    players.get(0).decreaseMarkers(2500);
+    players.get(1).decreaseMarkers(2500);
+    players.get(2).decreaseMarkers(2500);
+
+    pokerGame.payBlinds(players, 50);
+
+    assertEquals(3, getIndexOfBlind(players, Player::hasLittleBlind));
+    assertEquals(false, players.get(0).hasBlind());
+    assertEquals(false, players.get(1).hasBlind());
+    assertEquals(false, players.get(2).hasBlind());
+
+    pokerGame.clearGameForTests();
+  }
+
+  @Test
+  public void testAllPlayersGetsOutOfMarkers() {
+    final PokerGame pokerGame = PokerGame.getInstance();
+    List<Player> players = pokerGame.createNumberOfRobotPlayers(4, 2500);
+    pokerGame.initBlinds(players);
+    players.get(0).decreaseMarkers(2500);
+    players.get(1).decreaseMarkers(2500);
+    players.get(2).decreaseMarkers(2500);
+    players.get(3).decreaseMarkers(2500);
+
+    pokerGame.payBlinds(players, 50);
+
+    assertEquals(false, players.get(0).hasBlind());
+    assertEquals(false, players.get(1).hasBlind());
+    assertEquals(false, players.get(2).hasBlind());
+    assertEquals(false, players.get(3).hasBlind());
+
+    pokerGame.clearGameForTests();
+  }
 }
