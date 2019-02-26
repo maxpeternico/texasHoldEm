@@ -44,9 +44,9 @@ public class PokerGame {
     draw = Draw.BEFORE_FLOP;
     List<Player> playersStillInTheGame;
     do {
+      playRound(players);
       playersStillInTheGame = playersThatCanBet(players);
-      playRound(playersStillInTheGame);
-    } while (!doWeHaveAWinner(playersThatCanBet(players)));
+    } while (!doWeHaveAWinner(playersStillInTheGame));
     final Player theWinner = playersStillInTheGame.get(0);
     System.out.println("Player :[" + theWinner.getName() + "] is the winner and won :[" + theWinner.getNumberOfMarkers() + "] markers.");
   }
@@ -63,7 +63,7 @@ public class PokerGame {
 
   void playRound(List<Player> players) {
     System.out.println("Blind is: [" + blind / 2 + "] resp: [" + blind + "]");
-    payBlinds(playersThatCanBet(players), blind);
+    payBlinds(players, blind);
 
     playBeforeFlop(players);
     increaseDraw();
