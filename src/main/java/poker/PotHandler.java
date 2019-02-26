@@ -95,6 +95,9 @@ public class PotHandler {
 
   private void createNewPot(Player player, int joinAmount, int joinAmountLeft, List<Pot> newPots, int markersPaidToPot) {
     logger.trace("Player {{}} raises with {{}} markers, creating new pot. ", player.getName(), joinAmount - markersPaidToPot);
+    if (joinAmount - markersPaidToPot <= 0) {
+      System.out.println("Remove this later");
+    }
     final Pot newPotForRestOfJoinAmount = new Pot();
     newPotForRestOfJoinAmount.addMember(player, joinAmountLeft-markersPaidToPot);
     newPots.add(newPotForRestOfJoinAmount);
