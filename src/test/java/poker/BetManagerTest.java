@@ -207,6 +207,47 @@ public class BetManagerTest extends TestBase {
         , decision);
   }
 
+  @Test
+  public void testBetUntilThreePlayerAllIn() {
+    List<Player> playerList = Lists.newArrayList();
+    Player peter = Mockito.mock(Player.class);
+    when(peter.getName()).thenReturn("Peter");
+    Player thomas = Mockito.mock(Player.class);
+    when(thomas.getName()).thenReturn("Thomas");
+    Player anders = Mockito.mock(Player.class);
+    when(anders.getName()).thenReturn("Anders");
+    playerList.add(peter);
+    playerList.add(thomas);
+    playerList.add(anders);
+    when(peter.decideAction(Matchers.any(Draw.class), anyInt(), anyList(), anyInt(),anyInt())).thenReturn(
+        new Action(ActionEnum.ALL_IN)).thenReturn(
+        new Action(ActionEnum.ALL_IN));
+    when(peter.getAction()).thenReturn(new Action(ActionEnum.ALL_IN)).thenReturn(new Action(ActionEnum.ALL_IN));
+    when(peter.isAllIn()).thenReturn(true);
+    when(peter.hasFolded()).thenReturn(false);
+
+    when(thomas.decideAction(Matchers.any(Draw.class), anyInt(), anyList(), anyInt(),anyInt())).thenReturn(
+        new Action(ActionEnum.ALL_IN)).thenReturn(
+            new Action(ActionEnum.ALL_IN));
+    when(thomas.getAction()).thenReturn(new Action(ActionEnum.ALL_IN)).thenReturn(new Action(ActionEnum.ALL_IN));
+    when(thomas.isAllIn()).thenReturn(true);
+    when(thomas.hasFolded()).thenReturn(false);
+
+    when(anders.decideAction(Matchers.any(Draw.class), anyInt(), anyList(), anyInt(),anyInt())).thenReturn(
+        new Action(ActionEnum.ALL_IN));
+    when(anders.getAction()).thenReturn(new Action(ActionEnum.ALL_IN));
+    when(anders.isAllIn()).thenReturn(true);
+    when(anders.hasFolded()).thenReturn(false);
+
+
+    List<Card> commonHand = getBadFlop();
+    final BetManager betManager = new BetManager(playerList, Draw.BEFORE_FLOP, commonHand, 50, new PotHandler());
+    final String decision = betManager.bet();
+    assertEquals(
+        "Player Peter Action :[ALL_IN]. Player Thomas Action :[ALL_IN]. Player Anders Action :[ALL_IN]. "
+        , decision);
+  }
+
   @Override
   protected PokerGame getPokerGame() {
     return pokerGame;

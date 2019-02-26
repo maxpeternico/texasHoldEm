@@ -95,9 +95,10 @@ public class RobotPlayer extends Player {
     // If player has no more markers player need to go all in
     if (strategy.equals(ALL_IN) || needToGoAllIn(raiseAmount)) {
       action = new Action(ActionEnum.ALL_IN);
-      action.setAmount(raiseAmount); // TODO: number of markers?
+      final int numberOfAllMarkers = getNumberOfMarkers();
+      action.setAmount(numberOfAllMarkers); // TODO: number of markers?
       logger.trace("Set raise amount for player {{}} to {{}}", getName(), raiseAmount);
-      partInPot += raiseAmount;
+      partInPot += numberOfAllMarkers;
     } else if (raiseAmount > maxRaiseFromAPlayer) {
       action = new Action(ActionEnum.RAISE);
       action.setAmount(raiseAmount);
@@ -109,7 +110,13 @@ public class RobotPlayer extends Player {
       logger.trace("Set raise amount for player {{}} to {{}}", getName(), maxRaiseFromAPlayer);
       partInPot += maxRaiseFromAPlayer;
     } else {
-      action = new Action(ActionEnum.FOLD);
+      // If player has played big blind and no one is raises there is no need to fold
+      if (hasBigBlind() && maxRaiseFromAPlayer == 0) {
+        action = new Action(ActionEnum.CHECK);
+      } else
+      {
+        action = new Action(ActionEnum.FOLD);
+      }
     }
   }
 

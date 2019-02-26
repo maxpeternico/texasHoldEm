@@ -101,7 +101,7 @@ public class PotHandler {
   }
 
   private boolean isLatestPot(int potIndex, int numberOfPots) {
-    logger.trace("Is latest pot");
+    logger.trace("PotIndex {{}} is latest pot. Number of pots : {{}}", potIndex, numberOfPots);
     return potIndex == numberOfPots;
   }
 
