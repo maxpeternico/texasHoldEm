@@ -7,6 +7,8 @@ import java.util.Map;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
+import static poker.ActionEnum.ALL_IN;
+
 public abstract class Player {
 
   private String name;
@@ -212,7 +214,9 @@ public abstract class Player {
       if (getAction().getAmount() >= getBlindAmount()) {
         return getAction().getAmount() - getBlindAmount();
       }
-      throw new RuntimeException("Action amount [" + getAction().getAmount() + " must be higher than big blind amount [" + getBlindAmount() + "]");
+      if (!getAction().equals(ALL_IN)) {
+        throw new RuntimeException("Action amount [" + getAction().getAmount() + " must be higher than big blind amount [" + getBlindAmount() + "]");
+      }
     }
     if (hasLittleBlind()) {
       if (getAction().getAmount() == 0) {
@@ -221,7 +225,9 @@ public abstract class Player {
       if (getAction().getAmount() >= getBlindAmount()) {
         return getAction().getAmount() - getBlindAmount();
       }
-      throw new RuntimeException("Action amount [" + getAction().getAmount() + " must be higher than big blind amount [" + 2 * getBlindAmount() + "]");
+      if (!getAction().equals(ALL_IN)) {
+        throw new RuntimeException("Action amount [" + getAction().getAmount() + " must be higher than little blind amount [" + 2 * getBlindAmount() + "]");
+      }
     }
     if (getAction().isFold()) {
       return 0;

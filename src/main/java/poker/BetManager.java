@@ -26,8 +26,9 @@ public class BetManager {
     this.commonHand = commonHand;
     this.blind = blind;
     this.potHandler = potHandler;
-    this.maxRaiseFromAPlayer = potHandler.getMaxMarkersForAnyPlayer();
+    this.maxRaiseFromAPlayer = potHandler.getHighestRaise();
     initCreateBettingDecisionList(playerList);
+    logger.debug("Creating new betManager with highest raise: {{}}", maxRaiseFromAPlayer);
   }
 
   public String bet() {

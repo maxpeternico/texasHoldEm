@@ -10,6 +10,7 @@ import com.google.common.collect.Lists;
 public class PotHandler {
 
   private List<Pot> pots = Lists.newArrayList();
+  private int highestRaise = 0;
   private static final Logger logger = LogManager.getLogger(PotHandler.class);
 
   public PotHandler() {
@@ -23,7 +24,15 @@ public class PotHandler {
   Result: 5 pots 100, 200, 10, 40, 50, 100
    */
 
+  public int getHighestRaise() {
+    return highestRaise;
+  }
+
   public void joinPot(Player player, int joinAmount) {
+    if (joinAmount > highestRaise) {
+      logger.trace("New highest raise: {{}}", highestRaise);
+      highestRaise = joinAmount;
+    }
     int joinAmountLeft = joinAmount;
     int amountToJoinPot = 0;
 
@@ -102,6 +111,9 @@ public class PotHandler {
 
   private boolean isLatestPot(int potIndex, int numberOfPots) {
     logger.trace("PotIndex {{}} is latest pot. Number of pots : {{}}", potIndex, numberOfPots);
+    if (numberOfPots == 20) {
+      System.out.println("Remove this later");
+    }
     return potIndex == numberOfPots;
   }
 
@@ -179,6 +191,7 @@ public class PotHandler {
   public void clear() {
     pots.clear();
     pots.add(new Pot());
+    highestRaise = 0;
   }
 
   public int getNumberOfMarkersInAllPots() {
