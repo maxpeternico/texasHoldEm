@@ -204,6 +204,7 @@ public class RobotPlayer extends Player {
   private int calculateTotalHandPoints(List<Card> totalHand) {
     final Map<Card, PokerResult> totalPointsMap = EvaluationHandler.evaluateHand("common", totalHand);
     int totalHandPoints = EvaluationHandler.getResultFromCardPokerResultMap(totalPointsMap).getPoints();
+    logger.trace("Total hand result for player {{}} : {{}}", getName(), EvaluationHandler.calculateResultFromHand(totalHand));
     return totalHandPoints;
   }
 

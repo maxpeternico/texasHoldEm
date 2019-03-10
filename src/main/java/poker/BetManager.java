@@ -108,9 +108,8 @@ public class BetManager {
         if (getPlayersFromBettingMap().indexOf(player) == 0) continue;
       }
       logger.debug(
-          "player :[{}] action [{}] maxRaiseFromOtherPlayer:[{}] numbersOfMarkers :[{}]",
+          "player :[{}] maxRaiseFromOtherPlayer:[{}] numbersOfMarkers :[{}]",
           player.getName(),
-          player.getAction(),
           maxRaiseFromAPlayer,
           player.getNumberOfMarkers());
 
@@ -150,12 +149,12 @@ public class BetManager {
 
   private boolean shallPayToPot(int numberOfMarkersForPlayerInPot, int maxRaiseFromAPlayer) {
     logger.trace("Number of markers for player in pot {{}} maxRaiseFromAPlayer {{}} ", numberOfMarkersForPlayerInPot, maxRaiseFromAPlayer);
-    if (numberOfMarkersForPlayerInPot == maxRaiseFromAPlayer) {
-      logger.trace("Player shall not pay to pot.");
-      return false;
+    if (numberOfMarkersForPlayerInPot < maxRaiseFromAPlayer) {
+      logger.trace("Player shall pay to pot.");
+      return true;
     }
-    logger.trace("Player shall pay to pot.");
-    return true;
+    logger.trace("Player shall not pay to pot.");
+    return false;
   }
 
   private int calculatePlayersAfter() {

@@ -31,28 +31,28 @@ public class TestPotBetAtFlop extends TestBase {
     prepareBeforeFlop(players, bigBlindAmount, privateHands);
     String decision = pokerGame.playBeforeFlop(players);
     assertEquals("Player Thomas Action :[CHECK]. Player Jörn Action :[CHECK]. ", decision);
-    int potRaisePerPlayerBeforeFlop = 0;
+    int potRaisePerPlayerBeforeFlop = 50;
     int potRaisePerPlayerTotalRound = potRaisePerPlayerBeforeFlop;
     assertMarkersForPlayers(players);
 
-    prepareFlop(getBadFlop());
+    prepareFlop(getFlopWithNineAndKnight());
     decision = pokerGame.playBeforeFlop(players);
     assertEquals("Player Thomas Action :[RAISE]. Player Jörn Action :[CHECK]. ", decision);
-    int potRaisePerPlayerFlop = 50;
+    int potRaisePerPlayerFlop = 100;
     potRaisePerPlayerTotalRound = potRaisePerPlayerTotalRound + potRaisePerPlayerFlop;
     assertMarkersForPlayers(players);
 
-    prepareTurn(Color.hearts, Ordinal.queen);
+    prepareTurn(Color.hearts, Ordinal.king);
     decision = pokerGame.playTurn(players);
-    assertEquals("Player Thomas Action :[RAISE]. Player Jörn Action :[CHECK]. ", decision);
-    int potRaisePerPlayerTurn = 200;
+    assertEquals("Player Thomas Action :[CHECK]. Player Jörn Action :[CHECK]. ", decision);
+    int potRaisePerPlayerTurn = 0;
     potRaisePerPlayerTotalRound = potRaisePerPlayerTotalRound + potRaisePerPlayerTurn;
     assertMarkersForPlayers(players);
 
-    prepareRiver(Color.spades, Ordinal.two);
+    prepareRiver(Color.spades, Ordinal.five);
     decision = pokerGame.playRiver(players);
-    assertEquals("Player Thomas Action :[RAISE]. Player Jörn Action :[CHECK]. ", decision);
-    final int potRaiseRiver = 200;
+    assertEquals("Player Thomas Action :[CHECK]. Player Jörn Action :[CHECK]. ", decision);
+    final int potRaiseRiver = 0;
     potRaisePerPlayerTotalRound = potRaisePerPlayerTotalRound + potRaiseRiver;
     assertMarkersForPlayers(players);
 
@@ -69,6 +69,7 @@ public class TestPotBetAtFlop extends TestBase {
     assertEquals(createIncorrectNumberOfMarkersForWinnerMessage(potRaisePerPlayerTotalRound, calculatedPot, player0),
                  player0NumberOfMarkersAfterRound + calculatedPot,
                  player0.getNumberOfMarkers());
+
     assertEquals(player1NumberOfMarkersAfterRound, player1.getNumberOfMarkers());
     pokerGame.resetTurn(players);
   }

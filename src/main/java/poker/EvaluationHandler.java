@@ -492,4 +492,15 @@ public class EvaluationHandler {
     final PokerResult pokerResult = cardPokerResultMap.get(iterator.next());
     return pokerResult.getPoints();
   }
+
+  public static String calculateResultFromHand(List<Card> totalHand) {
+    final Map<Card, PokerResult> cardPokerResultMap = evaluateHand("Player", totalHand);
+    final Iterator<Map.Entry<Card, PokerResult>> iterator = cardPokerResultMap.entrySet().iterator();
+    StringBuilder result = new StringBuilder();
+    while (iterator.hasNext()) {
+      final PokerResult pokerResult = iterator.next().getValue();
+      result.append(pokerResult.getPokerHand().name());
+    }
+    return result.toString();
+  }
 }

@@ -142,6 +142,7 @@ public class PokerGame {
 
   String playBeforeFlop(List<Player> players) {
     dealer.playPrivateHands();
+    logger.info("Total hand before flop: ");
     printHumanHand();
     return decideBet(players);
   }

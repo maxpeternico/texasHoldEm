@@ -218,4 +218,12 @@ public abstract class TestBase {
     cards.add(drawCard(Color.hearts, Ordinal.two));
     return cards;
   }
+
+  protected List<Card> getFlopWithNineAndKnight() {
+    final ArrayList<Card> cards = Lists.newArrayList();
+    cards.add(drawCard(Color.diamonds, Ordinal.knight));
+    cards.add(drawCard(Color.clubs, Ordinal.nine));
+    cards.add(drawCard(Color.hearts, Ordinal.two));
+    return cards;
+  }
 }
