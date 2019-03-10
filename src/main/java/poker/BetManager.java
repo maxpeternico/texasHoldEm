@@ -112,7 +112,10 @@ public class BetManager {
           player.getName(),
           maxRaiseFromAPlayer,
           player.getNumberOfMarkers());
-
+      if (player.hasBlind() && !player.hasAnyMarkers()) {
+        logger.debug("Player {{}} is all in and has already paid to pot", player.getName());
+        continue;
+      }
       Action action = player.decideAction(draw, calculatePlayersAfter(), commonHand, blind, maxRaiseFromAPlayer);
       if (action.getAmount() > maxRaiseFromAPlayer) {
         maxRaiseFromAPlayer = action.getAmount();
