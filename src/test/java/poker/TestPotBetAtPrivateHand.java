@@ -34,9 +34,7 @@ public class TestPotBetAtPrivateHand extends TestBase {
     prepareBeforeFlop(players, bigBlindAmount, privateHands);
     String decision = pokerGame.playBeforeFlop(players);
     assertEquals("Player Thomas Action :[ALL_IN]. Player Jörn Action :[FOLD]. ", decision);
-    assertEquals(2525, getPokerGame().getPotHandler().getNumberOfMarkersInAllPots());
-    assertEquals(0, player0.getNumberOfMarkers());
-    assertEquals(2475, player1.getNumberOfMarkers());
+    assertEquals(2475, getPokerGame().getPotHandler().getNumberOfMarkersInAllPots());
 
     // No turn or river since only one player left
 
