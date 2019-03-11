@@ -21,7 +21,7 @@ public class BetManagerTest extends TestBase {
   public void testBettingMap() {
     List<Player> playerList = pokerGame.createNumberOfRobotPlayers(4, 2500);
     List<Card> commonHand = null;
-    final BetManager betManager = new BetManager(playerList, Draw.BEFORE_FLOP, commonHand, 50, new PotHandler());
+    final BetManager betManager = new BetManager(playerList,50, new PotHandler());
     betManager.createBettingDecisionList(new RobotPlayer("Jörn", 2500));
     Map<Player, Boolean> bettingMap = betManager.getBettingMap();
     assertEquals( "Jörn", getNameFromBettingMapIndex(bettingMap, 0));
@@ -57,7 +57,7 @@ public class BetManagerTest extends TestBase {
   public void testBetUntilAllAreSatisfiedNoOneRaises() {
     List<Player> playerList = pokerGame.createNumberOfRobotPlayers(4, 2500);
     List<Card> commonHand = getBadFlop();
-    final BetManager betManager = new BetManager(playerList, Draw.BEFORE_FLOP, commonHand, 50, new PotHandler());
+    final BetManager betManager = new BetManager(playerList, 50, new PotHandler());
     betManager.createBettingDecisionList(playerList.get(0));
     final Player player = betManager.betUntilAllAreSatisfied(false);
     assertEquals(player, playerList.get(0));
@@ -85,7 +85,7 @@ public class BetManagerTest extends TestBase {
         .thenReturn(new Action(ActionEnum.RAISE))
         .thenReturn(new Action(ActionEnum.CHECK));
     List<Card> commonHand = getBadFlop();
-    final BetManager betManager = new BetManager(playerList, Draw.BEFORE_FLOP, commonHand, 50, new PotHandler());
+    final BetManager betManager = new BetManager(playerList, 50, new PotHandler());
     betManager.createBettingDecisionList(playerList.get(0));
     final Player player = betManager.betUntilAllAreSatisfied(false);
     assertEquals("Thomas", player.getName());
@@ -140,7 +140,7 @@ public class BetManagerTest extends TestBase {
     when(staffan.isAllIn()).thenReturn(false);
 
     List<Card> commonHand = getBadFlop();
-    final BetManager betManager = new BetManager(playerList, Draw.BEFORE_FLOP, commonHand, 50, new PotHandler());
+    final BetManager betManager = new BetManager(playerList, 50, new PotHandler());
     String decision = betManager.bet();
     assertEquals(
         "Player Peter Action :[CHECK]. Player Thomas Action :[CHECK]. Player Anders Action :[FOLD]. Player Bosse Action :[ALL_IN]. Player Staffan Action :[CHECK]. Player Peter Action :[CHECK]. Player Thomas Action :[CHECK]. "
@@ -200,7 +200,7 @@ public class BetManagerTest extends TestBase {
     when(staffan.hasFolded()).thenReturn(false);  // ,    staffan, Peter, thomas, bosse
 
     List<Card> commonHand = getBadFlop();
-    final BetManager betManager = new BetManager(playerList, Draw.BEFORE_FLOP, commonHand, 50, new PotHandler());
+    final BetManager betManager = new BetManager(playerList, 50, new PotHandler());
     final String decision = betManager.bet();
     assertEquals(
         "Player Peter Action :[RAISE]. Player Thomas Action :[RAISE]. Player Anders Action :[FOLD]. Player Bosse Action :[ALL_IN]. Player Staffan Action :[RAISE]. Player Peter Action :[CHECK]. Player Thomas Action :[CHECK]. "
@@ -241,7 +241,7 @@ public class BetManagerTest extends TestBase {
 
 
     List<Card> commonHand = getBadFlop();
-    final BetManager betManager = new BetManager(playerList, Draw.BEFORE_FLOP, commonHand, 50, new PotHandler());
+    final BetManager betManager = new BetManager(playerList, 50, new PotHandler());
     final String decision = betManager.bet();
     assertEquals(
         "Player Peter Action :[ALL_IN]. Player Thomas Action :[ALL_IN]. Player Anders Action :[ALL_IN]. "

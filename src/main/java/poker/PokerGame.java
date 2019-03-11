@@ -23,6 +23,7 @@ public class PokerGame {
   static final int TOTAL_MARKERS_PER_PLAYER = 2500;
   private Draw draw;
   private PotHandler potHandler = new PotHandler();
+  private BetManager betManager;
 
   public static void main(String[] args) {
     final PokerGame pokerGame = getInstance();
@@ -62,6 +63,7 @@ public class PokerGame {
   }
 
   void playRound(List<Player> players) {
+    betManager = new BetManager(players, blind, potHandler);
     System.out.println("Blind is: [" + blind / 2 + "] resp: [" + blind + "]");
     payBlinds(players, blind);
     logger.debug("Start play before flop. ");
@@ -120,21 +122,24 @@ public class PokerGame {
   }
 
   String playRiver(List<Player> players) {
-    dealer.drawRiver();
+    final List<Card> riverCard = dealer.drawRiver();
+    betManager.addRiverCardToCommonHand(riverCard);
     logger.info("Total hand after river: ");
     printHumanHand();
     return decideBet(players);
   }
 
   String playTurn(List<Player> players) {
-    dealer.drawTurn();
+    final List<Card> turnCard = dealer.drawTurn();
+    betManager.addTurnCardToCommonHand(turnCard);
     logger.info("Total hand after draw: ");
     printHumanHand();
     return decideBet(players);
   }
 
   String playFlop(List<Player> players) {
-    dealer.drawFlop();
+    final List<Card> flopCards = dealer.drawFlop();
+    betManager.addFlopCardsToCommonhand(flopCards);
     logger.info("Total hand after flop: ");
     printHumanHand();
     return decideBet(players);
@@ -324,23 +329,6 @@ public class PokerGame {
     return humanPlayer;
   }
 
-  void increaseDraw() {
-    switch (draw) {
-      case BEFORE_FLOP:
-        draw = Draw.FLOP;
-        break;
-      case FLOP:
-        draw = Draw.TURN;
-        break;
-      case TURN:
-        draw = Draw.RIVER;
-        break;
-      case RIVER:
-        draw = Draw.BEFORE_FLOP;
-        break;
-    }
-  }
-
   int increaseBlind() {
     return blind * 2;
   }
@@ -366,7 +354,6 @@ public class PokerGame {
       // A player already won
       return "";
     }
-    final BetManager betManager = new BetManager(remainingPlayers, draw, dealer.getCommonHand(), blind, potHandler);
     return betManager.bet();
   }
 
@@ -520,4 +507,19 @@ public class PokerGame {
     return this.potHandler;
   }
 
+  void setBetManager(BetManager betManagerForTest) {
+    betManager = betManagerForTest;
+  }
+
+  public void setFlopToBetManager(List<Card> flopCardForTest) {
+    betManager.addFlopCardsToCommonhand(flopCardForTest);
+  }
+
+  public void updateTurnForBetManager() {
+    betManager.updateTurn();
+  }
+
+  public void increaseDraw() {
+    draw = Draw.increaseDraw(draw);
+  }
 }

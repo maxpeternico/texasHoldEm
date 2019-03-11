@@ -86,9 +86,10 @@ public class Dealer {
     }
   }
 
-  private void dealCommon(int numberOfCards) {
+  private List<Card> dealCommon(int numberOfCards) {
     List<Card> drawnCards = dealRandomCard(numberOfCards);
     commonHand.addAll(drawnCards);
+    return drawnCards;
   }
 
   private boolean isCommonHandForFlopTest() {
@@ -142,30 +143,30 @@ public class Dealer {
     return player.evaluateHand(commonHand);
   }
 
-  void drawFlop() {
+  List<Card> drawFlop() {
     if (isCommonHandForFlopTest()) {
-      return;
+      return null;
     }
     skipCard();
-    dealCommon(NUMBER_OF_CARD_FOR_FLOP);
+    return dealCommon(NUMBER_OF_CARD_FOR_FLOP);
 //    dealCommon(NUMBER_OF_CARD_FOR_FLOP - getEventuallyReservedCardsForFlop());
   }
 
-  void drawRiver() {
+  List<Card> drawRiver() {
     if (isCommonHandForRiverTest()) {
-      return;
+      return null;
     }
     skipCard();
-    dealCommon(NUMBER_OF_CARD_FOR_RIVER);
+    return dealCommon(NUMBER_OF_CARD_FOR_RIVER);
   }
 
-  void drawTurn() {
+  List<Card> drawTurn() {
     if (isCommonHandForTurnTest()) {
-      return;
+      return null;
     }
 
     skipCard();
-    dealCommon(NUMBER_OF_CARD_FOR_TURN);
+    return dealCommon(NUMBER_OF_CARD_FOR_TURN);
   }
 
   private void skipCard() {

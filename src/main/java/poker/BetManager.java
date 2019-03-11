@@ -1,5 +1,6 @@
 package poker;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,25 +11,37 @@ import java.util.stream.Collectors;
 
 public class BetManager {
   private final int blind;
-  List<Player> playerList;
+  private List<Player> playerList;
   private Map<Player, Boolean> bettingMap = Maps.newLinkedHashMap();
-  private Draw draw;
-  private List<Card> commonHand;
+  private Draw draw = Draw.BEFORE_FLOP;
+  private List<Card> commonHand = Lists.newArrayList();
   private PotHandler potHandler;
   private int maxRaiseFromAPlayer;
   private static final Logger logger = LogManager.getLogger(BetManager.class);
   private StringBuffer result = new StringBuffer();
 
 
-  public BetManager(List<Player> playerList, Draw draw, List<Card> commonHand, int blind, PotHandler potHandler) {
+  public BetManager(List<Player> playerList,
+                    int blind,
+                    PotHandler potHandler) {
     this.playerList = playerList;
-    this.draw = draw;
-    this.commonHand = commonHand;
     this.blind = blind;
     this.potHandler = potHandler;
-    this.maxRaiseFromAPlayer = potHandler.getHighestRaise();
+    this.maxRaiseFromAPlayer = 0;
     initCreateBettingDecisionList(playerList);
     logger.debug("Creating new betManager with highest raise: {{}}", maxRaiseFromAPlayer);
+  }
+
+  public void addFlopCardsToCommonhand(List<Card> flopCards) {
+    commonHand.addAll(flopCards);
+  }
+
+  public void addRiverCardToCommonHand(List<Card> riverCard) {
+    commonHand.addAll(riverCard);
+  }
+
+  public void addTurnCardToCommonHand(List<Card> riverCard) {
+    commonHand.addAll(riverCard);
   }
 
   public String bet() {
@@ -166,5 +179,9 @@ public class BetManager {
 
   public Map<Player, Boolean> getBettingMap() {
     return bettingMap;
+  }
+
+  public void updateTurn() {
+    draw = Draw.increaseDraw(draw);
   }
 }
