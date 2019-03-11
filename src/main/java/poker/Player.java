@@ -204,6 +204,9 @@ public abstract class Player {
   }
 
   public int getActionAmount(boolean isBeforeFlop) {
+    if (isAllIn()) {
+      return getAction().getAmount();
+    }
     if (!isBeforeFlop) {
       return getAction().getAmount();
     }
