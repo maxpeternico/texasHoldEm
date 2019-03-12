@@ -18,7 +18,7 @@ public class BetManager {
   private PotHandler potHandler;
   private int maxRaiseFromAPlayer;
   private static final Logger logger = LogManager.getLogger(BetManager.class);
-  private StringBuffer result = new StringBuffer();
+  private StringBuffer result = null;
 
 
   public BetManager(List<Player> playerList,
@@ -45,6 +45,7 @@ public class BetManager {
   }
 
   public String bet() {
+    result = new StringBuffer();
     Player playerWithHighestRaise = betUntilAllAreSatisfied(false);
     while(doesAnyPlayersWantToBetMore(playerWithHighestRaise)) {
       createBettingDecisionList(playerWithHighestRaise);
