@@ -107,8 +107,16 @@ public abstract class TestBase {
     getPokerGame().addToCommonHand(Arrays.asList(drawCard(hearts, queen)));
   }
 
+  protected void prepareRiver(List<Card> riverCard) {
+    prepareTurn(riverCard.get(0).getColor(), riverCard.get(0).getOrdinal());
+  }
+
+  protected void prepareTurn(List<Card> turnCard) {
+    prepareTurn(turnCard.get(0).getColor(), turnCard.get(0).getOrdinal());
+  }
+
   protected List<Card> drawPairOfKnightsNegative() {
-    final ArrayList<Card> hand = Lists.newArrayList();
+    final List<Card> hand = Lists.newArrayList();
     final Card aceOfHearts = drawCard(Color.hearts, Ordinal.knight);
     hand.add(aceOfHearts);
     final Card aceOfSpades = drawCard(Color.spades, Ordinal.queen);
@@ -117,7 +125,7 @@ public abstract class TestBase {
   }
 
   protected List<Card> drawPairOfKnightsAtFlop() {
-    final ArrayList<Card> hand = Lists.newArrayList();
+    final List<Card> hand = Lists.newArrayList();
     final Card aceOfHearts = drawCard(Color.spades, Ordinal.knight);
     hand.add(aceOfHearts);
     final Card aceOfSpades = drawCard(Color.spades, Ordinal.queen);

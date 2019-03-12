@@ -523,11 +523,11 @@ public class PokerGame {
     draw = Draw.increaseDraw(draw);
   }
 
-  public void setTurnToBetManager(ArrayList<Card> turnCard) {
+  public void setTurnToBetManager(List<Card> turnCard) {
     betManager.addTurnCardToCommonHand(turnCard);
   }
 
-  public void setRiverToBetManager(ArrayList<Card> riverCard) {
+  public void setRiverToBetManager(List<Card> riverCard) {
     betManager.addRiverCardToCommonHand(riverCard);
   }
 }

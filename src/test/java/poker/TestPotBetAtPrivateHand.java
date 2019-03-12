@@ -1,12 +1,12 @@
 package poker;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.google.common.collect.Lists;
 import org.junit.After;
 import org.junit.Test;
+
+import com.google.common.collect.Lists;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -172,7 +172,7 @@ public class TestPotBetAtPrivateHand extends TestBase {
     assertEquals(2400, player0.getNumberOfMarkers());
     assertEquals(2400, player1.getNumberOfMarkers());
 
-    final ArrayList<Card> turnCard = Lists.newArrayList(new Card(Color.hearts, Ordinal.queen));
+    final List<Card> turnCard = Lists.newArrayList(new Card(Color.hearts, Ordinal.queen));
     prepareTurn(turnCard);
     pokerGame.setTurnToBetManager(turnCard);
     pokerGame.updateTurnForBetManager();
@@ -182,7 +182,7 @@ public class TestPotBetAtPrivateHand extends TestBase {
     assertEquals(2400, player0.getNumberOfMarkers());
     assertEquals(2400, player1.getNumberOfMarkers());
 
-    final ArrayList<Card> riverCard = Lists.newArrayList(new Card(Color.spades, Ordinal.five));
+    final List<Card> riverCard = Lists.newArrayList(new Card(Color.spades, Ordinal.five));
     prepareRiver(riverCard);
     pokerGame.setRiverToBetManager(riverCard);
     pokerGame.updateTurnForBetManager();
@@ -198,14 +198,6 @@ public class TestPotBetAtPrivateHand extends TestBase {
     assertEquals(2400, player1.getNumberOfMarkers());
 
     pokerGame.resetTurn(players);
-  }
-
-  private void prepareRiver(ArrayList<Card> riverCard) {
-    prepareTurn(riverCard.get(0).getColor(), riverCard.get(0).getOrdinal());
-  }
-
-  private void prepareTurn(ArrayList<Card> turnCard) {
-    prepareTurn(turnCard.get(0).getColor(), turnCard.get(0).getOrdinal());
   }
 
   @Test

@@ -2,9 +2,10 @@ package poker;
 
 import java.util.List;
 
-import com.google.common.collect.Lists;
 import org.junit.After;
 import org.junit.Test;
+
+import com.google.common.collect.Lists;
 
 import static org.junit.Assert.assertEquals;
 
@@ -27,32 +28,46 @@ public class TestPotBetAtFlop extends TestBase {
     List<List<Card>> privateHands = Lists.newArrayList();
     privateHands.add(drawPairOfNinesAtFlop());
     privateHands.add(drawPairOfKnightsAtFlop());
-
     prepareBeforeFlop(players, bigBlindAmount, privateHands);
-    String decision = pokerGame.playBeforeFlop(players);
-    assertEquals("Player Thomas Action :[CHECK]. Player Jörn Action :[CHECK]. ", decision);
+
+    BetManager betManager = new BetManager(players, 50, pokerGame.getPotHandler());
+    pokerGame.setBetManager(betManager);
+    String decision = pokerGame.decideBet(players);
+
+    assertEquals("Player Thomas Action :[RAISE]. Player Jörn Action :[CHECK]. ", decision);
     int potRaisePerPlayerBeforeFlop = 50;
     int potRaisePerPlayerTotalRound = potRaisePerPlayerBeforeFlop;
     assertMarkersForPlayers(players);
 
-    prepareFlop(getFlopWithNineAndKnight());
-    decision = pokerGame.playBeforeFlop(players);
+    final List<Card> flop = getFlopWithNineAndKnight();
+    prepareFlop(flop);
+    pokerGame.setFlopToBetManager(flop);
+    pokerGame.updateTurnForBetManager();
+    decision = pokerGame.decideBet(players);
+
     assertEquals("Player Thomas Action :[RAISE]. Player Jörn Action :[CHECK]. ", decision);
     int potRaisePerPlayerFlop = 100;
     potRaisePerPlayerTotalRound = potRaisePerPlayerTotalRound + potRaisePerPlayerFlop;
     assertMarkersForPlayers(players);
 
-    prepareTurn(Color.hearts, Ordinal.king);
-    decision = pokerGame.playTurn(players);
+    final List<Card> turnCard = Lists.newArrayList(new Card(Color.spades, Ordinal.five));
+    prepareTurn(turnCard);
+    pokerGame.setTurnToBetManager(turnCard);
+    pokerGame.updateTurnForBetManager();
+    decision = pokerGame.decideBet(players);
+
     assertEquals("Player Thomas Action :[CHECK]. Player Jörn Action :[CHECK]. ", decision);
     int potRaisePerPlayerTurn = 0;
     potRaisePerPlayerTotalRound = potRaisePerPlayerTotalRound + potRaisePerPlayerTurn;
     assertMarkersForPlayers(players);
 
-    prepareRiver(Color.spades, Ordinal.five);
-    decision = pokerGame.playRiver(players);
-    assertEquals("Player Thomas Action :[CHECK]. Player Jörn Action :[CHECK]. ", decision);
-    final int potRaiseRiver = 0;
+    final List<Card> riverCard = Lists.newArrayList(new Card(Color.hearts, Ordinal.queen));
+    prepareRiver(riverCard);
+    pokerGame.setRiverToBetManager(riverCard);
+    pokerGame.updateTurnForBetManager();
+    decision = pokerGame.decideBet(players);
+    assertEquals("Player Thomas Action :[RAISE]. Player Jörn Action :[CHECK]. ", decision);
+    final int potRaiseRiver = 200;
     potRaisePerPlayerTotalRound = potRaisePerPlayerTotalRound + potRaiseRiver;
     assertMarkersForPlayers(players);
 
