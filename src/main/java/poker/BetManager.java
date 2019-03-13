@@ -185,4 +185,6 @@ public class BetManager {
   public void updateTurn() {
     draw = Draw.increaseDraw(draw);
   }
+
+  void initResult() { result = new StringBuffer(); }
 }

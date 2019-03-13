@@ -59,6 +59,7 @@ public class BetManagerTest extends TestBase {
     List<Card> commonHand = getBadFlop();
     final BetManager betManager = new BetManager(playerList, 50, new PotHandler());
     betManager.createBettingDecisionList(playerList.get(0));
+    betManager.initResult();
     final Player player = betManager.betUntilAllAreSatisfied(false);
     assertEquals(player, playerList.get(0));
   }
@@ -87,6 +88,7 @@ public class BetManagerTest extends TestBase {
     List<Card> commonHand = getBadFlop();
     final BetManager betManager = new BetManager(playerList, 50, new PotHandler());
     betManager.createBettingDecisionList(playerList.get(0));
+    betManager.initResult();
     final Player player = betManager.betUntilAllAreSatisfied(false);
     assertEquals("Thomas", player.getName());
   }
