@@ -62,28 +62,44 @@ public class TestPotBetAtPrivateHand extends TestBase {
     privateHands.add(drawPairOfAces2());
 
     prepareBeforeFlop(players, bigBlindAmount, privateHands);
-    String decision = pokerGame.playBeforeFlop(players);
+    BetManager betManager = new BetManager(players, 50, pokerGame.getPotHandler());
+    pokerGame.setBetManager(betManager);
+    String decision = pokerGame.decideBet(players);
+
     assertEquals("Player Thomas Action :[ALL_IN]. Player Jörn Action :[ALL_IN]. ", decision);
     assertEquals(5000, getPokerGame().getPotHandler().getNumberOfMarkersInAllPots());
     assertEquals(0, player0.getNumberOfMarkers());
     assertEquals(0, player1.getNumberOfMarkers());
 
-    prepareFlop(getBadFlop());
-    decision = pokerGame.playBeforeFlop(players);
+    final List<Card> badFlop = getBadFlop();
+    prepareFlop(badFlop);
+    pokerGame.setFlopToBetManager(badFlop);
+    pokerGame.updateTurnForBetManager();
+    decision = pokerGame.decideBet(players);
+
     assertEquals("", decision);
     assertEquals(5000, getPokerGame().getPotHandler().getNumberOfMarkersInAllPots());
     assertEquals(0, player0.getNumberOfMarkers());
     assertEquals(0, player1.getNumberOfMarkers());
 
-    prepareTurn(Color.hearts, Ordinal.queen);
-    decision = pokerGame.playTurn(players);
+
+    final List<Card> turnCard = Lists.newArrayList(new Card(Color.hearts, Ordinal.queen));
+    prepareTurn(turnCard);
+    pokerGame.setTurnToBetManager(turnCard);
+    pokerGame.updateTurnForBetManager();
+    decision = pokerGame.decideBet(players);
+
     assertEquals("", decision);
     assertEquals(5000, getPokerGame().getPotHandler().getNumberOfMarkersInAllPots());
     assertEquals(0, player0.getNumberOfMarkers());
     assertEquals(0, player1.getNumberOfMarkers());
 
-    prepareRiver(Color.spades, Ordinal.two);
-    decision = pokerGame.playRiver(players);
+    final List<Card> riverCard = Lists.newArrayList(new Card(Color.spades, Ordinal.two));
+    prepareRiver(riverCard);
+    pokerGame.setRiverToBetManager(riverCard);
+    pokerGame.updateTurnForBetManager();
+    decision = pokerGame.decideBet(players);
+
     assertEquals("", decision);
     assertEquals(5000, getPokerGame().getPotHandler().getNumberOfMarkersInAllPots());
     assertEquals(0, player0.getNumberOfMarkers());
@@ -231,34 +247,47 @@ public class TestPotBetAtPrivateHand extends TestBase {
     privateHands.add(drawPairOfEights1());
     privateHands.add(drawPairOfEights2());
     prepareBeforeFlop(players, bigBlindAmount, privateHands);
-    String decision = pokerGame.playBeforeFlop(players);
+
+    BetManager betManager = new BetManager(players, 600, pokerGame.getPotHandler());
+    pokerGame.setBetManager(betManager);
+    String decision = pokerGame.decideBet(players);
     assertEquals("Player Thomas Action :[RAISE]. Player Jörn Action :[CHECK]. ", decision);
-    assertEquals(3300, getPokerGame().getPotHandler().getNumberOfMarkersInAllPots());
-    assertEquals(700, player0.getNumberOfMarkers());
-    assertEquals(1000, player1.getNumberOfMarkers());
 
     int potRaisePerPlayerBeforeFlop = 1200;
     int potRaisePerPlayerTotalRound = potRaisePerPlayerBeforeFlop;
     assertMarkersForPlayers(players);
 
-    decision = pokerGame.playBeforeFlop(players);
-    assertEquals("Player Thomas Action :[ALL_IN]. Player Jörn Action :[ALL_IN]. ", decision);
-    int potRaisePerPlayerFlop = 700;
+    final List<Card> badFlop = getBadFlop();
+    prepareFlop(badFlop);
+    pokerGame.setFlopToBetManager(badFlop);
+    pokerGame.updateTurnForBetManager();
+    decision = pokerGame.decideBet(players);
+
+    assertEquals("Player Thomas Action :[CHECK]. Player Jörn Action :[CHECK]. ", decision);
+    int potRaisePerPlayerFlop = 0;
     potRaisePerPlayerTotalRound = potRaisePerPlayerTotalRound + potRaisePerPlayerFlop;
-    assertEquals(5000, getPokerGame().getPotHandler().getNumberOfMarkersInAllPots());
+    assertEquals(2400, getPokerGame().getPotHandler().getNumberOfMarkersInAllPots());
     assertMarkersForPlayers(players);
 
-    prepareTurn(Color.hearts, Ordinal.queen);
-    decision = pokerGame.playTurn(players);
-    assertEquals(ALL_IN_PREVIOUSLY, decision);
-    int potRaisePerPlayerTurn = 50;
+    final List<Card> turnCard = Lists.newArrayList(new Card(Color.hearts, Ordinal.queen));
+    prepareTurn(turnCard);
+    pokerGame.setTurnToBetManager(turnCard);
+    pokerGame.updateTurnForBetManager();
+    decision = pokerGame.decideBet(players);
+
+    assertEquals("Player Thomas Action :[CHECK]. Player Jörn Action :[CHECK]. ", decision);
+    int potRaisePerPlayerTurn = 0;
     potRaisePerPlayerTotalRound = potRaisePerPlayerTotalRound + potRaisePerPlayerTurn;
     assertMarkersForPlayers(players);
 
-    prepareRiver(Color.spades, Ordinal.two);
-    decision = pokerGame.playRiver(players);
-    assertEquals(ALL_IN_PREVIOUSLY, decision);
-    final int potRaiseRiver = 50;
+    final List<Card> riverCard = Lists.newArrayList(new Card(Color.spades, Ordinal.five));
+    prepareRiver(riverCard);
+    pokerGame.setRiverToBetManager(riverCard);
+    pokerGame.updateTurnForBetManager();
+    decision = pokerGame.decideBet(players);
+
+    assertEquals("Player Thomas Action :[CHECK]. Player Jörn Action :[CHECK]. ", decision);
+    final int potRaiseRiver = 0;
     potRaisePerPlayerTotalRound = potRaisePerPlayerTotalRound + potRaiseRiver;
     assertMarkersForPlayers(players);
 
@@ -272,8 +301,8 @@ public class TestPotBetAtPrivateHand extends TestBase {
         player0.getNumberOfMarkers() + player1.getNumberOfMarkers());
 
     final int calculatedPot = calculatePot(potRaisePerPlayerTotalRound, players, bigBlindAmount);
-    assertEquals(5000, player0.getNumberOfMarkers());
-    assertEquals(0, player1.getNumberOfMarkers());
+    assertEquals(3700, player0.getNumberOfMarkers());
+    assertEquals(1300, player1.getNumberOfMarkers());
     pokerGame.resetTurn(players);
   }
 
