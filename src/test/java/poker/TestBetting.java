@@ -64,15 +64,18 @@ public class TestBetting {
     thomasPrivateHand.add(new Card(Color.diamonds, Ordinal.ace));
     pokerGame.setPrivateHand(thomas, thomasPrivateHand);
 
-    List<Player> playerList = new ArrayList<>();
-    playerList.add(jorn);
-    playerList.add(staffan);
-    playerList.add(thomas);
+    List<Player> players = new ArrayList<>();
+    players.add(jorn);
+    players.add(staffan);
+    players.add(thomas);
 
-    pokerGame.initBlinds(playerList);
-    pokerGame.payBlinds(playerList, 50);
-    pokerGame.setTurnForUnitTest(Draw.BEFORE_FLOP);
-    final String result = pokerGame.decideBet(playerList);
+    pokerGame.initBlinds(players);
+    pokerGame.payBlinds(players, 50);
+
+    BetManager betManager = new BetManager(players, 50, pokerGame.getPotHandler());
+    pokerGame.setBetManager(betManager);
+    String result = pokerGame.decideBet(players);
+
     assertEquals("Player Jörn Action :[ALL_IN]. Player Staffan Action :[FOLD]. Player Thomas Action :[ALL_IN]. ", result);
 
   }
@@ -93,13 +96,17 @@ public class TestBetting {
     thomasPrivateHand.add(new Card(Color.spades, Ordinal.ace));
     pokerGame.setPrivateHand(thomas, thomasPrivateHand);
 
-    List<Player> playerList = new ArrayList<>();
-    playerList.add(peter);
-    playerList.add(thomas);
-    pokerGame.initBlinds(playerList);
-    pokerGame.payBlinds(playerList, 50);
+    List<Player> players = new ArrayList<>();
+    players.add(peter);
+    players.add(thomas);
+    pokerGame.initBlinds(players);
+    pokerGame.payBlinds(players, 50);
     pokerGame.setTurnForUnitTest(Draw.BEFORE_FLOP);
-    final String result = pokerGame.decideBet(playerList);
+
+    BetManager betManager = new BetManager(players, 50, pokerGame.getPotHandler());
+    pokerGame.setBetManager(betManager);
+    String result = pokerGame.decideBet(players);
+
     assertEquals("Player Peter Action :[RAISE]. Player Thomas Action :[ALL_IN]. Player Peter Action :[FOLD]. ", result);
   }
 
@@ -119,14 +126,17 @@ public class TestBetting {
     thomasPrivateHand.add(new Card(Color.clubs, Ordinal.ace));
     pokerGame.setPrivateHand(thomas, thomasPrivateHand);
 
-    List<Player> playerList = new ArrayList<>();
-    playerList.add(peter);
-    playerList.add(thomas);
+    List<Player> players = new ArrayList<>();
+    players.add(peter);
+    players.add(thomas);
 
-    pokerGame.initBlinds(playerList);
-    pokerGame.payBlinds(playerList, 50);
+    pokerGame.initBlinds(players);
+    pokerGame.payBlinds(players, 50);
     pokerGame.setTurnForUnitTest(Draw.BEFORE_FLOP);
-    final String result = pokerGame.decideBet(playerList);
+
+    BetManager betManager = new BetManager(players, 50, pokerGame.getPotHandler());
+    pokerGame.setBetManager(betManager);
+    String result = pokerGame.decideBet(players);
 
     assertEquals("Player Peter Action :[ALL_IN]. Player Thomas Action :[ALL_IN]. ", result);
   }
