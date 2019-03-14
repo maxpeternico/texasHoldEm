@@ -88,8 +88,8 @@ public class RobotPlayer extends Player {
 
    */
   @Override
-  protected void setAction(int raiseAmount, int maxRaiseFromAPlayer) {
-    logger.debug("Player :[" + getName() + "] raiseAmount: [" + raiseAmount + "] maxRaiseFromAPlayer :[" + maxRaiseFromAPlayer + "]");
+  protected void setAction(int raiseAmount, int maxRaiseFromAPlayerThisRound, int maxRaiseThisDraw) {
+    logger.debug("Player :[" + getName() + "] raiseAmount: [" + raiseAmount + "] maxRaiseFromAPlayerThisRound :[" + maxRaiseFromAPlayerThisRound + "]");
     previousAction = getAction();
 
     // If player has no more markers player need to go all in
@@ -99,25 +99,35 @@ public class RobotPlayer extends Player {
       action.setAmount(numberOfAllMarkers); // TODO: number of markers?
       logger.trace("Set raise amount for player {{}} to {{}}", getName(), raiseAmount);
       partInPot += numberOfAllMarkers;
-    } else if (raiseAmount > maxRaiseFromAPlayer) {
-      action = new Action(ActionEnum.RAISE);
-      action.setAmount(raiseAmount);
-      logger.trace("Set raise amount for player {{}} to {{}}", getName(), raiseAmount);
+    } else if (raiseAmount > maxRaiseFromAPlayerThisRound) {
+      if (hasBlind() && raiseAmount <= blindAmount) {
+        action = new Action(ActionEnum.CHECK);
+        action.setAmount(raiseAmount);
+        logger.trace("Set check amount for player {{}} to {{}}", getName(), raiseAmount);
+      } else {
+        action = new Action(ActionEnum.RAISE);
+        action.setAmount(raiseAmount);
+        logger.trace("Set raise amount for player {{}} to {{}}", getName(), raiseAmount);
+      }
       partInPot += raiseAmount;
-    } else if (isWithin(raiseAmount, maxRaiseFromAPlayer)) {
+    } else if (isWithin(raiseAmount, maxRaiseFromAPlayerThisRound)) {
       action = new Action(ActionEnum.CHECK);
-      action.setAmount(maxRaiseFromAPlayer);
-      logger.trace("Set raise amount for player {{}} to {{}}", getName(), maxRaiseFromAPlayer);
-      partInPot += maxRaiseFromAPlayer;
+      action.setAmount(maxRaiseFromAPlayerThisRound);
+      logger.trace("Set check amount for player {{}} to {{}}", getName(), maxRaiseFromAPlayerThisRound);
+      partInPot += maxRaiseFromAPlayerThisRound;
     } else {
       // If player has played big blind and no one is raises there is no need to fold
-      if (hasBigBlind() && maxRaiseFromAPlayer == 0) {
+      if (noRaiseThisDraw(maxRaiseFromAPlayerThisRound, maxRaiseThisDraw)) {
         action = new Action(ActionEnum.CHECK);
-      } else
-      {
+      } else {
         action = new Action(ActionEnum.FOLD);
       }
     }
+  }
+
+  private boolean noRaiseThisDraw(int maxRaiseFromAPlayerThisRound, int maxRaiseThisDraw) {
+    if (maxRaiseThisDraw == 0) return true;
+    return false;
   }
 
   private boolean isWithin(int raiseAmount, int maxRaiseFromOtherPlayer) {

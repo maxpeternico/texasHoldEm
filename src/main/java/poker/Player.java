@@ -195,10 +195,11 @@ public abstract class Player {
                              int numberOfRemainingPlayers,
                              List<Card> commonHand,
                              int blind,
-                             int maxRaiseFromAPlayer) {
+                             int maxRaiseFromAPlayer,
+                             int maxRaiseThisDraw) {
     decideStrategy(draw, numberOfRemainingPlayers, commonHand);
     int individualRaiseAmount = calculateRaiseAmount(blind);
-    setAction(individualRaiseAmount, maxRaiseFromAPlayer);
+    setAction(individualRaiseAmount, maxRaiseFromAPlayer, maxRaiseThisDraw);
     logger.debug("Player " + getName() + " decides to :[" + getAction() + "]");
     return getAction();
   }
@@ -242,7 +243,7 @@ public abstract class Player {
     return blindAmount;
   }
 
-  protected abstract void setAction(int raiseAmount, int maxRaiseFromAPlayer);
+  protected abstract void setAction(int raiseAmount, int maxRaiseFromAPlayer, int maxRaiseThisDraw);
 
   protected abstract int calculateRaiseAmount(int blind);
 

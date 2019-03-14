@@ -19,6 +19,7 @@ public class BetManager {
   private int maxRaiseFromAPlayer;
   private static final Logger logger = LogManager.getLogger(BetManager.class);
   private StringBuffer result = null;
+  private int maxRaiseThisDraw = 0;
 
 
   public BetManager(List<Player> playerList,
@@ -130,7 +131,7 @@ public class BetManager {
         logger.debug("Player {{}} is all in and has already paid to pot", player.getName());
         continue;
       }
-      Action action = player.decideAction(draw, calculatePlayersAfter(), commonHand, blind, maxRaiseFromAPlayer);
+      Action action = player.decideAction(draw, calculatePlayersAfter(), commonHand, blind, maxRaiseFromAPlayer, maxRaiseThisDraw);
       if (action.getAmount() > maxRaiseFromAPlayer) {
         maxRaiseFromAPlayer = action.getAmount();
       }
@@ -184,6 +185,7 @@ public class BetManager {
 
   public void updateTurn() {
     draw = Draw.increaseDraw(draw);
+    maxRaiseThisDraw = 0;
   }
 
   void initResult() { result = new StringBuffer(); }
