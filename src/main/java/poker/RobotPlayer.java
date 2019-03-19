@@ -1,15 +1,21 @@
 package poker;
 
-import com.google.common.collect.Lists;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.util.List;
 import java.util.Map;
 
-import static poker.Strategy.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.google.common.collect.Lists;
+
+import static poker.Strategy.ALL_IN;
+import static poker.Strategy.JOIN;
+import static poker.Strategy.JOIN_IF_CHEAP;
+import static poker.Strategy.OFFENSIVE;
+import static poker.Strategy.QUIT;
 
 public class RobotPlayer extends Player {
+
   private static final Logger logger = LogManager.getLogger(RobotPlayer.class);
 
   private Points points;
@@ -35,8 +41,7 @@ public class RobotPlayer extends Player {
           // Pair
         } else if (points.totalPoints > 100) {
           strategy = OFFENSIVE;
-        }
-        else {
+        } else {
           strategy = JOIN_IF_CHEAP;
         }
         break;
@@ -79,7 +84,6 @@ public class RobotPlayer extends Player {
     logger.debug("Player " + getName() + " has strategy " + strategy + ". ");
   }
 
-
   /*
 
   Thomas raises with 100, jörn checks wiht 100. maxRaiseFromAnotherPlayer = 0
@@ -88,7 +92,10 @@ public class RobotPlayer extends Player {
 
    */
   @Override
-  protected void setAction(int raiseAmount, int maxRaiseFromAPlayerThisRound, int maxRaiseThisDraw) {
+  protected void setAction(int raiseAmount,
+                           int maxRaiseFromAPlayerThisRound,
+                           int maxRaiseThisDraw,
+                           int playersPartInPots) {
     logger.debug("Player :[" + getName() + "] raiseAmount: [" + raiseAmount + "] maxRaiseFromAPlayerThisRound :[" + maxRaiseFromAPlayerThisRound + "]");
     previousAction = getAction();
 
@@ -100,14 +107,14 @@ public class RobotPlayer extends Player {
       logger.trace("Set raise amount for player {{}} to {{}}", getName(), raiseAmount);
       partInPot += numberOfAllMarkers;
     } else if (raiseAmount > maxRaiseFromAPlayerThisRound) {
-      if (hasBlind() && raiseAmount <= blindAmount) {
-        action = new Action(ActionEnum.CHECK);
-        action.setAmount(raiseAmount);
-        logger.trace("Set check amount for player {{}} to {{}}", getName(), raiseAmount);
-      } else {
+      if (BetManager.shallPayToPot(playersPartInPots, raiseAmount)) {
         action = new Action(ActionEnum.RAISE);
         action.setAmount(raiseAmount);
         logger.trace("Set raise amount for player {{}} to {{}}", getName(), raiseAmount);
+      } else {
+        action = new Action(ActionEnum.CHECK);
+        action.setAmount(raiseAmount);
+        logger.trace("Set check amount for player {{}} to {{}}", getName(), raiseAmount);
       }
       partInPot += raiseAmount;
     } else if (isWithin(raiseAmount, maxRaiseFromAPlayerThisRound)) {
@@ -116,7 +123,7 @@ public class RobotPlayer extends Player {
       logger.trace("Set check amount for player {{}} to {{}}", getName(), maxRaiseFromAPlayerThisRound);
       partInPot += maxRaiseFromAPlayerThisRound;
     } else {
-      // If player has played big blind and no one is raises there is no need to fold
+      // If no one is raises there is no need to fold
       if (noRaiseThisDraw(maxRaiseFromAPlayerThisRound, maxRaiseThisDraw)) {
         action = new Action(ActionEnum.CHECK);
       } else {
@@ -127,6 +134,7 @@ public class RobotPlayer extends Player {
 
   private boolean noRaiseThisDraw(int maxRaiseFromAPlayerThisRound, int maxRaiseThisDraw) {
     if (maxRaiseThisDraw == 0) return true;
+    logger.debug("Raise this draw: {{}}", maxRaiseThisDraw);
     return false;
   }
 
@@ -135,7 +143,7 @@ public class RobotPlayer extends Player {
     if (raiseAmountIncludingBlind >= maxRaiseFromOtherPlayer * 0.9) {
       return true;
     }
-    if (Math.abs(raiseAmountIncludingBlind-maxRaiseFromOtherPlayer) <= 25) {
+    if (Math.abs(raiseAmountIncludingBlind - maxRaiseFromOtherPlayer) <= 25) {
       return true;
     }
     return false;
@@ -158,7 +166,7 @@ public class RobotPlayer extends Player {
         if (points.totalPoints > 113) { // Pair of aces and higher
           individualRaiseAmount = blind * 4;
         } else if (points.totalPoints > 100) {
-            individualRaiseAmount = blind * 2;
+          individualRaiseAmount = blind * 2;
         } else if (points.totalPoints > 5) {
           individualRaiseAmount = blind;
         } else {
@@ -183,7 +191,7 @@ public class RobotPlayer extends Player {
 
   private int calculateEventualBlindCost(int blind) {
     if (hasLittleBlind()) {
-      return blind/2;
+      return blind / 2;
     }
     if (hasBigBlind()) {
       return blind;

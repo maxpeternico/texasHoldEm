@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import static poker.ActionEnum.ALL_IN;
 
@@ -196,10 +196,11 @@ public abstract class Player {
                              List<Card> commonHand,
                              int blind,
                              int maxRaiseFromAPlayer,
-                             int maxRaiseThisDraw) {
+                             int maxRaiseThisDraw,
+                             int playersPartInPots) {
     decideStrategy(draw, numberOfRemainingPlayers, commonHand);
     int individualRaiseAmount = calculateRaiseAmount(blind);
-    setAction(individualRaiseAmount, maxRaiseFromAPlayer, maxRaiseThisDraw);
+    setAction(individualRaiseAmount, maxRaiseFromAPlayer, maxRaiseThisDraw, playersPartInPots);
     logger.debug("Player " + getName() + " decides to :[" + getAction() + "]");
     return getAction();
   }
@@ -243,7 +244,10 @@ public abstract class Player {
     return blindAmount;
   }
 
-  protected abstract void setAction(int raiseAmount, int maxRaiseFromAPlayer, int maxRaiseThisDraw);
+  protected abstract void setAction(int raiseAmount,
+                                    int maxRaiseFromAPlayer,
+                                    int maxRaiseThisDraw,
+                                    int playersPartInPots);
 
   protected abstract int calculateRaiseAmount(int blind);
 
@@ -280,14 +284,14 @@ public abstract class Player {
   }
 
   public int calculateRaiseAmountIncludingBlind(int raiseAmount) {
-   if (hasBigBlind()) {
-    return blindAmount + raiseAmount;
-        }
-        if (hasLittleBlind()) {
-          return blindAmount/2 + raiseAmount;
-        }
-        return raiseAmount;
-      }
+    if (hasBigBlind()) {
+      return blindAmount + raiseAmount;
+    }
+    if (hasLittleBlind()) {
+      return blindAmount / 2 + raiseAmount;
+    }
+    return raiseAmount;
+  }
 
   public void removeCardsFromHand() {
     cardsOnHand.clear();

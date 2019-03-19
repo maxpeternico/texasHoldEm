@@ -36,7 +36,7 @@ public class TestPokerGameMethods {
   public void testAllPlayersSatisfiedOnePlayerRaises() {
     List<Player> players = pokerGame.createNumberOfRobotPlayers(5, 2500);
     players.stream().forEach(Player::setActionToCheck);
-    players.get(1).setAction(100, 0, 0);
+    players.get(1).setAction(100, 0, 0, 0);
     assertTrue(pokerGame.allPlayersSatisfied(players));
   }
 

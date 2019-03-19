@@ -1,15 +1,17 @@
 package poker;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 public class BetManager {
+
   private final int blind;
   private List<Player> playerList;
   private Map<Player, Boolean> bettingMap = Maps.newLinkedHashMap();
@@ -20,7 +22,6 @@ public class BetManager {
   private static final Logger logger = LogManager.getLogger(BetManager.class);
   private StringBuffer result = null;
   private int maxRaiseThisDraw = 0;
-
 
   public BetManager(List<Player> playerList,
                     int blind,
@@ -48,7 +49,7 @@ public class BetManager {
   public String bet() {
     result = new StringBuffer();
     Player playerWithHighestRaise = betUntilAllAreSatisfied(false);
-    while(doesAnyPlayersWantToBetMore(playerWithHighestRaise)) {
+    while (doesAnyPlayersWantToBetMore(playerWithHighestRaise)) {
       createBettingDecisionList(playerWithHighestRaise);
       playerWithHighestRaise = betUntilAllAreSatisfied(true);
     }
@@ -57,7 +58,7 @@ public class BetManager {
   }
 
   void initCreateBettingDecisionList(List<Player> playerList) {
-    for (Player player:playerList) {
+    for (Player player : playerList) {
       bettingMap.put(player, false);
     }
   }
@@ -80,13 +81,15 @@ public class BetManager {
     bettingMap.put(raisingPlayer, oldBettingMap.get(raisingPlayer));
     logger.trace("Creating list with player [{}] as first. ", raisingPlayer.getName());
     for (int i = getPlayerIndexFromOldBettingMap(raisingPlayer, oldBettingMap); i < oldBettingMap.keySet().size(); i++) {
-      if (i == getPlayerIndexFromOldBettingMap(raisingPlayer, oldBettingMap)) continue; // first player shall always be first
+      if (i == getPlayerIndexFromOldBettingMap(raisingPlayer, oldBettingMap)) {
+        continue; // first player shall always be first
+      }
       addPlayerThatShallBet(getPlayerFromOldBettingMapIndex(oldBettingMap, i), oldBettingMap);
     }
     for (int i = 0; i < getPlayerIndexFromOldBettingMap(raisingPlayer, oldBettingMap); i++) {
       addPlayerThatShallBet(getPlayerFromOldBettingMapIndex(oldBettingMap, i), oldBettingMap);
     }
-    for (Player player: getPlayersFromBettingMap()) {
+    for (Player player : getPlayersFromBettingMap()) {
       logger.trace("Member in new bettingMap [{}] ", player.getName());
     }
   }
@@ -116,22 +119,23 @@ public class BetManager {
   }
 
   Player betUntilAllAreSatisfied(boolean firstPlayerAlreadyBet) {
-    for (Player player: getPlayersFromBettingMap()) {
+    for (Player player : getPlayersFromBettingMap()) {
 
       // If a new betting map is created due to raise of another player, list must be re-ordered with the raising player first. Player has already bet
       if (firstPlayerAlreadyBet) {
         if (getPlayersFromBettingMap().indexOf(player) == 0) continue;
       }
       logger.debug(
-          "player :[{}] maxRaiseFromOtherPlayer:[{}] numbersOfMarkers :[{}]",
-          player.getName(),
-          maxRaiseFromAPlayer,
-          player.getNumberOfMarkers());
+        "player :[{}] maxRaiseFromOtherPlayer:[{}] numbersOfMarkers :[{}]",
+        player.getName(),
+        maxRaiseFromAPlayer,
+        player.getNumberOfMarkers());
       if (player.hasBlind() && !player.hasAnyMarkers()) {
         logger.debug("Player {{}} is all in and has already paid to pot", player.getName());
         continue;
       }
-      Action action = player.decideAction(draw, calculatePlayersAfter(), commonHand, blind, maxRaiseFromAPlayer, maxRaiseThisDraw);
+      final int playerPartInPots = potHandler.getPlayerPartInPots(player);
+      Action action = player.decideAction(draw, calculatePlayersAfter(), commonHand, blind, maxRaiseFromAPlayer, maxRaiseThisDraw, playerPartInPots);
       if (action.getAmount() > maxRaiseFromAPlayer) {
         maxRaiseFromAPlayer = action.getAmount();
       }
@@ -140,11 +144,14 @@ public class BetManager {
       logger.trace("Player {{}} has made a bet", player.getName());
 
       if (!action.isFold()) {
-        if (shallPayToPot(potHandler.getPlayerPartInPots(player), maxRaiseFromAPlayer)) {
+        if (shallPayToPot(playerPartInPots, maxRaiseFromAPlayer)) {
           final int raiseOrCheckValue = player.getActionAmount(isBeforeFlop(draw));
           potHandler.joinPot(player, raiseOrCheckValue);
           player.decreaseMarkers(raiseOrCheckValue);
           logger.debug("Pot size :[{}]. ", potHandler.getNumberOfMarkersInAllPots());
+          if (action.getAmount() > maxRaiseThisDraw) {
+            maxRaiseThisDraw = action.getAmount();
+          }
         }
         if (action.isRaise() || action.isAllIn()) {
           logger.trace("Player [{}] is [{}]. ", player.getName(), action);
@@ -165,7 +172,7 @@ public class BetManager {
     return false;
   }
 
-  private boolean shallPayToPot(int numberOfMarkersForPlayerInPot, int maxRaiseFromAPlayer) {
+  public static boolean shallPayToPot(int numberOfMarkersForPlayerInPot, int maxRaiseFromAPlayer) {
     logger.trace("Number of markers for player in pot {{}} maxRaiseFromAPlayer {{}} ", numberOfMarkersForPlayerInPot, maxRaiseFromAPlayer);
     if (numberOfMarkersForPlayerInPot < maxRaiseFromAPlayer) {
       logger.trace("Player shall pay to pot.");
@@ -188,5 +195,7 @@ public class BetManager {
     maxRaiseThisDraw = 0;
   }
 
-  void initResult() { result = new StringBuffer(); }
+  void initResult() {
+    result = new StringBuffer();
+  }
 }

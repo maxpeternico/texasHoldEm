@@ -34,7 +34,7 @@ public class TestPotBetAtFlop extends TestBase {
     pokerGame.setBetManager(betManager);
     String decision = pokerGame.decideBet(players);
 
-    assertEquals("Player Thomas Action :[RAISE]. Player Jörn Action :[CHECK]. ", decision);
+    assertEquals("Player Thomas Action :[CHECK]. Player Jörn Action :[CHECK]. ", decision);
     int potRaisePerPlayerBeforeFlop = 50;
     int potRaisePerPlayerTotalRound = potRaisePerPlayerBeforeFlop;
     assertMarkersForPlayers(players);

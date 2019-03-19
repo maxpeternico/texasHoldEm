@@ -1,16 +1,18 @@
 package poker;
 
-import com.google.common.collect.Lists;
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.List;
+import com.google.common.collect.Lists;
 
 import static poker.Strategy.JOIN;
 import static poker.Strategy.OFFENSIVE;
 import static poker.Strategy.QUIT;
 
 public class HumanPlayer extends Player {
+
   private static final Logger logger = LogManager.getLogger(HumanPlayer.class);
 
   public HumanPlayer(String playerName, int totalMarkersPerPlayer) {
@@ -36,7 +38,10 @@ public class HumanPlayer extends Player {
   }
 
   @Override
-  protected void setAction(int raiseAmount, int amountToJoinPot, int maxRaiseThisDraw) {
+  protected void setAction(int raiseAmount,
+                           int amountToJoinPot,
+                           int maxRaiseThisDraw,
+                           int playersPartInPots) {
     switch (strategy) {
       case OFFENSIVE:
         action = new Action(ActionEnum.RAISE);
