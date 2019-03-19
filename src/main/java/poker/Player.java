@@ -261,7 +261,7 @@ public abstract class Player {
   }
 
   public boolean isAllIn() {
-    if (strategy.equals(Strategy.ALL_IN)) {
+    if (action.isAllIn()) {
       return true;
     }
     return false;
