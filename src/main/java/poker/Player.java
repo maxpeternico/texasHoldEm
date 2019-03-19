@@ -219,7 +219,7 @@ public abstract class Player {
       if (getAction().getAmount() >= getBlindAmount()) {
         return getAction().getAmount() - getBlindAmount();
       }
-      if (!getAction().equals(ALL_IN)) {
+      if (!getAction().isAllIn()) {
         throw new RuntimeException("Action amount [" + getAction().getAmount() + " must be higher than big blind amount [" + getBlindAmount() + "]");
       }
     }
@@ -230,7 +230,7 @@ public abstract class Player {
       if (getAction().getAmount() >= getBlindAmount()) {
         return getAction().getAmount() - getBlindAmount();
       }
-      if (!getAction().equals(ALL_IN)) {
+      if (!getAction().isAllIn()) {
         throw new RuntimeException("Action amount [" + getAction().getAmount() + " must be higher than little blind amount [" + 2 * getBlindAmount() + "]");
       }
     }

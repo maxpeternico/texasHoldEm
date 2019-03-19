@@ -155,7 +155,7 @@ public class BetManager {
         }
         if (action.isRaise() || action.isAllIn()) {
           logger.trace("Player [{}] is [{}]. ", player.getName(), action);
-          if (getPlayersFromBettingMap().indexOf(player) > 0) {
+          if (getPlayersFromBettingMap().indexOf(player) > 0 && !allPlayersAreAllIn()) {
             logger.trace("Player is not the first player in the list, create new list.");
             return player;
           }
@@ -163,6 +163,16 @@ public class BetManager {
       }
     }
     return getPlayersFromBettingMap().get(0);
+  }
+
+  private boolean allPlayersAreAllIn() {
+    for (Player player:getPlayersFromBettingMap()) {
+      if (!player.getAction().isAllIn()) {
+        return false;
+      }
+    }
+    logger.debug("All players are ALL IN. ");
+    return true;
   }
 
   private boolean isBeforeFlop(Draw draw) {
