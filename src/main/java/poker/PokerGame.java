@@ -126,7 +126,7 @@ public class PokerGame {
     betManager.addRiverCardToCommonHand(riverCard);
     logger.info("Total hand after river: ");
     printHumanHand();
-    return decideBet(players);
+    return decideBet(playersThatCanBet(players));
   }
 
   String playTurn(List<Player> players) {
@@ -134,7 +134,7 @@ public class PokerGame {
     betManager.addTurnCardToCommonHand(turnCard);
     logger.info("Total hand after draw: ");
     printHumanHand();
-    return decideBet(players);
+    return decideBet(playersThatCanBet(players));
   }
 
   String playFlop(List<Player> players) {
@@ -142,14 +142,14 @@ public class PokerGame {
     betManager.addFlopCardsToCommonhand(flopCards);
     logger.info("Total hand after flop: ");
     printHumanHand();
-    return decideBet(players);
+    return decideBet(playersThatCanBet(players));
   }
 
   String playBeforeFlop(List<Player> players) {
     dealer.playPrivateHands();
     logger.info("Total hand before flop: ");
     printHumanHand();
-    return decideBet(players);
+    return decideBet(playersThatCanBet(players));
   }
 
   void resetTurn(List<Player> players) {
