@@ -93,7 +93,6 @@ public class PokerGame {
 
   private void checkSoNoMarkersDisappeared() {
     final int theoreticalNumberOfMarkers = dealer.getPlayers().size() * 2500;
-  //  int totalNumberOfMarkers = potHandler.getNumberOfMarkersInAllPots() + getMarkersForAllPlayers(dealer.getPlayers());
     int totalNumberOfMarkers = getMarkersForAllPlayers(dealer.getPlayers());
     if (totalNumberOfMarkers != theoreticalNumberOfMarkers) {
       throw new RuntimeException("Total number of markers is :[" + totalNumberOfMarkers + "] but should be :[" + theoreticalNumberOfMarkers + "]");
@@ -357,19 +356,6 @@ public class PokerGame {
     return betManager.bet();
   }
 
-  private int calculateIndividualAmountToJoinPot(Player player) {
-    //     int raiseAmount = amountToJoinPot - playersPartInPot;
-    logger.debug("Player [{}] getAmountToJoinPot [{}] getPlayerPartInPots [{}]. ", player.getName(), potHandler.getAmountToJoinPot(), potHandler.getPlayerPartInPots(player));
-    return potHandler.getAmountToJoinPot() - potHandler.getPlayerPartInPots(player);
-  }
-
-  private boolean shallPayToPot(int numberOfMarkersForPlayerInPot, int maxRaiseFromAPlayer) {
-    if (numberOfMarkersForPlayerInPot == maxRaiseFromAPlayer) {
-      return false;
-    }
-    return true;
-  }
-
   void clearPreviousPlayersWithActionCheck(List<Player> remainingPlayers, Player player) {
     for (int i = 0; i < remainingPlayers.indexOf(player); i++) {
       final Player tempPlayer = remainingPlayers.get(i);
@@ -380,20 +366,7 @@ public class PokerGame {
     }
   }
 
-  private int calculateEventualNewMaxRaiseFromAnotherPlayer(int maxRaiseFromAPlayer, Action action) {
-    if (action.isRaise() || action.isAllIn()) {
-      final int raiseAmount = action.getAmount();
-      if (raiseAmount > maxRaiseFromAPlayer) {
-        return raiseAmount;
-      }
-    }
-    return maxRaiseFromAPlayer;
-  }
-
   boolean allPlayersSatisfied(List<Player> players) {
-//    if (isAnyoneRaising(players)) {
-//      return false;
-//    }
     if (isAnyoneNotDecided(players)) {
       return false;
     }
@@ -408,29 +381,6 @@ public class PokerGame {
       }
     }
     return false;
-  }
-
-  private boolean isAnyoneRaising(List<Player> players) {
-    for (Player player : players) {
-      if (player.isRaising()) {
-        logger.debug("Player [{}] is still raising", player.getName());
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private boolean playersThatCanBet(Player player) {
-    if (player.hasFolded()) {
-      return false;
-    }
-    if (!player.hasAnyMarkers()) {
-      return false;
-    }
-    if (player.isAllIn()) {
-      return false;
-    }
-    return true;
   }
 
   private void createRobotPlayers() {
@@ -488,11 +438,6 @@ public class PokerGame {
 
   void registerPlayer(Player player) {
     dealer.registerPlayer(player);
-  }
-
-  void playPrivateHands(List<Player> players) {
-    dealer.playPrivateHands();
-    decideBet(playersThatCanBet(players));
   }
 
   void addToCommonHand(List<Card> cards) {

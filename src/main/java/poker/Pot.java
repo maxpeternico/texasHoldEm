@@ -71,14 +71,6 @@ public class Pot implements Comparable {
     return newPot;
   }
 
-  private int takeMarkersFromMember(Player player, int allInValue) {
-    int oldNumberOfMarkers = members.get(player);
-    final int markersToNewPot = oldNumberOfMarkers - allInValue;
-    logger.debug("Removing [{}] markers for player [{}] from old pot.", markersToNewPot, player.getName());
-    members.replace(player, allInValue);
-    return markersToNewPot;
-  }
-
   public void addMarkersForMember(Player player, int raiseAmount) {
     int oldMarkersInPot = members.get(player);
     members.replace(player, oldMarkersInPot, oldMarkersInPot + raiseAmount);

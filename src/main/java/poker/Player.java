@@ -267,10 +267,6 @@ public abstract class Player {
     return false;
   }
 
-  public boolean isRaising() {
-    return getAction().isRaise();
-  }
-
   public boolean hasNotDecided() {
     return getAction().isNotDecided();
   }

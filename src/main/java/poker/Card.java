@@ -3,7 +3,6 @@ package poker;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-
 class Card {
     private static final Logger logger = LogManager.getLogger(Card.class.getName());
 
@@ -47,7 +46,7 @@ class Card {
     }
 
     public String toString() {
-        return new String("Color:[" + this.getColor() + "] value:[" + this.getOrdinal() + "]");
+        return "Color:[" + this.getColor() + "] value:[" + this.getOrdinal() + "]";
 
     }
 
