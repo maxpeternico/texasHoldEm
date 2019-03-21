@@ -43,7 +43,8 @@ public class PokerGame {
     List<Player> players = dealer.getPlayers();
     initBlinds(players);
     draw = Draw.BEFORE_FLOP;
-    List<Player> playersStillInTheGame;
+    List<Player> playersStillInTheGame = Lists.newArrayList();
+    playersStillInTheGame.addAll(players);
     do {
       playRound(players);
       playersStillInTheGame = playersThatCanBet(players);
@@ -70,21 +71,13 @@ public class PokerGame {
     playBeforeFlop(players);
     logger.debug("Start play flop. ");
     increaseDraw();
-    List<Player> playersWhoCanBet = getPlayersWhoCanBet(players);
-    if (playersWhoCanBet.size() > 1) {
-      playFlop(players);
-    }
+    playFlop(players);
     logger.debug("Start play before turn. ");
     increaseDraw();
-    playersWhoCanBet = getPlayersWhoCanBet(players);
-    if (playersWhoCanBet.size() > 1) {
-      playTurn(players);
-    }
+    playTurn(players);
     logger.debug("Start play before river. ");
     increaseDraw();
-    if (playersWhoCanBet.size() > 1) {
-      playRiver(players);
-    }
+    playRiver(players);
     logger.debug("Get the winner. ");
     getTheWinner(potHandler, players);
     checkSoNoMarkersDisappeared();
@@ -101,7 +94,7 @@ public class PokerGame {
 
   private int getMarkersForAllPlayers(List<Player> players) {
     int totalAmountOfMarkers = 0;
-    for (Player player:players) {
+    for (Player player : players) {
       totalAmountOfMarkers += player.getNumberOfMarkers();
     }
     return totalAmountOfMarkers;
@@ -125,7 +118,7 @@ public class PokerGame {
     betManager.addRiverCardToCommonHand(riverCard);
     logger.info("Total hand after river: ");
     printHumanHand();
-    return decideBet(playersThatCanBet(players));
+    return decideBet(getPlayersWhoHasntFinishedBetting(players));
   }
 
   String playTurn(List<Player> players) {
@@ -133,7 +126,7 @@ public class PokerGame {
     betManager.addTurnCardToCommonHand(turnCard);
     logger.info("Total hand after draw: ");
     printHumanHand();
-    return decideBet(playersThatCanBet(players));
+    return decideBet(getPlayersWhoHasntFinishedBetting(players));
   }
 
   String playFlop(List<Player> players) {
@@ -141,14 +134,14 @@ public class PokerGame {
     betManager.addFlopCardsToCommonhand(flopCards);
     logger.info("Total hand after flop: ");
     printHumanHand();
-    return decideBet(playersThatCanBet(players));
+    return decideBet(getPlayersWhoHasntFinishedBetting(players));
   }
 
   String playBeforeFlop(List<Player> players) {
     dealer.playPrivateHands();
     logger.info("Total hand before flop: ");
     printHumanHand();
-    return decideBet(playersThatCanBet(players));
+    return decideBet(getPlayersWhoHasntFinishedBetting(players));
   }
 
   void resetTurn(List<Player> players) {
@@ -179,9 +172,10 @@ public class PokerGame {
   private List<Player> playersThatCanBet(List<Player> players) {
     final ArrayList<Player> playersStillInTheGame = Lists.newArrayList();
     players.stream().forEach(e -> {
-      if (e.hasFolded()) {
-        logger.debug("Player :[" + e.getName() + "] has folded.");
-      } else if (!e.hasAnyMarkers()) {
+ //     if (e.hasFolded()) {
+ //       logger.debug("Player :[" + e.getName() + "] has folded.");
+//      } else
+        if (!e.hasAnyMarkers()) {
         logger.debug("Player :[" + e.getName() + "] has no more markers.");
       } else {
         playersStillInTheGame.add(e);
@@ -190,15 +184,15 @@ public class PokerGame {
     return playersStillInTheGame;
   }
 
-  private List<Player> getPlayersWhoCanBet(List<Player> players) {
+  private List<Player> getPlayersWhoHasntFinishedBetting(List<Player> players) {
     final ArrayList<Player> playersStillInTheGame = Lists.newArrayList();
     players.stream().forEach(e -> {
       if (e.getAction().isAllIn()) {
         logger.debug("Player :[" + e.getName() + "] is all in, no bet.");
       } else if (e.hasFolded()) {
         logger.debug("Player :[" + e.getName() + "] has folded, no bet.");
-      } else if (!e.hasAnyMarkers()) {
-        logger.debug("Player :[" + e.getName() + "] has no markers and can not bet.");
+//      } else if (!e.hasAnyMarkers()) {
+//        logger.debug("Player :[" + e.getName() + "] has no markers and can not bet.");
       } else {
         playersStillInTheGame.add(e);
       }
@@ -212,18 +206,18 @@ public class PokerGame {
       return;
     }
     payBlind(
-        allPlayers -> getPlayerWithLittleBlind(players),
-        players,
-        blindAmount / 2,
-        player->player.setLittleBlind(blindAmount / 2),
-        Player::clearLittleBlind
+      allPlayers -> getPlayerWithLittleBlind(players),
+      players,
+      blindAmount / 2,
+      player -> player.setLittleBlind(blindAmount / 2),
+      Player::clearLittleBlind
     );
     payBlind(
-        allPlayers -> getPlayerWithBigBlind(players),
-        players,
-        blindAmount,
-        player->player.setBigBlind(blindAmount),
-        Player::clearBigBlind
+      allPlayers -> getPlayerWithBigBlind(players),
+      players,
+      blindAmount,
+      player -> player.setBigBlind(blindAmount),
+      Player::clearBigBlind
     );
   }
 
@@ -269,7 +263,7 @@ public class PokerGame {
         // We've looped from all players and did not find anyone that can have blind, set original value
         return blindIndex;
       }
-    } while(!players.get(newIndexOfBlind).hasAnyMarkers() || players.get(newIndexOfBlind).hasLittleBlind());  // If player is new big blind player player will have both little and big blind after little blind is payed, big blind will be moved to new player in next method call
+    } while (!players.get(newIndexOfBlind).hasAnyMarkers() || players.get(newIndexOfBlind).hasLittleBlind());  // If player is new big blind player player will have both little and big blind after little blind is payed, big blind will be moved to new player in next method call
     logger.trace("New blind index :[" + newIndexOfBlind + "]");
     return newIndexOfBlind;
   }
