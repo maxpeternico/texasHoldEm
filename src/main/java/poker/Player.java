@@ -240,7 +240,7 @@ public abstract class Player {
     return getAction().getAmount();
   }
 
-  private int getBlindAmount() {
+  protected int getBlindAmount() {
     return blindAmount;
   }
 

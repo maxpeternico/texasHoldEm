@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.Lists;
 
+import static poker.Strategy.ALL_IN;
 import static poker.Strategy.JOIN;
 import static poker.Strategy.OFFENSIVE;
 import static poker.Strategy.QUIT;
@@ -21,8 +22,11 @@ public class HumanPlayer extends Player {
 
   @Override
   public void decideStrategy(Draw draw, int numberOfRemainingPlayers, List<Card> commonHand) {
-    String decision = KeyboardHelper.getCharFromKeyboard(Lists.newArrayList("R", "C", "F"), "(R)aise/(C)heck/(F)old:");
+    String decision = KeyboardHelper.getCharFromKeyboard(Lists.newArrayList("A", "R", "C", "F"), "(A)ll in/(R)aise/(C)heck/(F)old:");
     switch (decision) {
+      case "A":
+        strategy = ALL_IN;
+        break;
       case "R":
         strategy = OFFENSIVE;
         break;
@@ -42,7 +46,17 @@ public class HumanPlayer extends Player {
                            int amountToJoinPot,
                            int maxRaiseThisDraw,
                            int playersPartInPots) {
+    if (strategy.equals(ALL_IN)) {
+      while (raiseAmount < amountToJoinPot) {
+        System.out.println("You must bet more than: [" + amountToJoinPot + "]");
+        raiseAmount = getRaiseAmount(getBlindAmount());
+      }
+    }
     switch (strategy) {
+      case ALL_IN:
+        action = new Action(ActionEnum.ALL_IN);
+        action.setAmount(raiseAmount);
+        break;
       case OFFENSIVE:
         action = new Action(ActionEnum.RAISE);
         action.setAmount(raiseAmount);
@@ -62,6 +76,9 @@ public class HumanPlayer extends Player {
   @Override
   protected int calculateRaiseAmount(int blind) {
     int raiseAmount = 0;
+    if (strategy.equals(ALL_IN)) {
+      return getNumberOfMarkers();
+    }
     if (strategy.equals(JOIN)) {
       return blind;
     }
@@ -75,12 +92,17 @@ public class HumanPlayer extends Player {
       strategy = QUIT;
       return 0;
     }
+    if (raiseAmount == getNumberOfMarkers()) {
+      System.out.println("You have no markers left. You have to go all-in. ");
+      strategy = ALL_IN;
+    }
     return raiseAmount;
   }
 
   private int getRaiseAmount(int blind) {
     if (!hasMarkersForAmount(blind)) {
-      throw new InsufficentMarkersException("You have no markers to pay the blind");
+      System.out.println("You don't have markers to pay the blind [" + blind +"], you have to go all in. ");
+      return getNumberOfMarkers();
     }
     boolean hasMarkersForBlind = false;
     boolean hasMarkers = false;
