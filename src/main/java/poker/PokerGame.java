@@ -46,7 +46,9 @@ public class PokerGame {
     List<Player> playersStillInTheGame = Lists.newArrayList();
     playersStillInTheGame.addAll(players);
     do {
-      playRound(players);
+      System.out.println("Blind is: [" + blind / 2 + "] resp: [" + blind + "]");
+      payBlinds(players, blind);
+      playRound(playersStillInTheGame);
       playersStillInTheGame = playersThatCanBet(players);
     } while (!doWeHaveAWinner(playersStillInTheGame));
     final Player theWinner = playersStillInTheGame.get(0);
@@ -65,8 +67,6 @@ public class PokerGame {
 
   void playRound(List<Player> players) {
     betManager = new BetManager(players, blind, potHandler);
-    System.out.println("Blind is: [" + blind / 2 + "] resp: [" + blind + "]");
-    payBlinds(players, blind);
     logger.debug("Start play before flop. ");
     playBeforeFlop(players);
     logger.debug("Start play flop. ");

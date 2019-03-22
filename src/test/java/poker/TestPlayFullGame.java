@@ -65,6 +65,4 @@ public class TestPlayFullGame {
   public void clearGame() {
     pokerGame.clearGameForTests();
   }
-
-
 }
