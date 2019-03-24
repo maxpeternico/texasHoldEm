@@ -24,4 +24,21 @@ enum Ordinal {
     public int getValue() {
         return this.value;
     }
+
+    @Override
+    public String toString() {
+        if (getValue() == 11) {
+            return "J";
+        }
+        if (getValue() == 12) {
+            return "Q";
+        }
+        if (getValue() == 13) {
+            return "K";
+        }
+        if (getValue() == 14) {
+            return "A";
+        }
+        return Integer.toString(value);
+    }
 }

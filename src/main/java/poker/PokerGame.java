@@ -70,13 +70,13 @@ public class PokerGame {
     logger.debug("Start play before flop. ");
     playBeforeFlop(players);
     logger.debug("Start play flop. ");
-    increaseDraw();
+    draw = Draw.increaseDraw(draw);
     playFlop(players);
     logger.debug("Start play before turn. ");
-    increaseDraw();
+    draw = Draw.increaseDraw(draw);
     playTurn(players);
     logger.debug("Start play before river. ");
-    increaseDraw();
+    draw = Draw.increaseDraw(draw);
     playRiver(players);
     logger.debug("Get the winner. ");
     getTheWinner(potHandler, players);
@@ -228,11 +228,10 @@ public class PokerGame {
                         Consumer<Player> clearBlind) {
     final int indexOfOldBlindPlayer = getPlayerWithBlind.apply(players);
     Player newBlindPlayer = players.get(getNewBlindIndex(players, indexOfOldBlindPlayer));
-    logger.debug("Set blind to :[" + newBlindPlayer.getName() + "]");
     final Player playerWithOldBlind = players.get(indexOfOldBlindPlayer);
     logger.debug("Clear blind for :[" + playerWithOldBlind.getName() + "]");
     setBlind.accept(newBlindPlayer);
-    logger.debug("Set blind for :[" + newBlindPlayer.getName() + "]");
+    System.out.println("Set blind for :[" + newBlindPlayer.getName() + "]");
     clearBlind.accept(playerWithOldBlind);
     int raiseAmount = blindAmount;
     if (newBlindPlayer.canPay(blindAmount)) {
@@ -458,15 +457,15 @@ public class PokerGame {
     betManager.updateTurn();
   }
 
-  public void increaseDraw() {
-    draw = Draw.increaseDraw(draw);
-  }
-
   public void setTurnToBetManager(List<Card> turnCard) {
     betManager.addTurnCardToCommonHand(turnCard);
   }
 
   public void setRiverToBetManager(List<Card> riverCard) {
     betManager.addRiverCardToCommonHand(riverCard);
+  }
+
+  void increaseDraw getDraw() {
+    draw = Draw.increaseDraw(draw);
   }
 }

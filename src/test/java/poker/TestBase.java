@@ -93,7 +93,8 @@ public abstract class TestBase {
   }
 
   protected void prepareFlop(List<Card> flopCards) {
-    getPokerGame().increaseDraw();
+    final Draw draw = getPokerGame().getDraw();
+    Draw.increaseDraw(draw);
     getPokerGame().addToCommonHand(flopCards);
   }
 

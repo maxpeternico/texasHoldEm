@@ -46,7 +46,7 @@ class Card {
     }
 
     public String toString() {
-        return "Color:[" + this.getColor() + "] value:[" + this.getOrdinal() + "]";
+        return this.getColor() + this.getOrdinal().toString() + " ";
 
     }
 

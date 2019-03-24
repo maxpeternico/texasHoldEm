@@ -36,14 +36,17 @@ public class BetManager {
 
   public void addFlopCardsToCommonhand(List<Card> flopCards) {
     commonHand.addAll(flopCards);
+    draw = Draw.increaseDraw(draw);
   }
 
   public void addRiverCardToCommonHand(List<Card> riverCard) {
     commonHand.addAll(riverCard);
+    draw = Draw.increaseDraw(draw);
   }
 
   public void addTurnCardToCommonHand(List<Card> riverCard) {
     commonHand.addAll(riverCard);
+    draw = Draw.increaseDraw(draw);
   }
 
   public String bet() {

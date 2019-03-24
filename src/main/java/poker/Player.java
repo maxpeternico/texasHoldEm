@@ -213,10 +213,12 @@ public abstract class Player {
       return getAction().getAmount();
     }
     if (hasBigBlind()) {
+      logger.trace("{{}} has big blind. isBeforeFrop {{}}", getName(), isBeforeFlop == true);
       if (getAction().getAmount() == 0) {
         return getBlindAmount();
       }
       if (getAction().getAmount() >= getBlindAmount()) {
+        logger.trace("Amount: {{}} blindAmount", getBlindAmount());
         return getAction().getAmount() - getBlindAmount();
       }
       if (!getAction().isAllIn()) {
@@ -224,10 +226,12 @@ public abstract class Player {
       }
     }
     if (hasLittleBlind()) {
+      logger.trace("{{}} has big blind. isBeforeFlop ", getName(), isBeforeFlop == true);
       if (getAction().getAmount() == 0) {
         return getBlindAmount();
       }
       if (getAction().getAmount() >= getBlindAmount()) {
+        logger.trace("Amount: {{}} blindAmount", getBlindAmount());
         return getAction().getAmount() - getBlindAmount();
       }
       if (!getAction().isAllIn()) {
