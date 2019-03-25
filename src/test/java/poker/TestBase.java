@@ -84,7 +84,6 @@ public abstract class TestBase {
   protected void prepareBeforeFlop(List<Player> players,
                                    int blindAmount,
                                    List<List<Card>> privateHands) {
-    getPokerGame().setTurnForUnitTest(Draw.BEFORE_FLOP);
     getPokerGame().initBlinds(players);
     getPokerGame().payBlinds(players, blindAmount);
     for (int i=0;i < players.size();i++) {
@@ -93,26 +92,22 @@ public abstract class TestBase {
   }
 
   protected void prepareFlop(List<Card> flopCards) {
-    final Draw draw = getPokerGame().getDraw();
-    Draw.increaseDraw(draw);
+    getPokerGame().increaseDrawForTest();
     getPokerGame().addToCommonHand(flopCards);
   }
 
-  protected void prepareRiver(Color spades, Ordinal two) {
-    getPokerGame().increaseDraw();
-    getPokerGame().addToCommonHand(Arrays.asList(drawCard(spades, two)));
-  }
-
   protected void prepareTurn(Color hearts, Ordinal queen) {
-    getPokerGame().increaseDraw();
+    getPokerGame().increaseDrawForTest();
     getPokerGame().addToCommonHand(Arrays.asList(drawCard(hearts, queen)));
   }
 
   protected void prepareRiver(List<Card> riverCard) {
+    getPokerGame().increaseDrawForTest();
     prepareTurn(riverCard.get(0).getColor(), riverCard.get(0).getOrdinal());
   }
 
   protected void prepareTurn(List<Card> turnCard) {
+    getPokerGame().increaseDrawForTest();
     prepareTurn(turnCard.get(0).getColor(), turnCard.get(0).getOrdinal());
   }
 

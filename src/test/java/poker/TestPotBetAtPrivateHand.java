@@ -315,13 +315,12 @@ public class TestPotBetAtPrivateHand extends TestBase {
     final Player player1 = players.get(1);
     pokerGame.setPrivateHand(player1, drawPairOfKnightsNegative());
 
-    pokerGame.setTurnForUnitTest(Draw.BEFORE_FLOP);
     pokerGame.initBlinds(players);
     try {
       pokerGame.addToCommonHand(Arrays.asList(drawCard(Color.hearts, Ordinal.knight)));
       fail("Multiple card not detected.");
     } catch (RuntimeException e) {
-      assertEquals(e.getMessage(), "Card [Color:[hearts] value:[knight]] is not present in the Deck!");
+      assertEquals(e.getMessage(), "Card [♡J ] is not present in the Deck!");
     }
   }
 

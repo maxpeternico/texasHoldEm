@@ -32,7 +32,6 @@ public class TestBetting {
 
     pokerGame.initBlinds(playerList);
     pokerGame.payBlinds(playerList, 50);
-    pokerGame.setTurnForUnitTest(Draw.BEFORE_FLOP);
     List<Card> emptyCommonhand = new ArrayList<>();
     final Points jornsPoints = ((RobotPlayer) jorn).calculatePoints(2, Draw.BEFORE_FLOP, emptyCommonhand);
     final Points staffansPoints = ((RobotPlayer) staffan).calculatePoints(2, Draw.BEFORE_FLOP, emptyCommonhand);
@@ -101,7 +100,6 @@ public class TestBetting {
     players.add(thomas);
     pokerGame.initBlinds(players);
     pokerGame.payBlinds(players, 50);
-    pokerGame.setTurnForUnitTest(Draw.BEFORE_FLOP);
 
     BetManager betManager = new BetManager(players, 50, pokerGame.getPotHandler());
     pokerGame.setBetManager(betManager);
@@ -132,7 +130,6 @@ public class TestBetting {
 
     pokerGame.initBlinds(players);
     pokerGame.payBlinds(players, 50);
-    pokerGame.setTurnForUnitTest(Draw.BEFORE_FLOP);
 
     BetManager betManager = new BetManager(players, 50, pokerGame.getPotHandler());
     pokerGame.setBetManager(betManager);

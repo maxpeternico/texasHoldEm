@@ -11,18 +11,4 @@ enum Draw {
   Draw(int value) {
     this.drawValue = value;
   }
-
-  public static Draw increaseDraw(Draw draw) {
-    switch (draw) {
-      case BEFORE_FLOP:
-        return Draw.FLOP;
-      case FLOP:
-        return Draw.TURN;
-      case TURN:
-         return Draw.RIVER;
-      case RIVER:
-        return Draw.BEFORE_FLOP;
-    }
-    return null;
-  }
 }

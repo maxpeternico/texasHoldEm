@@ -15,7 +15,7 @@ public class BetManager {
   private final int blind;
   private List<Player> playerList;
   private Map<Player, Boolean> bettingMap = Maps.newLinkedHashMap();
-  private Draw draw = Draw.BEFORE_FLOP;
+  private Draw draw;
   private List<Card> commonHand = Lists.newArrayList();
   private PotHandler potHandler;
   private int maxRaiseFromAPlayer;
@@ -31,22 +31,23 @@ public class BetManager {
     this.potHandler = potHandler;
     this.maxRaiseFromAPlayer = 0;
     initCreateBettingDecisionList(playerList);
+    draw = Draw.BEFORE_FLOP;
     logger.debug("Creating new betManager with highest raise: {{}}", maxRaiseFromAPlayer);
   }
 
-  public void addFlopCardsToCommonhand(List<Card> flopCards) {
+  public void addFlopCardsToCommonhand(List<Card> flopCards, Draw draw) {
     commonHand.addAll(flopCards);
-    draw = Draw.increaseDraw(draw);
+    this.draw = draw;
   }
 
-  public void addRiverCardToCommonHand(List<Card> riverCard) {
+  public void addRiverCardToCommonHand(List<Card> riverCard, Draw draw) {
     commonHand.addAll(riverCard);
-    draw = Draw.increaseDraw(draw);
-  }
+    this.draw = draw;
+   }
 
-  public void addTurnCardToCommonHand(List<Card> riverCard) {
+  public void addTurnCardToCommonHand(List<Card> riverCard, Draw draw) {
     commonHand.addAll(riverCard);
-    draw = Draw.increaseDraw(draw);
+    this.draw = draw;
   }
 
   public String bet() {
@@ -204,7 +205,6 @@ public class BetManager {
   }
 
   public void updateTurn() {
-    draw = Draw.increaseDraw(draw);
     maxRaiseThisDraw = 0;
   }
 

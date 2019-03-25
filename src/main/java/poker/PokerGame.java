@@ -21,7 +21,6 @@ public class PokerGame {
   private static final Logger logger = LogManager.getLogger(PokerGame.class);
   private int blind = 50;
   static final int TOTAL_MARKERS_PER_PLAYER = 2500;
-  private Draw draw;
   private PotHandler potHandler = new PotHandler();
   private BetManager betManager;
 
@@ -42,7 +41,6 @@ public class PokerGame {
     createPlayers();
     List<Player> players = dealer.getPlayers();
     initBlinds(players);
-    draw = Draw.BEFORE_FLOP;
     List<Player> playersStillInTheGame = Lists.newArrayList();
     playersStillInTheGame.addAll(players);
     do {
@@ -70,13 +68,10 @@ public class PokerGame {
     logger.debug("Start play before flop. ");
     playBeforeFlop(players);
     logger.debug("Start play flop. ");
-    draw = Draw.increaseDraw(draw);
     playFlop(players);
     logger.debug("Start play before turn. ");
-    draw = Draw.increaseDraw(draw);
     playTurn(players);
     logger.debug("Start play before river. ");
-    draw = Draw.increaseDraw(draw);
     playRiver(players);
     logger.debug("Get the winner. ");
     getTheWinner(potHandler, players);
@@ -114,24 +109,27 @@ public class PokerGame {
   }
 
   String playRiver(List<Player> players) {
+    dealer.increaseDraw();
     final List<Card> riverCard = dealer.drawRiver();
-    betManager.addRiverCardToCommonHand(riverCard);
+    betManager.addRiverCardToCommonHand(riverCard, dealer.getDraw());
     logger.info("Total hand after river: ");
     printHumanHand();
     return decideBet(getPlayersWhoHasntFinishedBetting(players));
   }
 
   String playTurn(List<Player> players) {
+    dealer.increaseDraw();
     final List<Card> turnCard = dealer.drawTurn();
-    betManager.addTurnCardToCommonHand(turnCard);
-    logger.info("Total hand after draw: ");
+    betManager.addTurnCardToCommonHand(turnCard, dealer.getDraw());
+    logger.info("Total hand after drawManager: ");
     printHumanHand();
     return decideBet(getPlayersWhoHasntFinishedBetting(players));
   }
 
   String playFlop(List<Player> players) {
+    dealer.increaseDraw();
     final List<Card> flopCards = dealer.drawFlop();
-    betManager.addFlopCardsToCommonhand(flopCards);
+    betManager.addFlopCardsToCommonhand(flopCards, dealer.getDraw());
     logger.info("Total hand after flop: ");
     printHumanHand();
     return decideBet(getPlayersWhoHasntFinishedBetting(players));
@@ -164,7 +162,7 @@ public class PokerGame {
     if (playersStillInTheGame.size() == 1) {
       return true;
     } else if (playersStillInTheGame.size() == 0) {
-      throw new RuntimeException("How to handle draw?");
+      throw new RuntimeException("How to handle drawManager?");
     }
     return false;
   }
@@ -425,10 +423,6 @@ public class PokerGame {
     dealer.clearGameForTests();
   }
 
-  void setTurnForUnitTest(Draw beforeFlop) {
-    draw = beforeFlop;
-  }
-
   void registerPlayer(Player player) {
     dealer.registerPlayer(player);
   }
@@ -450,7 +444,7 @@ public class PokerGame {
   }
 
   public void setFlopToBetManager(List<Card> flopCardForTest) {
-    betManager.addFlopCardsToCommonhand(flopCardForTest);
+    betManager.addFlopCardsToCommonhand(flopCardForTest, dealer.getDraw());
   }
 
   public void updateTurnForBetManager() {
@@ -458,14 +452,14 @@ public class PokerGame {
   }
 
   public void setTurnToBetManager(List<Card> turnCard) {
-    betManager.addTurnCardToCommonHand(turnCard);
+    betManager.addTurnCardToCommonHand(turnCard, dealer.getDraw());
   }
 
   public void setRiverToBetManager(List<Card> riverCard) {
-    betManager.addRiverCardToCommonHand(riverCard);
+    betManager.addRiverCardToCommonHand(riverCard, dealer.getDraw());
   }
 
-  void increaseDraw getDraw() {
-    draw = Draw.increaseDraw(draw);
+   void increaseDrawForTest() {
+    dealer.increaseDraw();
   }
 }

@@ -29,7 +29,6 @@ public class TestPlayFullGame {
 
     pokerGame.initBlinds(players);
     do {
-      pokerGame.setTurnForUnitTest(Draw.BEFORE_FLOP);
       pokerGame.playRound(players);
     } while (moreThanOnePlayerHasMarkers(players));
   }
@@ -43,7 +42,6 @@ public class TestPlayFullGame {
 
     pokerGame.initBlinds(players);
     do {
-      pokerGame.setTurnForUnitTest(Draw.BEFORE_FLOP);
       pokerGame.playRound(players);
     } while (moreThanOnePlayerHasMarkers(players));
   }

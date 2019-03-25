@@ -17,6 +17,7 @@ public class Dealer {
 
   private static final Logger logger = LogManager.getLogger(Dealer.class.getName());
   private static final Dealer dealer = new Dealer();
+  private DrawManager drawManager = new DrawManager();
   private List<Player> players = new ArrayList<>();
   private List<Card> deck = new ArrayList<>();
   private final Color[] colors = {Color.hearts, Color.spades, Color.clubs, Color.diamonds};
@@ -441,5 +442,13 @@ public class Dealer {
 
   void addToCommonHand(List<Card> cards) {
     commonHand.addAll(drawCardsFromDeck(cards));
+  }
+
+  public void increaseDraw() {
+    drawManager.increaseDraw();
+  }
+
+  public Draw getDraw() {
+    return drawManager.getDraw();
   }
 }
