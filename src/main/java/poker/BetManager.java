@@ -146,10 +146,11 @@ public class BetManager {
       bettingMap.put(player, true);
       result.append("Player " + player.getName() + " " + action.toString() + ". ");
       logger.trace("Player {{}} has made a bet", player.getName());
-
+      System.out.println("Player " + player.getName() + " decides to " + action.toString());
       if (!action.isFold()) {
         if (shallPayToPot(playerPartInPots, maxRaiseFromAPlayer)) {
           final int raiseOrCheckValue = player.getActionAmount(isBeforeFlop(draw));
+          System.out.println("Player " + player.getName() + " puts " + raiseOrCheckValue + " markers to the pot. ");
           potHandler.joinPot(player, raiseOrCheckValue);
           player.decreaseMarkers(raiseOrCheckValue);
           logger.debug("Pot size :[{}]. ", potHandler.getNumberOfMarkersInAllPots());

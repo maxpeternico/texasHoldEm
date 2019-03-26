@@ -47,6 +47,7 @@ public class PokerGame {
       System.out.println("Blind is: [" + blind / 2 + "] resp: [" + blind + "]");
       payBlinds(players, blind);
       playRound(playersStillInTheGame);
+      KeyboardHelper.getCharFromKeyboard(Lists.newArrayList("O"), "Press O to continue");
       playersStillInTheGame = playersThatCanBet(players);
     } while (!doWeHaveAWinner(playersStillInTheGame));
     final Player theWinner = playersStillInTheGame.get(0);
@@ -100,10 +101,8 @@ public class PokerGame {
     checkTotalHand(dealer, theWinner.getName(), theWinner.getPrivateHand());
     theWinner.addMarkers(pot.getNumberOfMarkersInAllPots());
     logger.info("Player [{}] wins pot [{}] with [{}] markers.", theWinner.getName(), pot, pot.getNumberOfMarkersInAllPots());
-    int totalNumberOfMarkers = 0;
     for (Player player : players) {
       logger.info("Number of markers for player [{}] : [{}]", player.getName(), player.getNumberOfMarkers());
-      totalNumberOfMarkers += player.getNumberOfMarkers();
     }
     return theWinner;
   }
@@ -170,9 +169,6 @@ public class PokerGame {
   private List<Player> playersThatCanBet(List<Player> players) {
     final ArrayList<Player> playersStillInTheGame = Lists.newArrayList();
     players.stream().forEach(e -> {
- //     if (e.hasFolded()) {
- //       logger.debug("Player :[" + e.getName() + "] has folded.");
-//      } else
         if (!e.hasAnyMarkers()) {
         logger.debug("Player :[" + e.getName() + "] has no more markers.");
       } else {
@@ -189,8 +185,6 @@ public class PokerGame {
         logger.debug("Player :[" + e.getName() + "] is all in, no bet.");
       } else if (e.hasFolded()) {
         logger.debug("Player :[" + e.getName() + "] has folded, no bet.");
-//      } else if (!e.hasAnyMarkers()) {
-//        logger.debug("Player :[" + e.getName() + "] has no markers and can not bet.");
       } else {
         playersStillInTheGame.add(e);
       }
@@ -203,6 +197,7 @@ public class PokerGame {
       // A player has won the game, no need to continue
       return;
     }
+    System.out.println("Player to play little blind: ");
     payBlind(
       allPlayers -> getPlayerWithLittleBlind(players),
       players,
@@ -210,6 +205,7 @@ public class PokerGame {
       player -> player.setLittleBlind(blindAmount / 2),
       Player::clearLittleBlind
     );
+    System.out.println("Player to play big blind: ");
     payBlind(
       allPlayers -> getPlayerWithBigBlind(players),
       players,
@@ -229,7 +225,7 @@ public class PokerGame {
     final Player playerWithOldBlind = players.get(indexOfOldBlindPlayer);
     logger.debug("Clear blind for :[" + playerWithOldBlind.getName() + "]");
     setBlind.accept(newBlindPlayer);
-    System.out.println("Set blind for :[" + newBlindPlayer.getName() + "]");
+    System.out.println("Set blind for :[" + newBlindPlayer.getName() + "] amount: " + blindAmount);
     clearBlind.accept(playerWithOldBlind);
     int raiseAmount = blindAmount;
     if (newBlindPlayer.canPay(blindAmount)) {

@@ -6,16 +6,16 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Logger name="poker.PokerGame" level="trace" additivity="false">
+        <Logger name="poker.PokerGame" level="info" additivity="false">
             <AppenderRef ref="Console" />
         </Logger>
         <Logger name="poker.EvaluationHandler" level="info" additivity="false">
             <AppenderRef ref="Console" />
         </Logger>
-        <Logger name="poker.RobotPlayer" level="debug" additivity="false">
+        <Logger name="poker.RobotPlayer" level="info" additivity="false">
             <AppenderRef ref="Console" />
         </Logger>
-        <Logger name="poker.Player" level="trace" additivity="false">
+        <Logger name="poker.Player" level="info" additivity="false">
             <AppenderRef ref="Console" />
         </Logger>
         <Logger name="poker.Dealer" level="info" additivity="false">
@@ -27,7 +27,7 @@
         <Logger name="poker.PotHandler" level="info" additivity="false">
             <AppenderRef ref="Console" />
         </Logger>
-        <Logger name="poker.BetManager" level="debug" additivity="false">
+        <Logger name="poker.BetManager" level="info" additivity="false">
             <AppenderRef ref="Console" />
         </Logger>
         <Root level="info">
