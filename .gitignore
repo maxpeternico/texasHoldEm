@@ -6,4 +6,6 @@ out/production/classes/Dealer.class
 out/production/classes/Player.class
 .gradle/*
 build/*
+.gradlew
+.gradlew.bat
 
