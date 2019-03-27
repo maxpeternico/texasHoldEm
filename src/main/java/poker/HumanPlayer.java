@@ -23,17 +23,17 @@ public class HumanPlayer extends Player {
   @Override
   public void decideStrategy(Draw draw, int numberOfRemainingPlayers, List<Card> commonHand) {
     String decision = KeyboardHelper.getCharFromKeyboard(Lists.newArrayList("A", "R", "C", "F"), "(A)ll in/(R)aise/(C)heck/(F)old:");
-    switch (decision) {
-      case "A":
+    switch (decision.charAt(0)) {
+      case 'A':
         strategy = ALL_IN;
         break;
-      case "R":
+      case 'R':
         strategy = OFFENSIVE;
         break;
-      case "C":
+      case 'C':
         strategy = JOIN;
         break;
-      case "F":
+      case 'F':
         strategy = QUIT;
         break;
       default:
@@ -58,12 +58,17 @@ public class HumanPlayer extends Player {
         action.setAmount(raiseAmount);
         break;
       case OFFENSIVE:
-        action = new Action(ActionEnum.RAISE);
-        action.setAmount(raiseAmount);
+        if (raiseAmount > amountToJoinPot) {
+          action = new Action(ActionEnum.RAISE);
+          action.setAmount(raiseAmount);
+        } else {
+          System.out.println("Raise amount must be higher than " + amountToJoinPot);
+          // TODO: How to ask again?
+        }
         break;
       case JOIN:
         action = new Action(ActionEnum.CHECK);
-        action.setAmount(raiseAmount);
+        action.setAmount(amountToJoinPot);
         break;
       case QUIT:
         action = new Action(ActionEnum.FOLD);

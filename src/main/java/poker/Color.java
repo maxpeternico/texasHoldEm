@@ -19,16 +19,16 @@ enum Color {
     @Override
     public String toString() {
         if (getValue() == 3) {
-            return "\u2661";
+            return "♡";
         }
         if (getValue() == 2) {
-            return "\u2660";
+            return "♠";
         }
         if (getValue() == 1) {
-            return "\u2662";
+            return "♢";
         }
         if (getValue() == 0) {
-            return "\u2663";
+            return "♣";
         }
         return null;
     }
