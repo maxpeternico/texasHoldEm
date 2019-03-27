@@ -52,6 +52,7 @@ public class BetManager {
 
   public String bet() {
     result = new StringBuffer();
+    updateTurn();
     Player playerWithHighestRaise = betUntilAllAreSatisfied(false);
     while (doesAnyPlayersWantToBetMore(playerWithHighestRaise)) {
       createBettingDecisionList(playerWithHighestRaise);

@@ -231,13 +231,6 @@ public abstract class Player {
 
   protected int getBlindAmount() {
     return blindAmount;
-//    if (hasLittleBlind()) {
-//      return blindAmount / 2;
-//    }
-//    if (hasBigBlind()) {
-//      return blindAmount;
-//    }
-//    return 0;
   }
 
   protected abstract void setAction(int raiseAmount,
