@@ -7,8 +7,6 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import static poker.ActionEnum.ALL_IN;
-
 public abstract class Player {
 
   private String name;
@@ -206,14 +204,14 @@ public abstract class Player {
   }
 
   public int getActionAmount(boolean isBeforeFlop) {
-    if (isAllIn()) {
+    if (getAction().isAllIn()) {
       return getAction().getAmount();
     }
     if (!isBeforeFlop) {
       return getAction().getAmount();
     }
-    if (hasBigBlind()) {
-      logger.trace("{{}} has big blind. isBeforeFrop {{}}", getName(), isBeforeFlop == true);
+    if (hasBlind()) {
+      logger.trace("{{}} has blind. isBeforeFrop {{}}", getName(), isBeforeFlop == true);
       if (getAction().getAmount() == 0) {
         return getBlindAmount();
       }
@@ -225,19 +223,6 @@ public abstract class Player {
         throw new RuntimeException("Action amount [" + getAction().getAmount() + " must be higher than big blind amount [" + getBlindAmount() + "]");
       }
     }
-    if (hasLittleBlind()) {
-      logger.trace("{{}} has big blind. isBeforeFlop ", getName(), isBeforeFlop == true);
-      if (getAction().getAmount() == 0) {
-        return getBlindAmount();
-      }
-      if (getAction().getAmount() >= getBlindAmount()) {
-        logger.trace("Amount: {{}} blindAmount", getBlindAmount());
-        return getAction().getAmount() - getBlindAmount();
-      }
-      if (!getAction().isAllIn()) {
-        throw new RuntimeException("Action amount [" + getAction().getAmount() + " must be higher than little blind amount [" + 2 * getBlindAmount() + "]");
-      }
-    }
     if (getAction().isFold()) {
       return 0;
     }
@@ -246,6 +231,13 @@ public abstract class Player {
 
   protected int getBlindAmount() {
     return blindAmount;
+//    if (hasLittleBlind()) {
+//      return blindAmount / 2;
+//    }
+//    if (hasBigBlind()) {
+//      return blindAmount;
+//    }
+//    return 0;
   }
 
   protected abstract void setAction(int raiseAmount,
