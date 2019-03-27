@@ -62,8 +62,11 @@ public class HumanPlayer extends Player {
           action = new Action(ActionEnum.RAISE);
           action.setAmount(raiseAmount);
         } else {
-          System.out.println("Raise amount must be higher than " + amountToJoinPot);
-          // TODO: How to ask again?
+          do {
+            // TODO: it possible to get stuck if chosing Raise and other player has all in and human player has less markers
+            System.out.println("Raise amount must be higher than " + amountToJoinPot);
+            raiseAmount = getRaiseAmount(blindAmount);
+          }while (raiseAmount < amountToJoinPot);
         }
         break;
       case JOIN:
