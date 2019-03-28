@@ -1,9 +1,5 @@
 .idea/
 out/
-out/production/classes/PlayPoker.class
-out/test/classes/SimulateMultipleGames.class
-out/production/classes/Dealer.class
-out/production/classes/Player.class
 build/
 .gradle/
 .DS_Store
