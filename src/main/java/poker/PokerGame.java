@@ -70,9 +70,9 @@ public class PokerGame {
     playBeforeFlop(players);
     System.out.println("Start play flop. ");
     playFlop(players);
-    System.out.println("Start play before turn. ");
+    System.out.println("Start play turn. ");
     playTurn(players);
-    System.out.println("Start play before river. ");
+    System.out.println("Start play river. ");
     playRiver(players);
     logger.debug("Get the winner. ");
     getTheWinner(potHandler, players);

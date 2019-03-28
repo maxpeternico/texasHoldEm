@@ -16,7 +16,7 @@ public class HumanPlayer extends Player {
 
   private static final Logger logger = LogManager.getLogger(HumanPlayer.class);
 
-  public HumanPlayer(String playerName, int totalMarkersPerPlayer) {
+  HumanPlayer(String playerName, int totalMarkersPerPlayer) {
     super(playerName, totalMarkersPerPlayer);
   }
 
@@ -60,15 +60,21 @@ public class HumanPlayer extends Player {
       case OFFENSIVE:
         if (raiseAmount > amountToJoinPot) {
           action = new Action(ActionEnum.RAISE);
-          action.setAmount(raiseAmount);
         } else {
-          do {
-            // TODO: it possible to get stuck if chosing Raise and other player has all in and human player has less markers
-            System.out.println("Raise amount must be higher than " + amountToJoinPot);
-            raiseAmount = getRaiseAmount(blindAmount);
-          }while (raiseAmount < amountToJoinPot);
+          if (amountToJoinPot >= getNumberOfMarkers()) {
+            System.out.println("You do not have markers enough for raise, you have to go all in. ");
+            action = new Action(ActionEnum.ALL_IN);
+            raiseAmount = getNumberOfMarkers();
+          } else {
+            do {
+              System.out.println("Raise amount must be higher than " + amountToJoinPot);
+              raiseAmount = getRaiseAmount(blindAmount);
+            }while (raiseAmount < amountToJoinPot);
+          }
+          action.setAmount(raiseAmount);
+          break;
         }
-        break;
+        action.setAmount(raiseAmount);
       case JOIN:
         action = new Action(ActionEnum.CHECK);
         action.setAmount(amountToJoinPot);
@@ -112,9 +118,9 @@ public class HumanPlayer extends Player {
       System.out.println("You don't have markers to pay the blind [" + blind +"], you have to go all in. ");
       return getNumberOfMarkers();
     }
-    boolean hasMarkersForBlind = false;
-    boolean hasMarkers = false;
-    int desiredRaiseAmount = 0;
+    boolean hasMarkersForBlind;
+    boolean hasMarkers;
+    int desiredRaiseAmount;
     do {
       desiredRaiseAmount = Integer.parseInt(KeyboardHelper.getCharFromKeyboard(Lists.newArrayList("0", "1", "2", "3", "4", "5", "6", "7", "8", "9"), "Raise amount:"));
       hasMarkersForBlind = isDesiredRaiseAmountHigherThanBlind(desiredRaiseAmount, blind);
