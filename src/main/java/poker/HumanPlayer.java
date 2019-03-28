@@ -46,37 +46,36 @@ public class HumanPlayer extends Player {
                            int amountToJoinPot,
                            int maxRaiseThisDraw,
                            int playersPartInPots) {
-    if (strategy.equals(ALL_IN)) {
-      while (raiseAmount < amountToJoinPot) {
-        System.out.println("You must bet more than: [" + amountToJoinPot + "]");
-        raiseAmount = getRaiseAmount(getBlindAmount());
-      }
-    }
     switch (strategy) {
       case ALL_IN:
         action = new Action(ActionEnum.ALL_IN);
         action.setAmount(raiseAmount);
         break;
       case OFFENSIVE:
-        if (raiseAmount > amountToJoinPot) {
-          action = new Action(ActionEnum.RAISE);
-        } else {
-          if (amountToJoinPot >= getNumberOfMarkers()) {
-            System.out.println("You do not have markers enough for raise, you have to go all in. ");
-            action = new Action(ActionEnum.ALL_IN);
-            raiseAmount = getNumberOfMarkers();
+        if (canPlayerAffordToDoAction(amountToJoinPot)) {
+          if (raiseAmount > amountToJoinPot) {
+            action = new Action(ActionEnum.RAISE);
           } else {
             do {
               System.out.println("Raise amount must be higher than " + amountToJoinPot);
               raiseAmount = getRaiseAmount(blindAmount);
+              System.out.println("raiseAmount: " + raiseAmount + " numberOfMarkers: " + getNumberOfMarkers() + " amountToJoinPot :" + amountToJoinPot);
+              throw new RuntimeException("Stop");
             }while (raiseAmount < amountToJoinPot);
           }
-          action.setAmount(raiseAmount);
-          break;
+        } else {
+          action = new Action(ActionEnum.ALL_IN);
+          raiseAmount = getNumberOfMarkers();
         }
         action.setAmount(raiseAmount);
+        break;
       case JOIN:
-        action = new Action(ActionEnum.CHECK);
+        if (canPlayerAffordToDoAction(amountToJoinPot)) {
+          action = new Action(ActionEnum.ALL_IN);
+          amountToJoinPot = getNumberOfMarkers();
+        } else {
+          action = new Action(ActionEnum.CHECK);
+        }
         action.setAmount(amountToJoinPot);
         break;
       case QUIT:
@@ -85,6 +84,14 @@ public class HumanPlayer extends Player {
       default:
         throw new RuntimeException("This should not happen. strategy:[" + strategy + "]");
     }
+  }
+
+  private boolean canPlayerAffordToDoAction(int amountToJoinPot) {
+    if (amountToJoinPot >= getNumberOfMarkers()) {
+      System.out.println("You do not have markers enough for action, you have to go all in. ");
+      return true;
+    }
+    return false;
   }
 
   @Override
