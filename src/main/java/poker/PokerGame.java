@@ -66,13 +66,13 @@ public class PokerGame {
 
   void playRound(List<Player> players) {
     betManager = new BetManager(players, blind, potHandler);
-    logger.debug("Start play before flop. ");
+    System.out.println("Start play before flop. ");
     playBeforeFlop(players);
-    logger.debug("Start play flop. ");
+    System.out.println("Start play flop. ");
     playFlop(players);
-    logger.debug("Start play before turn. ");
+    System.out.println("Start play before turn. ");
     playTurn(players);
-    logger.debug("Start play before river. ");
+    System.out.println("Start play before river. ");
     playRiver(players);
     logger.debug("Get the winner. ");
     getTheWinner(potHandler, players);
@@ -100,9 +100,9 @@ public class PokerGame {
     final Player theWinner = dealer.findTheWinner(getPlayersThatDidNotFold(players));
     checkTotalHand(dealer, theWinner.getName(), theWinner.getPrivateHand());
     theWinner.addMarkers(pot.getNumberOfMarkersInAllPots());
-    logger.info("Player [{}] wins pot [{}] with [{}] markers.", theWinner.getName(), pot, pot.getNumberOfMarkersInAllPots());
+    System.out.println("Player " + theWinner.getName() + " wins pot " + pot + " with " + pot.getNumberOfMarkersInAllPots() + " markers.");
     for (Player player : players) {
-      logger.info("Number of markers for player [{}] : [{}]", player.getName(), player.getNumberOfMarkers());
+      System.out.println("Number of markers for player " + player.getName() + " : " + player.getNumberOfMarkers());
     }
     return theWinner;
   }

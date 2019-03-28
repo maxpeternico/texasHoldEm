@@ -29,7 +29,7 @@ public class BetManager {
     this.playerList = playerList;
     this.blind = blind;
     this.potHandler = potHandler;
-    this.maxRaiseFromAPlayer = 0;
+    this.maxRaiseFromAPlayer = blind;
     initCreateBettingDecisionList(playerList);
     draw = Draw.BEFORE_FLOP;
     logger.debug("Creating new betManager with highest raise: {{}}", maxRaiseFromAPlayer);

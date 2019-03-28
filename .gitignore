@@ -4,3 +4,5 @@ build/
 .gradle/
 .DS_Store
 gradle/
+texasHoldEm.project.iml
+workspace.xml
