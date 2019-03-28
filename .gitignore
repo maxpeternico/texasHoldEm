@@ -7,6 +7,4 @@ out/production/classes/Player.class
 build/
 .gradle/
 .DS_Store
-gradlew
-gradlew.bat
 gradle/
