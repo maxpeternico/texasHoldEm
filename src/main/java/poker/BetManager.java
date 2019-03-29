@@ -55,6 +55,7 @@ public class BetManager {
     updateTurn();
     Player playerWithHighestRaise = betUntilAllAreSatisfied(false);
     while (doesAnyPlayersWantToBetMore(playerWithHighestRaise)) {
+      System.out.println("Bet more !");
       createBettingDecisionList(playerWithHighestRaise);
       playerWithHighestRaise = betUntilAllAreSatisfied(true);
     }
@@ -95,7 +96,7 @@ public class BetManager {
       addPlayerThatShallBet(getPlayerFromOldBettingMapIndex(oldBettingMap, i), oldBettingMap);
     }
     for (Player player : getPlayersFromBettingMap()) {
-      logger.trace("Member in new bettingMap [{}] ", player.getName());
+      logger.trace("Member in new bettingMap [{}]", player.getName());
     }
   }
 
@@ -125,6 +126,7 @@ public class BetManager {
 
   Player betUntilAllAreSatisfied(boolean firstPlayerAlreadyBet) {
     for (Player player : getPlayersFromBettingMap()) {
+      if (player.isAllIn() || player.hasFolded() && playerHasBet(player, bettingMap)) { continue; }
 
       // If a new betting map is created due to raise of another player, list must be re-ordered with the raising player first. Player has already bet
       if (firstPlayerAlreadyBet) {
@@ -169,6 +171,10 @@ public class BetManager {
       }
     }
     return getPlayersFromBettingMap().get(0);
+  }
+
+  private boolean playerHasBet(Player player, Map<Player, Boolean> bettingMap) {
+    return bettingMap.get(player);
   }
 
   private boolean allPlayersAreAllIn() {

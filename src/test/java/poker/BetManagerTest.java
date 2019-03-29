@@ -249,6 +249,11 @@ public class BetManagerTest extends TestBase {
     assertEquals(
       "Player Peter Action :[ALL_IN]. Player Thomas Action :[ALL_IN]. Player Anders Action :[ALL_IN]. "
       , decision);
+    String decision2 = betManager.bet();
+    assertEquals(
+      ""
+      , decision2);
+
   }
 
   @Override
