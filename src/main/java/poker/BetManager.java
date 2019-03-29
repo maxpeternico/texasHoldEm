@@ -126,7 +126,7 @@ public class BetManager {
 
   Player betUntilAllAreSatisfied(boolean firstPlayerAlreadyBet) {
     for (Player player : getPlayersFromBettingMap()) {
-      if (player.isAllIn() || player.hasFolded() && playerHasBet(player, bettingMap)) { continue; }
+      if ((player.isAllIn() || player.hasFolded()) && playerHasBet(player, bettingMap)) { continue; }
 
       // If a new betting map is created due to raise of another player, list must be re-ordered with the raising player first. Player has already bet
       if (firstPlayerAlreadyBet) {
@@ -174,7 +174,9 @@ public class BetManager {
   }
 
   private boolean playerHasBet(Player player, Map<Player, Boolean> bettingMap) {
-    return bettingMap.get(player);
+    final Boolean hasBet = bettingMap.get(player);
+    System.out.println("HasBet: " + hasBet);
+    return hasBet;
   }
 
   private boolean allPlayersAreAllIn() {
