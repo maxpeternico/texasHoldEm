@@ -7,11 +7,10 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 public class TestPotMoreThanTwoPlayers extends TestBase {
 
-  final PokerGame pokerGame = PokerGame.getInstance();
+  private final PokerGame pokerGame = PokerGame.getInstance();
 
   @Override
   protected PokerGame getPokerGame() {
@@ -21,7 +20,7 @@ public class TestPotMoreThanTwoPlayers extends TestBase {
   @Test
   public void testPotOneRaiseTwoCheck() {
     final List<Player> players = pokerGame.createNumberOfRobotPlayers(3, 2500);
-    players.stream().forEach(pokerGame::registerPlayer);
+    players.forEach(pokerGame::registerPlayer);
     final Player player0 = players.get(0);
     final Player player1 = players.get(1);
     final Player player2 = players.get(2);
@@ -63,7 +62,7 @@ public class TestPotMoreThanTwoPlayers extends TestBase {
     assertMarkersForPlayers(players);
 
     final List<Card> turnCard = Lists.newArrayList(new Card(Color.spades, Ordinal.two));
-    prepareTurn(turnCard);
+    prepareDraw(turnCard);
     pokerGame.setTurnToBetManager(turnCard);
     pokerGame.updateTurnForBetManager();
     decision = pokerGame.decideBet(players);
@@ -83,7 +82,7 @@ public class TestPotMoreThanTwoPlayers extends TestBase {
         3 * PokerGame.TOTAL_MARKERS_PER_PLAYER,
         player0.getNumberOfMarkers() + player1.getNumberOfMarkers() + player2.getNumberOfMarkers());
 
-    final int calculatedPot = calculatePot(potRaisePerPlayerTotalRound, players, bigBlindAmount);
+    final int calculatedPot = calculatePot(potRaisePerPlayerTotalRound, players);
     assertEquals(createIncorrectNumberOfMarkersForWinnerMessage(potRaisePerPlayerTotalRound, calculatedPot, player0),
         player0NumberOfMarkersAfterRound + calculatedPot,
         player0.getNumberOfMarkers());

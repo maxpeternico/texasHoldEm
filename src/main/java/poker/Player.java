@@ -15,13 +15,12 @@ public abstract class Player {
   private static final Logger logger = LogManager.getLogger(Player.class);
 
   private List<Card> cardsOnHand = new ArrayList<Card>();
-  private int i = 0;
   private boolean bigBlind = false;
   private boolean littleBlind = false;
   Strategy strategy = Strategy.NOT_DECIDED;
   protected Action action = new Action(ActionEnum.NOT_DECIDED);
-  protected int partInPot = 0;
-  protected Action previousAction = new Action(ActionEnum.NOT_DECIDED);
+  int partInPot = 0;
+  Action previousAction = new Action(ActionEnum.NOT_DECIDED);
   int blindAmount = 0;
 
   public Action getAction() {
@@ -38,7 +37,7 @@ public abstract class Player {
   }
 
   public int getInt() {
-    return this.i;
+    return 0;
   }
 
   @Override
@@ -46,20 +45,19 @@ public abstract class Player {
     return "Player [name=" + name + "]";
   }
 
-  public void addPrivateCards(List<Card> newCards) {
+  void addPrivateCards(List<Card> newCards) {
     cardsOnHand.addAll(newCards);
   }
 
-  public Map<Card, PokerResult> evaluateHand(List<Card> commonHand) {
+  Map<Card, PokerResult> evaluateHand(List<Card> commonHand) {
     List<Card> totalHand = new ArrayList<Card>();
     totalHand.addAll(cardsOnHand);
     totalHand.addAll(commonHand);
     logger.trace("[" + name + "]:s total hand is [" + EvaluationHandler.getHandAsString(totalHand) + "]");
-    Map<Card, PokerResult> result = EvaluationHandler.evaluateHand(name, totalHand);
-    return result;
+    return EvaluationHandler.evaluateHand(name, totalHand);
   }
 
-  public List<Card> getPrivateHand() {
+  List<Card> getPrivateHand() {
     return this.cardsOnHand;
   }
 
@@ -80,21 +78,14 @@ public abstract class Player {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
-      return false;
-    }
+    if (obj == null) return false;
     if (getClass() != obj.getClass()) {
       return false;
     }
     Player other = (Player) obj;
     if (name == null) {
-      if (other.name != null) {
-        return false;
-      }
-    } else if (!name.equals(other.name)) {
-      return false;
-    }
-    return true;
+      return other.name == null;
+    } else return name.equals(other.name);
   }
 
   public int getNumberOfMarkers() {
@@ -105,10 +96,7 @@ public abstract class Player {
     if (hasBigBlind()) {
       return true;
     }
-    if (hasLittleBlind()) {
-      return true;
-    }
-    return false;
+    return hasLittleBlind();
   }
 
   public boolean hasLittleBlind() {
@@ -119,29 +107,26 @@ public abstract class Player {
     return bigBlind;
   }
 
-  public void setLittleBlind(int blindAmount) {
+  void setLittleBlind(int blindAmount) {
     this.littleBlind = true;
     this.blindAmount = blindAmount;
   }
 
-  public void clearLittleBlind() {
+  void clearLittleBlind() {
     littleBlind = false;
   }
 
-  public void setBigBlind(int blindAmount) {
+  void setBigBlind(int blindAmount) {
     bigBlind = true;
     this.blindAmount = blindAmount;
   }
 
-  public void clearBigBlind() {
+  void clearBigBlind() {
     bigBlind = false;
   }
 
-  public boolean canPay(int pot) {
-    if (numberOfMarkers - pot < 0) {
-      return false;
-    }
-    return true;
+  boolean canPay(int pot) {
+    return numberOfMarkers - pot >= 0;
   }
 
   public void decreaseMarkers(int markers) {
@@ -155,36 +140,27 @@ public abstract class Player {
 
   public boolean hasAnyMarkers() {
     logger.trace("Player {{}} has {{}}} number of markers. ", getName(), numberOfMarkers);
-    if (numberOfMarkers > 0) {
-      return true;
-    }
-    return false;
+    return numberOfMarkers > 0;
   }
 
-  protected boolean isDesiredRaiseAmountHigherThanBlind(int amount, int blind) {
+  boolean isDesiredRaiseAmountHigherThanBlind(int amount, int blind) {
     if (amount < blind) {
       System.out.println("You must raise more than blind");
       return false;
     }
-    if (!hasMarkersForAmount(amount)) {
+    if (hasMarkersForAmount(amount)) {
       System.out.println("You don't have makers for :[" + amount + "]");
       return false;
     }
     return true;
   }
 
-  public boolean hasMarkersForAmount(int amount) {
-    if (amount > numberOfMarkers) {
-      return false;
-    }
-    return true;
+  boolean hasMarkersForAmount(int amount) {
+    return amount > numberOfMarkers;
   }
 
-  public boolean needToGoAllIn(int amount) {
-    if (amount >= numberOfMarkers) {
-      return true;
-    }
-    return false;
+  boolean needToGoAllIn(int amount) {
+    return amount >= numberOfMarkers;
   }
 
   public abstract void decideStrategy(Draw draw, int numberOfRemainingPlayers, List<Card> commonHand);
@@ -203,7 +179,7 @@ public abstract class Player {
     return getAction();
   }
 
-  public int getActionAmount(boolean isBeforeFlop) {
+  int getActionAmount(boolean isBeforeFlop) {
     if (getAction().isAllIn()) {
       return getAction().getAmount();
     }
@@ -211,7 +187,7 @@ public abstract class Player {
       return getAction().getAmount();
     }
     if (hasBlind()) {
-      logger.trace("{{}} has blind. isBeforeFrop {{}}", getName(), isBeforeFlop == true);
+      logger.trace("{{}} has blind. isBeforeFrop {{}}", getName(), isBeforeFlop);
       if (getAction().getAmount() == 0) {
         return getBlindAmount();
       }
@@ -229,7 +205,7 @@ public abstract class Player {
     return getAction().getAmount();
   }
 
-  protected int getBlindAmount() {
+  private int getBlindAmount() {
     return blindAmount;
   }
 
@@ -240,7 +216,7 @@ public abstract class Player {
 
   protected abstract int calculateRaiseAmount(int blind);
 
-  public void addMarkers(int markers) {
+  void addMarkers(int markers) {
     numberOfMarkers = numberOfMarkers + markers;
     logger.debug("Player :[" + getName() + "] gets :[" + markers + "]. Total number of markers :[" + numberOfMarkers + "]. ");
   }
@@ -250,13 +226,10 @@ public abstract class Player {
   }
 
   public boolean isAllIn() {
-    if (action.isAllIn()) {
-      return true;
-    }
-    return false;
+    return action.isAllIn();
   }
 
-  public boolean hasNotDecided() {
+  boolean hasNotDecided() {
     return getAction().isNotDecided();
   }
 
@@ -268,7 +241,7 @@ public abstract class Player {
     action = new Action(ActionEnum.CHECK);
   }
 
-  public int calculateRaiseAmountIncludingBlind(int raiseAmount) {
+  int calculateRaiseAmountIncludingBlind(int raiseAmount) {
     if (hasBigBlind()) {
       return blindAmount + raiseAmount;
     }
@@ -278,7 +251,7 @@ public abstract class Player {
     return raiseAmount;
   }
 
-  public void removeCardsFromHand() {
+  void removeCardsFromHand() {
     cardsOnHand.clear();
   }
 }

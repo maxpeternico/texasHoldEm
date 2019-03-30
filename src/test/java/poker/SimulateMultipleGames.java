@@ -8,12 +8,13 @@ import org.junit.After;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class SimulateMultipleGames {
 
   private static final Logger logger = LogManager.getLogger(SimulateMultipleGames.class.getName());
-  static final int TOTAL_MARKERS_PER_PLAYER = 2500;
-  Dealer dealer = Dealer.getInstance();
+  private static final int TOTAL_MARKERS_PER_PLAYER = 2500;
+  private Dealer dealer = Dealer.getInstance();
 
   @Test
   public void simulateNormalGame() throws Exception {
@@ -39,7 +40,7 @@ public class SimulateMultipleGames {
       int numberOfColor = EvaluationHandler.getNumberOfDrawnCardsWithColor(color);
       logger.debug("number of " + color.toString() + " " + numberOfColor);
       if ((numberOfColor < 0.24 * totalNumberOfDraws) || (numberOfColor > 0.26 * totalNumberOfDraws)) {
-        assertTrue("Color :[" + color + "] occured [" + (float) numberOfColor / totalNumberOfDraws + "] of the times when it should be around 25%.", false);
+        fail("Color :[" + color + "] occured [" + (float) numberOfColor / totalNumberOfDraws + "] of the times when it should be around 25%.");
       }
 
     }
@@ -47,7 +48,7 @@ public class SimulateMultipleGames {
       int numberOfOrdinals = EvaluationHandler.getNumberOfOrdinal(ordinal);
       logger.debug("number of " + ordinal.toString() + " " + numberOfOrdinals);
       if ((numberOfOrdinals < 0.06 * totalNumberOfDraws) || (numberOfOrdinals > 0.08 * totalNumberOfDraws)) {
-        assertTrue("Ordinal :[" + ordinal + "] occured [" + (float) numberOfOrdinals / totalNumberOfDraws + "] of the times when it should be around 7%.", false);
+        fail("Ordinal :[" + ordinal + "] occured [" + (float) numberOfOrdinals / totalNumberOfDraws + "] of the times when it should be around 7%.");
       }
 
     }
@@ -65,7 +66,7 @@ public class SimulateMultipleGames {
     EvaluationHandler.initDrawnCardStatistics();
 
     for (Ordinal ordinal : Ordinal.values()) {
-      if (ordinal.getValue() > ordinal.six.getValue()) {
+      if (ordinal.getValue() > Ordinal.six.getValue()) {
         logger.info("Checking statistics when peter gets the card of:[" + ordinal.toString() + "]");
         for (int i = 0; i < 1000; i++) {
           List<Card> privateHand = new ArrayList<Card>();

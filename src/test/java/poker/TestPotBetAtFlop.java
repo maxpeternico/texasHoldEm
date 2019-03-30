@@ -10,7 +10,7 @@ import com.google.common.collect.Lists;
 import static org.junit.Assert.assertEquals;
 
 public class TestPotBetAtFlop extends TestBase {
-  final PokerGame pokerGame = PokerGame.getInstance();
+  private final PokerGame pokerGame = PokerGame.getInstance();
 
   @Override
   protected PokerGame getPokerGame() {
@@ -20,7 +20,7 @@ public class TestPotBetAtFlop extends TestBase {
   @Test
   public void testOneRaiseAtFlopOneCheck() {
     final List<Player> players = pokerGame.createNumberOfRobotPlayers(2, 2500);
-    players.stream().forEach(pokerGame::registerPlayer);
+    players.forEach(pokerGame::registerPlayer);
     final Player player0 = players.get(0);
     final Player player1 = players.get(1);
 
@@ -51,7 +51,7 @@ public class TestPotBetAtFlop extends TestBase {
     assertMarkersForPlayers(players);
 
     final List<Card> turnCard = Lists.newArrayList(new Card(Color.spades, Ordinal.five));
-    prepareTurn(turnCard);
+    prepareDraw(turnCard);
     pokerGame.setTurnToBetManager(turnCard);
     pokerGame.updateTurnForBetManager();
     decision = pokerGame.decideBet(players);
@@ -80,7 +80,7 @@ public class TestPotBetAtFlop extends TestBase {
                  2 * PokerGame.TOTAL_MARKERS_PER_PLAYER,
                  player0.getNumberOfMarkers() + player1.getNumberOfMarkers());
 
-    final int calculatedPot = calculatePot(potRaisePerPlayerTotalRound, players, bigBlindAmount);
+    final int calculatedPot = calculatePot(potRaisePerPlayerTotalRound, players);
     assertEquals(createIncorrectNumberOfMarkersForWinnerMessage(potRaisePerPlayerTotalRound, calculatedPot, player0),
                  player0NumberOfMarkersAfterRound + calculatedPot,
                  player0.getNumberOfMarkers());

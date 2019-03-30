@@ -143,10 +143,7 @@ public class RobotPlayer extends Player {
     if (raiseAmountIncludingBlind >= maxRaiseFromOtherPlayer * 0.9) {
       return true;
     }
-    if (Math.abs(raiseAmountIncludingBlind - maxRaiseFromOtherPlayer) <= 25) {
-      return true;
-    }
-    return false;
+    return Math.abs(raiseAmountIncludingBlind - maxRaiseFromOtherPlayer) <= 25;
   }
 
   @Override

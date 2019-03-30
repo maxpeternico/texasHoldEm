@@ -22,10 +22,7 @@ class Card {
         if (obj == null)
             return false;
 
-        if ((this.getColor() == ((Card) obj).getColor()) && (this.getOrdinal() == ((Card) obj).getOrdinal())) {
-            return true;
-        }
-        return false;
+        return (this.getColor() == ((Card) obj).getColor()) && (this.getOrdinal() == ((Card) obj).getOrdinal());
     }
 
     private Color color;
@@ -50,11 +47,7 @@ class Card {
 
     }
 
-    private Card getOuterType() {
-        return Card.this;
-    }
-
-    public Boolean isHigher(Card otherCard) {
+    Boolean isHigher(Card otherCard) {
         boolean isHigher;
         logger.trace("Comparing the ordinal value of this card:[" + this.toString() + "] with [" + otherCard.toString() + "]");
         if (this.ordinal.getValue() > otherCard.ordinal.getValue()) {

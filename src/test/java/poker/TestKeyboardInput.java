@@ -2,7 +2,6 @@ package poker;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
-import poker.PokerGame;
 
 import java.util.List;
 
@@ -12,11 +11,10 @@ public class TestKeyboardInput {
   @Test
   public void testChar() {
     // User 1 gets pair of aces and raises high
-    final PokerGame pokerGame = PokerGame.getInstance();
     List<String> list = Lists.newArrayList();
     list.add("a");
     list.add("b");
-    StringBuffer expectedResult = new StringBuffer();
+    StringBuilder expectedResult = new StringBuilder();
     for (String string:list) {
       expectedResult.append(string);
     }
@@ -28,7 +26,6 @@ public class TestKeyboardInput {
   @Test
   public void testNumbers() {
     // User 1 gets pair of aces and raises high
-    final PokerGame pokerGame = PokerGame.getInstance();
     List<String> list = Lists.newArrayList();
     list.add("1");
     list.add("2");
@@ -40,7 +37,7 @@ public class TestKeyboardInput {
     list.add("8");
     list.add("9");
     list.add("0");
-    StringBuffer expectedResult = new StringBuffer();
+    StringBuilder expectedResult = new StringBuilder();
     for (String string:list) {
       expectedResult.append(string);
     }
@@ -51,7 +48,6 @@ public class TestKeyboardInput {
   @Test
   public void testForbiddenNumbers() {
     // User 1 gets pair of aces and raises high
-    final PokerGame pokerGame = PokerGame.getInstance();
     List<String> list = Lists.newArrayList();
     list.add("0");
     list.add("1");
@@ -61,13 +57,10 @@ public class TestKeyboardInput {
   }
 
   private String getCharFromKeyboard(List<String> allowedCharacters, String askForInput) {
-    String input = "";
-    PokerGame pokerGame = new PokerGame();
+    String input;
     do {
       input = askForInput;
     } while (!KeyboardHelper.allowedCharacterIsPressed(input, allowedCharacters));
     return input;
   }
-
-
 }

@@ -1,17 +1,14 @@
 package poker;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
-import poker.*;
+import static org.junit.Assert.*;
 
 public class PokerResultTests {
 
@@ -22,7 +19,7 @@ public class PokerResultTests {
 
   @Test
   public void testFlush() {
-    List<Card> cardsOnHand = new ArrayList<Card>();
+    List<Card> cardsOnHand = new ArrayList<>();
     cardsOnHand.add(new Card(Color.spades, Ordinal.five));
     cardsOnHand.add(new Card(Color.hearts, Ordinal.ace));
     cardsOnHand.add(new Card(Color.hearts, Ordinal.king));
@@ -36,7 +33,7 @@ public class PokerResultTests {
 
   @Test
   public void testFlushNegative() {
-    List<Card> cardsOnHand = new ArrayList<Card>();
+    List<Card> cardsOnHand = new ArrayList<>();
     cardsOnHand.add(new Card(Color.spades, Ordinal.five));
     cardsOnHand.add(new Card(Color.hearts, Ordinal.ace));
     cardsOnHand.add(new Card(Color.hearts, Ordinal.king));
@@ -50,7 +47,7 @@ public class PokerResultTests {
 
   @Test
   public void testStraight() {
-    List<Card> cardsOnHand = new ArrayList<Card>();
+    List<Card> cardsOnHand = new ArrayList<>();
     cardsOnHand.add(new Card(Color.spades, Ordinal.five));
     cardsOnHand.add(new Card(Color.hearts, Ordinal.six));
     cardsOnHand.add(new Card(Color.hearts, Ordinal.king));
@@ -67,7 +64,7 @@ public class PokerResultTests {
 
   @Test
   public void testStraightNegative() {
-    List<Card> cardsOnHand = new ArrayList<Card>();
+    List<Card> cardsOnHand = new ArrayList<>();
     cardsOnHand.add(new Card(Color.spades, Ordinal.five));
     cardsOnHand.add(new Card(Color.hearts, Ordinal.six));
     cardsOnHand.add(new Card(Color.hearts, Ordinal.king));
@@ -81,7 +78,7 @@ public class PokerResultTests {
 
   @Test
   public void testStraightSeven() {
-    List<Card> cardsOnHand = new ArrayList<Card>();
+    List<Card> cardsOnHand = new ArrayList<>();
     cardsOnHand.add(new Card(Color.spades, Ordinal.five));
     cardsOnHand.add(new Card(Color.hearts, Ordinal.six));
     cardsOnHand.add(new Card(Color.hearts, Ordinal.eight));
@@ -95,9 +92,9 @@ public class PokerResultTests {
 
   @Test
   public void testIsResultFromLatestPlayerHigherThanHighScore() {
-    Map<Card, PokerResult> latestResult = new HashMap<Card, PokerResult>();
+    Map<Card, PokerResult> latestResult = new HashMap<>();
     latestResult.put(new Card(Color.hearts, Ordinal.ace), new PokerResult(PokerHand.PAIR));
-    Map<Card, PokerResult> highScore = new HashMap<Card, PokerResult>();
+    Map<Card, PokerResult> highScore = new HashMap<>();
     highScore.put(new Card(Color.spades, Ordinal.queen), new PokerResult(PokerHand.PAIR));
     boolean resultFromLatestPlayerHigherThanHighScore = EvaluationHandler.isResultFromLatestPlayerHigherThanHighScore(latestResult, highScore);
     assertTrue(resultFromLatestPlayerHigherThanHighScore);
@@ -106,9 +103,9 @@ public class PokerResultTests {
 
   @Test
   public void testIsResultFromLatestPlayerHigherThanHighScoreNegative() {
-    Map<Card, PokerResult> latestResult = new HashMap<Card, PokerResult>();
+    Map<Card, PokerResult> latestResult = new HashMap<>();
     latestResult.put(new Card(Color.hearts, Ordinal.queen), new PokerResult(PokerHand.PAIR));
-    Map<Card, PokerResult> highScore = new HashMap<Card, PokerResult>();
+    Map<Card, PokerResult> highScore = new HashMap<>();
     highScore.put(new Card(Color.spades, Ordinal.ace), new PokerResult(PokerHand.PAIR));
     boolean resultFromLatestPlayerHigherThanHighScore = EvaluationHandler.isResultFromLatestPlayerHigherThanHighScore(latestResult, highScore);
     assertFalse(resultFromLatestPlayerHigherThanHighScore);
@@ -116,7 +113,7 @@ public class PokerResultTests {
 
   @Test
   public void testRoyalStraightFlush() {
-    List<Card> cardsOnHand = new ArrayList<Card>();
+    List<Card> cardsOnHand = new ArrayList<>();
     cardsOnHand.add(new Card(Color.spades, Ordinal.five));
     cardsOnHand.add(new Card(Color.hearts, Ordinal.king));
     cardsOnHand.add(new Card(Color.hearts, Ordinal.queen));
@@ -129,8 +126,9 @@ public class PokerResultTests {
   }
 
   @Test
-  public void testRoyalStraightFlushNegative() throws Exception {
-    List<Card> cardsOnHand = new ArrayList<Card>();
+  public void testRoyalStraightFlushNegative() {
+    List<Card> cardsOnHand;
+    cardsOnHand = new ArrayList<>();
     cardsOnHand.add(new Card(Color.hearts, Ordinal.nine));
     cardsOnHand.add(new Card(Color.hearts, Ordinal.king));
     cardsOnHand.add(new Card(Color.hearts, Ordinal.queen));
@@ -144,7 +142,7 @@ public class PokerResultTests {
 
   @Test
   public void highestCardFromStraight() {
-    List<Card> cardsOnHand = new ArrayList<Card>();
+    List<Card> cardsOnHand = new ArrayList<>();
     cardsOnHand.add(new Card(Color.hearts, Ordinal.ace));
     cardsOnHand.add(new Card(Color.spades, Ordinal.knight));
     cardsOnHand.add(new Card(Color.hearts, Ordinal.king));
@@ -158,7 +156,7 @@ public class PokerResultTests {
 
   @Test
   public void testEvaluateHand() {
-    List<Card> cardsOnHand = new ArrayList<Card>();
+    List<Card> cardsOnHand = new ArrayList<>();
     cardsOnHand.add(new Card(Color.spades, Ordinal.five));
     cardsOnHand.add(new Card(Color.hearts, Ordinal.king));
     cardsOnHand.add(new Card(Color.hearts, Ordinal.queen));
@@ -173,7 +171,7 @@ public class PokerResultTests {
 
   @Test
   public void testCalculatePointFromLowPair() {
-    List<Card> cardsOnHand = new ArrayList<Card>();
+    List<Card> cardsOnHand = new ArrayList<>();
     cardsOnHand.add(new Card(Color.spades, Ordinal.five));
     cardsOnHand.add(new Card(Color.hearts, Ordinal.king));
     cardsOnHand.add(new Card(Color.hearts, Ordinal.queen));
@@ -189,7 +187,7 @@ public class PokerResultTests {
 
   @Test
   public void testCalculatePointFromHighPair() {
-    List<Card> cardsOnHand = new ArrayList<Card>();
+    List<Card> cardsOnHand = new ArrayList<>();
     cardsOnHand.add(new Card(Color.spades, Ordinal.five));
     cardsOnHand.add(new Card(Color.hearts, Ordinal.ace));
     cardsOnHand.add(new Card(Color.hearts, Ordinal.queen));
@@ -221,7 +219,7 @@ public class PokerResultTests {
 
   @Test
   public void testCalculatePointFromNoResultLowCard() {
-    List<Card> cardsOnHand = new ArrayList<Card>();
+    List<Card> cardsOnHand = new ArrayList<>();
     cardsOnHand.add(new Card(Color.spades, Ordinal.five));
     cardsOnHand.add(new Card(Color.hearts, Ordinal.four));
     cardsOnHand.add(new Card(Color.hearts, Ordinal.seven));

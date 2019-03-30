@@ -12,7 +12,7 @@ public class EvaluationHandler {
   private static final int NUMBER_OF_CARDS_IN_HAND = 5;
   private static final String NO_FLUSH_FOUND = "No flush found.";
 
-  static Map<Card, Integer> drawnCardStatistics = new HashMap<Card, Integer>();
+  private static Map<Card, Integer> drawnCardStatistics = new HashMap<Card, Integer>();
 
   static void initDrawnCardStatistics() {
     for (Color color : Color.values()) {
@@ -74,7 +74,7 @@ public class EvaluationHandler {
     return highestCard.getOrdinal().getValue();
   }
 
-  static int getPokerResultPointsFromPair(List<Card> cardsInHand) {
+  private static int getPokerResultPointsFromPair(List<Card> cardsInHand) {
     // Find value of pair
     for (Card card : cardsInHand) {
       List<Card> restOfHand = new ArrayList<>(cardsInHand);
@@ -88,8 +88,8 @@ public class EvaluationHandler {
     throw new RuntimeException("Did not find any pair in this hand:");
   }
 
-  static boolean isRoyalStraightFlush(List<Card> cardsInHand) {
-    if (isStraightFlush(cardsInHand) && isFlushOf(cardsInHand, Color.hearts) &&
+  private static boolean isRoyalStraightFlush(List<Card> cardsInHand) {
+    if (isStraightFlush(cardsInHand) && isFlushOfHearts(cardsInHand) &&
             highestCardFromStraight(cardsInHand).equals(new Card(Color.hearts, Ordinal.ace))) {
       return true;
     } else {
@@ -97,10 +97,10 @@ public class EvaluationHandler {
     }
   }
 
-  private static boolean isFlushOf(List<Card> cardsInHand, Color color) {
+  private static boolean isFlushOfHearts(List<Card> cardsInHand) {
     boolean isFlushOf = false;
     try {
-      if (returnFlushColor(cardsInHand).equals(color)) {
+      if (returnFlushColor(cardsInHand).equals(Color.hearts)) {
         isFlushOf = true;
       }
     } catch (Exception e) {
@@ -149,7 +149,7 @@ public class EvaluationHandler {
     return highestCard;
   }
 
-  static Card findHighestCardByColor(List<Card> cardsInHand) {
+  private static Card findHighestCardByColor(List<Card> cardsInHand) {
     Card highestCard = new Card(Color.clubs, Ordinal.two);
     for (Card card : cardsInHand) {
       if (card.getOrdinal().getValue() > highestCard.getOrdinal().getValue()) {
@@ -164,33 +164,25 @@ public class EvaluationHandler {
   }
 
   private static boolean isColorOfCardHigherThanColorOfHighestCard(Card highestCard, Card card) {
-    if (card.getColor().getValue() > highestCard.getColor().getValue()) {
-      return true;
-    } else {
-      return false;
-    }
+    return card.getColor().getValue() > highestCard.getColor().getValue();
   }
 
-  static boolean isOnePair(List<Card> cardsInHand) {
-    if (countPair(cardsInHand) == 1) {
-      return true;
-    } else {
-      return false;
-    }
+  private static boolean isOnePair(List<Card> cardsInHand) {
+    return countPair(cardsInHand) == 1;
   }
 
   /*
    * print by numeric index so user can select cards to throw away
    */
   private static String printCards(List<Card> cardsInHand) {
-    StringBuffer buffer = new StringBuffer();
-    for (int i = 0; i < cardsInHand.size(); i++) {
-      buffer.append("\nCard:[" + cardsInHand.get(i).toString() + "]\n");
+    StringBuilder buffer = new StringBuilder();
+    for (Card card : cardsInHand) {
+      buffer.append("\nCard:[").append(card.toString()).append("]\n");
     }
     return buffer.toString();
   }
 
-  static boolean isStraight(List<Card> cardsInHand) {
+  private static boolean isStraight(List<Card> cardsInHand) {
     boolean isStraight = false;
     if (cardsInHand.size() >= NUMBER_OF_CARDS_IN_HAND) {
       List<Integer> valueList = new ArrayList<Integer>();
@@ -223,7 +215,7 @@ public class EvaluationHandler {
     return isStraight;
   }
 
-  static boolean isFlush(List<Card> cardsInHand) {
+  private static boolean isFlush(List<Card> cardsInHand) {
     boolean isFlush = false;
     try {
       Color flushColor = returnFlushColor(cardsInHand);
@@ -244,7 +236,7 @@ public class EvaluationHandler {
     }
   }
 
-  static Color returnFlushColor(List<Card> cardsInHand) throws Exception {
+  private static Color returnFlushColor(List<Card> cardsInHand) throws Exception {
     Color flushColor = null;
     if (cardsInHand.size() >= NUMBER_OF_CARDS_IN_HAND) {
       Map<Color, Integer> flushChecker = new HashMap<Color, Integer>();
@@ -267,20 +259,15 @@ public class EvaluationHandler {
     return flushColor;
   }
 
-
   private static void initFlushChecker(Map<Color, Integer> flushChecker) {
     Arrays.stream(Color.values()).forEach(e -> flushChecker.put(e, 0));
   }
 
-  static boolean isTwoPair(List<Card> cardsInHand) {
-    if (countPair(cardsInHand) == 2) {
-      return true;
-    } else {
-      return false;
-    }
+  private static boolean isTwoPair(List<Card> cardsInHand) {
+    return countPair(cardsInHand) == 2;
   }
 
-  static int countPair(List<Card> cardsInHand) {
+  private static int countPair(List<Card> cardsInHand) {
     Map<Multiple, Integer> multiple = getMultiple(cardsInHand);
     Set<Multiple> keySet = multiple.keySet();
     int numberOfPairs = 0;
@@ -293,20 +280,16 @@ public class EvaluationHandler {
     return numberOfPairs;
   }
 
-  static boolean isFullHouse(List<Card> cardsInHand) {
-    if (hasMultiple(cardsInHand, Multiple.THREES) && hasMultiple(cardsInHand, Multiple.PAIR)
-            && (cardsInHand.size() >= NUMBER_OF_CARDS_IN_HAND)) {
-      return true;
-    } else {
-      return false;
-    }
+  private static boolean isFullHouse(List<Card> cardsInHand) {
+    return hasMultiple(cardsInHand, Multiple.THREES) && hasMultiple(cardsInHand, Multiple.PAIR)
+        && (cardsInHand.size() >= NUMBER_OF_CARDS_IN_HAND);
   }
 
-  static boolean isTripple(List<Card> cardsInHand) {
+  private static boolean isTripple(List<Card> cardsInHand) {
     return hasMultiple(cardsInHand, Multiple.THREES);
   }
 
-  static boolean isFour(List<Card> cardsInHand) {
+  private static boolean isFour(List<Card> cardsInHand) {
     return hasMultiple(cardsInHand, Multiple.FOURS);
   }
 
@@ -322,15 +305,11 @@ public class EvaluationHandler {
     return hasMultiple;
   }
 
-  static boolean isStraightFlush(List<Card> cardsInHand) {
-    if (isStraight(cardsInHand) && isFlush(cardsInHand) && (cardsInHand.size() >= NUMBER_OF_CARDS_IN_HAND)) {
-      return true;
-    } else {
-      return false;
-    }
+  private static boolean isStraightFlush(List<Card> cardsInHand) {
+    return isStraight(cardsInHand) && isFlush(cardsInHand) && (cardsInHand.size() >= NUMBER_OF_CARDS_IN_HAND);
   }
 
-  static Map<Multiple, Integer> getMultiple(List<Card> cardsInHand) {
+  private static Map<Multiple, Integer> getMultiple(List<Card> cardsInHand) {
     Map<Multiple, Integer> multiple = new HashMap<Multiple, Integer>();
     Map<Integer, Integer> possiblePair = initPossiblePairMap(cardsInHand);
     List<Card> restOfHand = new ArrayList<Card>(cardsInHand);
@@ -357,20 +336,25 @@ public class EvaluationHandler {
     int threes = 0;
     int fours = 0;
     Set<Integer> keySet = possiblePair.keySet();
+    label:
     for (Integer key : keySet) {
       Integer value = possiblePair.get(key);
-      if (value.toString().equals("4")) {
-        fours++;
-        // No need to check more cards
-        break;
-      } else if (value.toString().equals("3")) {
-        threes++;
-      } else if (value.toString().equals("2")) {
-        pairs++;
-      } else if (value.toString().equals("1")) {
-        ones++;
-      } else {
-        throw new RuntimeException("We got 5 of [" + key.toString() + "]");
+      switch (value.toString()) {
+        case "4":
+          fours++;
+          // No need to check more cards
+          break label;
+        case "3":
+          threes++;
+          break;
+        case "2":
+          pairs++;
+          break;
+        case "1":
+          ones++;
+          break;
+        default:
+          throw new RuntimeException("We got 5 of [" + key.toString() + "]");
       }
     }
     if (fours != 0) {
@@ -390,13 +374,13 @@ public class EvaluationHandler {
 
   private static Map<Integer, Integer> initPossiblePairMap(List<Card> cardsInHand) {
     Map<Integer, Integer> possiblePairMap = new HashMap<Integer, Integer>();
-    cardsInHand.stream().forEach(e -> possiblePairMap.put(e.getOrdinal().getValue(), 1));
+    cardsInHand.forEach(e -> possiblePairMap.put(e.getOrdinal().getValue(), 1));
     return possiblePairMap;
   }
 
-  public static String getHandAsString(List<Card> privateHand) {
+  static String getHandAsString(List<Card> privateHand) {
     StringBuilder hand = new StringBuilder();
-    privateHand.stream().forEach(e -> hand.append(e.toString()));
+    privateHand.forEach(e -> hand.append(e.toString()));
     return hand.toString();
   }
 
@@ -434,22 +418,17 @@ public class EvaluationHandler {
     return isHigher;
   }
 
-  static boolean isTopCardFromLatestPlayerHigherThanTopCardFromHighScore(Map<Card, PokerResult> result,
-                                                                         Map<Card, PokerResult> highScore) {
+  private static boolean isTopCardFromLatestPlayerHigherThanTopCardFromHighScore(Map<Card, PokerResult> result,
+                                                                                 Map<Card, PokerResult> highScore) {
     Card topCard = getTopCardFromResult(result);
     Card highScoreTopCard = getTopCardFromResult(highScore);
 
-    if (topCard.isHigher(highScoreTopCard)) {
-      return true;
-    } else {
-      return false;
-    }
+    return topCard.isHigher(highScoreTopCard);
   }
 
   static PokerResult getResultFromCardPokerResultMap(Map<Card, PokerResult> result) {
     Card topCard = getTopCardFromResult(result);
-    PokerResult pokerResult = result.get(topCard);
-    return pokerResult;
+    return result.get(topCard);
   }
 
   public static int getNumberOfDrawnCardsWithOrdinal() {
@@ -470,7 +449,7 @@ public class EvaluationHandler {
     return numberOfColor;
   }
 
-  public static void updateDrawnCardStatistics(Card drawnCard) {
+  static void updateDrawnCardStatistics(Card drawnCard) {
     int numberOfDrawnTimes = drawnCardStatistics.get(drawnCard);
     drawnCardStatistics.put(drawnCard, ++numberOfDrawnTimes);
   }
@@ -493,7 +472,7 @@ public class EvaluationHandler {
     return pokerResult.getPoints();
   }
 
-  public static String calculateResultFromHand(List<Card> totalHand) {
+  static String calculateResultFromHand(List<Card> totalHand) {
     final Map<Card, PokerResult> cardPokerResultMap = evaluateHand("Player", totalHand);
     final Iterator<Map.Entry<Card, PokerResult>> iterator = cardPokerResultMap.entrySet().iterator();
     StringBuilder result = new StringBuilder();

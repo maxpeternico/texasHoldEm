@@ -9,18 +9,18 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 public class TestBetting {
-  final PokerGame pokerGame = PokerGame.getInstance();
+  private final PokerGame pokerGame = PokerGame.getInstance();
 
   @Test
   public void testPointsForPrivateHand() {
     // User 1 gets pair of aces and raises high
-    Player jorn = new RobotPlayer("Jörn", PokerGame.TOTAL_MARKERS_PER_PLAYER);
+    RobotPlayer jorn = new RobotPlayer("Jörn", PokerGame.TOTAL_MARKERS_PER_PLAYER);
     pokerGame.registerPlayer(jorn);
     List<Card> jornsPrivateHand = new ArrayList<>();
     jornsPrivateHand.add(new Card(Color.hearts, Ordinal.ace));
     jornsPrivateHand.add(new Card(Color.spades, Ordinal.ace));
     pokerGame.setPrivateHand(jorn, jornsPrivateHand);
-    Player staffan = new RobotPlayer("Staffan", PokerGame.TOTAL_MARKERS_PER_PLAYER);
+    RobotPlayer staffan = new RobotPlayer("Staffan", PokerGame.TOTAL_MARKERS_PER_PLAYER);
     pokerGame.registerPlayer(staffan);
     List<Card> staffansPrivateHand = new ArrayList<>();
     staffansPrivateHand.add(new Card(Color.hearts, Ordinal.king));
@@ -33,8 +33,8 @@ public class TestBetting {
     pokerGame.initBlinds(playerList);
     pokerGame.payBlinds(playerList, 50);
     List<Card> emptyCommonhand = new ArrayList<>();
-    final Points jornsPoints = ((RobotPlayer) jorn).calculatePoints(2, Draw.BEFORE_FLOP, emptyCommonhand);
-    final Points staffansPoints = ((RobotPlayer) staffan).calculatePoints(2, Draw.BEFORE_FLOP, emptyCommonhand);
+    final Points jornsPoints = jorn.calculatePoints(2, Draw.BEFORE_FLOP, emptyCommonhand);
+    final Points staffansPoints = staffan.calculatePoints(2, Draw.BEFORE_FLOP, emptyCommonhand);
     assertEquals(jornsPoints.toInt(), 114);
     assertEquals(staffansPoints.toInt(), 13);
   }

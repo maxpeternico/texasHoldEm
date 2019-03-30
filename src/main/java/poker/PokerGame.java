@@ -37,7 +37,11 @@ public class PokerGame {
     return new PokerGame();
   }
 
-  void startGame() {
+  private static boolean test(Player e) {
+    return !e.hasFolded();
+  }
+
+  private void startGame() {
     createPlayers();
     List<Player> players = dealer.getPlayers();
     initBlinds(players);
@@ -107,7 +111,7 @@ public class PokerGame {
     return theWinner;
   }
 
-  String playRiver(List<Player> players) {
+  private String playRiver(List<Player> players) {
     dealer.increaseDraw();
     final List<Card> riverCard = dealer.drawRiver();
     betManager.addRiverCardToCommonHand(riverCard, dealer.getDraw());
@@ -116,7 +120,7 @@ public class PokerGame {
     return decideBet(getPlayersWhoHasntFinishedBetting(players));
   }
 
-  String playTurn(List<Player> players) {
+  private String playTurn(List<Player> players) {
     dealer.increaseDraw();
     final List<Card> turnCard = dealer.drawTurn();
     betManager.addTurnCardToCommonHand(turnCard, dealer.getDraw());
@@ -125,7 +129,7 @@ public class PokerGame {
     return decideBet(getPlayersWhoHasntFinishedBetting(players));
   }
 
-  String playFlop(List<Player> players) {
+  private String playFlop(List<Player> players) {
     dealer.increaseDraw();
     final List<Card> flopCards = dealer.drawFlop();
     betManager.addFlopCardsToCommonhand(flopCards, dealer.getDraw());
@@ -134,7 +138,7 @@ public class PokerGame {
     return decideBet(getPlayersWhoHasntFinishedBetting(players));
   }
 
-  String playBeforeFlop(List<Player> players) {
+  private String playBeforeFlop(List<Player> players) {
     dealer.playPrivateHands();
     logger.info("Total hand before flop: ");
     printHumanHand();
@@ -154,7 +158,7 @@ public class PokerGame {
   }
 
   private List<Player> getPlayersThatDidNotFold(List<Player> players) {
-    return players.stream().filter(e -> !e.hasFolded()).collect(Collectors.toList());
+    return players.stream().filter(PokerGame::test).collect(Collectors.toList());
   }
 
   private boolean doWeHaveAWinner(List<Player> playersStillInTheGame) {
@@ -168,7 +172,7 @@ public class PokerGame {
 
   private List<Player> playersThatCanBet(List<Player> players) {
     final ArrayList<Player> playersStillInTheGame = Lists.newArrayList();
-    players.stream().forEach(e -> {
+    players.forEach(e -> {
         if (!e.hasAnyMarkers()) {
         logger.debug("Player :[" + e.getName() + "] has no more markers.");
       } else {
@@ -180,7 +184,7 @@ public class PokerGame {
 
   private List<Player> getPlayersWhoHasntFinishedBetting(List<Player> players) {
     final ArrayList<Player> playersStillInTheGame = Lists.newArrayList();
-    players.stream().forEach(e -> {
+    players.forEach(e -> {
       if (e.getAction().isAllIn()) {
         logger.debug("Player :[" + e.getName() + "] is all in, no bet.");
       } else if (e.hasFolded()) {
@@ -315,7 +319,7 @@ public class PokerGame {
     return humanPlayer;
   }
 
-  int increaseBlind() {
+  private int increaseBlind() {
     return blind * 2;
   }
 
@@ -354,10 +358,7 @@ public class PokerGame {
   }
 
   boolean allPlayersSatisfied(List<Player> players) {
-    if (isAnyoneNotDecided(players)) {
-      return false;
-    }
-    return true;
+    return !isAnyoneNotDecided(players);
   }
 
   private boolean isAnyoneNotDecided(List<Player> players) {
@@ -405,9 +406,8 @@ public class PokerGame {
   private void printCurrentResult(String playerName, List<Card> totalHand) {
     final Map<Card, PokerResult> cardPokerResultMap = EvaluationHandler.evaluateHand(playerName, totalHand);
     final Set<Card> cards = cardPokerResultMap.keySet();
-    final Iterator<Card> iterator = cards.iterator();
-    while (iterator.hasNext()) {
-      System.out.println(cardPokerResultMap.get(iterator.next()).getPokerHand());
+    for (Card card : cards) {
+      System.out.println(cardPokerResultMap.get(card).getPokerHand());
     }
   }
 
@@ -444,7 +444,7 @@ public class PokerGame {
   }
 
   public void updateTurnForBetManager() {
-    betManager.updateTurn();
+    betManager.resetMaxRaiseThisDraw();
   }
 
   public void setTurnToBetManager(List<Card> turnCard) {
@@ -455,7 +455,7 @@ public class PokerGame {
     betManager.addRiverCardToCommonHand(riverCard, dealer.getDraw());
   }
 
-   void increaseDrawForTest() {
+  void increaseDrawForTest() {
     dealer.increaseDraw();
   }
 }

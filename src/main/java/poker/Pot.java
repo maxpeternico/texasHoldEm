@@ -1,9 +1,6 @@
 package poker;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
@@ -35,9 +32,8 @@ public class Pot implements Comparable {
 
   public int getNumberOfMarkers() {
     int numberOfMarkers = 0;
-    final Iterator<Player> iterator = members.keySet().iterator();
-    while (iterator.hasNext()) {
-      numberOfMarkers += members.get(iterator.next());
+    for (Player player : members.keySet()) {
+      numberOfMarkers += members.get(player);
     }
     return numberOfMarkers;
   }
@@ -47,7 +43,7 @@ public class Pot implements Comparable {
   }
 
   public List<Player> getMembers() {
-    return members.keySet().stream().collect(Collectors.toList());
+    return new ArrayList<>(members.keySet());
   }
 
   /*
@@ -71,7 +67,7 @@ public class Pot implements Comparable {
     return newPot;
   }
 
-  public void addMarkersForMember(Player player, int raiseAmount) {
+  void addMarkersForMember(Player player, int raiseAmount) {
     int oldMarkersInPot = members.get(player);
     members.replace(player, oldMarkersInPot, oldMarkersInPot + raiseAmount);
   }
@@ -79,10 +75,9 @@ public class Pot implements Comparable {
   public int getHighestAmount() {
     int highestAmount = 0;
     final Set<Player> players = members.keySet();
-    final Iterator<Player> iterator = players.iterator();
 
-    while (iterator.hasNext()) {
-      final Integer markersForMember = members.get(iterator.next());
+    for (Player player : players) {
+      final Integer markersForMember = members.get(player);
       if (markersForMember > highestAmount) {
         logger.debug("Highest amount in pot for now [{}]", markersForMember);
         highestAmount = markersForMember;
@@ -95,7 +90,7 @@ public class Pot implements Comparable {
     return members.get(player);
   }
 
-  public boolean hasMember(Player player) {
+  boolean hasMember(Player player) {
     return members.containsKey(player);
   }
 

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TestPlayFullGame {
-  final PokerGame pokerGame = PokerGame.getInstance();
+  private final PokerGame pokerGame = PokerGame.getInstance();
 
   @Test
   public void playUntilAPlayerWinsTheGame() {
@@ -53,10 +53,7 @@ public class TestPlayFullGame {
         i++;
       }
     }
-    if (i > 1) {
-      return true;
-    }
-    return false;
+    return i > 1;
   }
 
   @After

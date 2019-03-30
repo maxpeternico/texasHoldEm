@@ -1,5 +1,6 @@
 package poker;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -17,7 +18,7 @@ import static org.mockito.Mockito.when;
 
 public class BetManagerTest extends TestBase {
 
-  PokerGame pokerGame = PokerGame.getInstance();
+  private PokerGame pokerGame = PokerGame.getInstance();
 
   @Test
   public void testBettingMap() {
@@ -48,11 +49,11 @@ public class BetManagerTest extends TestBase {
   }
 
   private Boolean getBettingHistoryFromBettingMapIndex(Map<Player, Boolean> bettingMap, int i) {
-    return bettingMap.values().stream().collect(Collectors.toList()).get(i);
+    return new ArrayList<>(bettingMap.values()).get(i);
   }
 
   private String getNameFromBettingMapIndex(Map<Player, Boolean> bettingMap, int i) {
-    return bettingMap.keySet().stream().collect(Collectors.toList()).get(i).getName();
+    return new ArrayList<>(bettingMap.keySet()).get(i).getName();
   }
 
   @Test

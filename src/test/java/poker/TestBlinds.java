@@ -8,26 +8,25 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class TestBlinds {
-  static final int TOTAL_MARKERS_PER_PLAYER = 2500;
+  private static final int TOTAL_MARKERS_PER_PLAYER = 2500;
 
-  List<Player> players = Lists.newArrayList();
-  final RobotPlayer peter = new RobotPlayer("Peter", TOTAL_MARKERS_PER_PLAYER);
-  final RobotPlayer thomas = new RobotPlayer("Thomas", TOTAL_MARKERS_PER_PLAYER);
-  final RobotPlayer ingemar = new RobotPlayer("Ingemar", TOTAL_MARKERS_PER_PLAYER);
-  final PokerGame pokerGame = PokerGame.getInstance();
+  private List<Player> players = Lists.newArrayList();
+  private final RobotPlayer peter = new RobotPlayer("Peter", TOTAL_MARKERS_PER_PLAYER);
+  private final RobotPlayer thomas = new RobotPlayer("Thomas", TOTAL_MARKERS_PER_PLAYER);
+  private final RobotPlayer ingemar = new RobotPlayer("Ingemar", TOTAL_MARKERS_PER_PLAYER);
+  private final PokerGame pokerGame = PokerGame.getInstance();
 
   @Test
   public void testSetBlindsAtStartup() {
     players.add(peter);
     players.add(thomas);
     players.add(ingemar);
-    assertEquals(peter.hasBlind(), false);
-    assertEquals(thomas.hasBlind(), false);
-    assertEquals(ingemar.hasBlind(), false);
+    assertFalse(peter.hasBlind());
+    assertFalse(thomas.hasBlind());
+    assertFalse(ingemar.hasBlind());
   }
 
   @Test
@@ -36,14 +35,14 @@ public class TestBlinds {
     players.add(thomas);
     players.add(ingemar);
     pokerGame.initBlinds(players);
-    assertEquals(peter.hasBlind(), true);
-    assertEquals(peter.hasLittleBlind(), true);
-    assertEquals(peter.hasBigBlind(), false);
+    assertTrue(peter.hasBlind());
+    assertTrue(peter.hasLittleBlind());
+    assertFalse(peter.hasBigBlind());
 
-    assertEquals(thomas.hasBlind(), true);
-    assertEquals(thomas.hasLittleBlind(), false);
-    assertEquals(thomas.hasBigBlind(), true);
-    assertEquals(ingemar.hasBlind(), false);
+    assertTrue(thomas.hasBlind());
+    assertFalse(thomas.hasLittleBlind());
+    assertTrue(thomas.hasBigBlind());
+    assertFalse(ingemar.hasBlind());
   }
 
   @Test
@@ -53,9 +52,9 @@ public class TestBlinds {
     players.add(ingemar);
     pokerGame.initBlinds(players);
     pokerGame.payBlinds(players, 50);
-    assertEquals(peter.hasBlind(), false);
-    assertEquals(thomas.hasLittleBlind(), true);
-    assertEquals(ingemar.hasBigBlind(), true);
+    assertFalse(peter.hasBlind());
+    assertTrue(thomas.hasLittleBlind());
+    assertTrue(ingemar.hasBigBlind());
   }
 
   @Test
@@ -65,24 +64,24 @@ public class TestBlinds {
     pokerGame.initBlinds(players);
     assertEquals(0, getIndexOfBlind(players, Player::hasLittleBlind));
     assertEquals(1, getIndexOfBlind(players, Player::hasBigBlind));
-    assertEquals(false, players.get(2).hasBlind());
+    assertFalse(players.get(2).hasBlind());
     assertEquals(pokerGame.getPotHandler().getNumberOfMarkersInAllPots(), 0);
     pokerGame.payBlinds(players, 50);
     assertEquals(1, getIndexOfBlind(players, Player::hasLittleBlind));
     assertEquals(2, getIndexOfBlind(players, Player::hasBigBlind));
-    assertEquals(false, players.get(0).hasBlind());
+    assertFalse(players.get(0).hasBlind());
     pokerGame.getPotHandler().clear();
     pokerGame.payBlinds(players, 50);
     assertEquals(pokerGame.getPotHandler().getNumberOfMarkersInAllPots(), 75);
     assertEquals(2, getIndexOfBlind(players, Player::hasLittleBlind));
     assertEquals(0, getIndexOfBlind(players, Player::hasBigBlind));
-    assertEquals(false, players.get(1).hasBlind());
+    assertFalse(players.get(1).hasBlind());
     pokerGame.getPotHandler().clear();
     pokerGame.payBlinds(players, 50);
     assertEquals(pokerGame.getPotHandler().getNumberOfMarkersInAllPots(), 75);
     assertEquals(0, getIndexOfBlind(players, Player::hasLittleBlind));
     assertEquals(1, getIndexOfBlind(players, Player::hasBigBlind));
-    assertEquals(false, players.get(2).hasBlind());
+    assertFalse(players.get(2).hasBlind());
     assertEquals(pokerGame.getPotHandler().getNumberOfMarkersInAllPots(), 75);
     pokerGame.clearGameForTests();
   }
@@ -111,7 +110,7 @@ public class TestBlinds {
     assertEquals(24, pokerGame.getPotHandler().getPot(1).getNumberOfMarkers());
     assertEquals(1, getIndexOfBlind(players, Player::hasLittleBlind));
     assertEquals(2, getIndexOfBlind(players, Player::hasBigBlind));
-    assertEquals(false, players.get(0).hasBlind());
+    assertFalse(players.get(0).hasBlind());
 
     pokerGame.clearGameForTests();
   }
@@ -135,7 +134,7 @@ public class TestBlinds {
     assertEquals(2, pokerGame.getPotHandler().getPots().size());
     assertEquals(1, getIndexOfBlind(players, Player::hasLittleBlind));
     assertEquals(2, getIndexOfBlind(players, Player::hasBigBlind));
-    assertEquals(false, players.get(0).hasBlind());
+    assertFalse(players.get(0).hasBlind());
 
     pokerGame.clearGameForTests();
   }
@@ -160,8 +159,8 @@ public class TestBlinds {
 
     assertEquals(2, getIndexOfBlind(players, Player::hasLittleBlind));
     assertEquals(3, getIndexOfBlind(players, Player::hasBigBlind));
-    assertEquals(false, players.get(0).hasBlind());
-    assertEquals(false, players.get(1).hasBlind());
+    assertFalse(players.get(0).hasBlind());
+    assertFalse(players.get(1).hasBlind());
 
     pokerGame.clearGameForTests();
   }
@@ -178,8 +177,8 @@ public class TestBlinds {
 
     assertEquals(1, getIndexOfBlind(players, Player::hasLittleBlind));
     assertEquals(0, getIndexOfBlind(players, Player::hasBigBlind));
-    assertEquals(false, players.get(2).hasBlind());
-    assertEquals(false, players.get(3).hasBlind());
+    assertFalse(players.get(2).hasBlind());
+    assertFalse(players.get(3).hasBlind());
 
     pokerGame.clearGameForTests();
   }
@@ -196,8 +195,8 @@ public class TestBlinds {
 
     assertEquals(2, getIndexOfBlind(players, Player::hasLittleBlind));
     assertEquals(0, getIndexOfBlind(players, Player::hasBigBlind));
-    assertEquals(false, players.get(1).hasBlind());
-    assertEquals(false, players.get(3).hasBlind());
+    assertFalse(players.get(1).hasBlind());
+    assertFalse(players.get(3).hasBlind());
 
     pokerGame.clearGameForTests();
   }
@@ -214,9 +213,9 @@ public class TestBlinds {
     pokerGame.payBlinds(players, 50);
 
     assertEquals(3, getIndexOfBlind(players, Player::hasLittleBlind));
-    assertEquals(false, players.get(0).hasBlind());
-    assertEquals(false, players.get(1).hasBlind());
-    assertEquals(false, players.get(2).hasBlind());
+    assertFalse(players.get(0).hasBlind());
+    assertFalse(players.get(1).hasBlind());
+    assertFalse(players.get(2).hasBlind());
 
     pokerGame.clearGameForTests();
   }
@@ -233,10 +232,10 @@ public class TestBlinds {
 
     pokerGame.payBlinds(players, 50);
 
-    assertEquals(false, players.get(0).hasBlind());
-    assertEquals(false, players.get(1).hasBlind());
-    assertEquals(false, players.get(2).hasBlind());
-    assertEquals(false, players.get(3).hasBlind());
+    assertFalse(players.get(0).hasBlind());
+    assertFalse(players.get(1).hasBlind());
+    assertFalse(players.get(2).hasBlind());
+    assertFalse(players.get(3).hasBlind());
 
     pokerGame.clearGameForTests();
   }

@@ -1,6 +1,7 @@
 package poker;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.After;
@@ -13,7 +14,7 @@ import static org.junit.Assert.fail;
 
 public class TestPotBetAtPrivateHand extends TestBase {
 
-  final PokerGame pokerGame = PokerGame.getInstance();
+  private final PokerGame pokerGame = PokerGame.getInstance();
 
   @Override
   protected PokerGame getPokerGame() {
@@ -23,7 +24,7 @@ public class TestPotBetAtPrivateHand extends TestBase {
   @Test
   public void testTwoPlayersOneAllInOneFoldPotEqualToLittleBlind() {
     final List<Player> players = pokerGame.createNumberOfRobotPlayers(2, 2500);
-    players.stream().forEach(pokerGame::registerPlayer);
+    players.forEach(pokerGame::registerPlayer);
     final Player player0 = players.get(0);
     final Player player1 = players.get(1);
 
@@ -52,7 +53,7 @@ public class TestPotBetAtPrivateHand extends TestBase {
   @Test
   public void testPotBothPlayersAllIn() {
     final List<Player> players = pokerGame.createNumberOfRobotPlayers(2, 2500);
-    players.stream().forEach(pokerGame::registerPlayer);
+    players.forEach(pokerGame::registerPlayer);
     final Player player0 = players.get(0);
     final Player player1 = players.get(1);
 
@@ -84,7 +85,7 @@ public class TestPotBetAtPrivateHand extends TestBase {
 
 
     final List<Card> turnCard = Lists.newArrayList(new Card(Color.hearts, Ordinal.queen));
-    prepareTurn(turnCard);
+    prepareDraw(turnCard);
     pokerGame.setTurnToBetManager(turnCard);
     pokerGame.updateTurnForBetManager();
     decision = pokerGame.decideBet(players);
@@ -116,7 +117,7 @@ public class TestPotBetAtPrivateHand extends TestBase {
   @Test
   public void testPotBothPlayersBothCheckPotEqualToBigBlind() {
     final List<Player> players = pokerGame.createNumberOfRobotPlayers(2, 2500);
-    players.stream().forEach(pokerGame::registerPlayer);
+    players.forEach(pokerGame::registerPlayer);
     final Player player0 = players.get(0);
     final Player player1 = players.get(1);
 
@@ -147,7 +148,7 @@ public class TestPotBetAtPrivateHand extends TestBase {
     assertEquals(2450, player1.getNumberOfMarkers());
 
     final List<Card> turnCard = Lists.newArrayList(new Card(Color.hearts, Ordinal.queen));
-    prepareTurn(turnCard);
+    prepareDraw(turnCard);
     pokerGame.setTurnToBetManager(turnCard);
     pokerGame.updateTurnForBetManager();
     decision = pokerGame.decideBet(players);
@@ -178,7 +179,7 @@ public class TestPotBetAtPrivateHand extends TestBase {
   @Test
   public void testPotOneRaiseOneCheck() {
     final List<Player> players = pokerGame.createNumberOfRobotPlayers(2, 2500);
-    players.stream().forEach(pokerGame::registerPlayer);
+    players.forEach(pokerGame::registerPlayer);
     final Player player0 = players.get(0);
     final Player player1 = players.get(1);
 
@@ -207,7 +208,7 @@ public class TestPotBetAtPrivateHand extends TestBase {
     assertEquals(2400, player1.getNumberOfMarkers());
 
     final List<Card> turnCard = Lists.newArrayList(new Card(Color.hearts, Ordinal.queen));
-    prepareTurn(turnCard);
+    prepareDraw(turnCard);
     pokerGame.setTurnToBetManager(turnCard);
     pokerGame.updateTurnForBetManager();
     decision = pokerGame.decideBet(players);
@@ -237,7 +238,7 @@ public class TestPotBetAtPrivateHand extends TestBase {
   @Test
   public void testPotOneRaiseOneCheckBlindAmountHigh() {
     final List<Player> players = pokerGame.createNumberOfRobotPlayers(2, 2500);
-    players.stream().forEach(pokerGame::registerPlayer);
+    players.forEach(pokerGame::registerPlayer);
     final Player player0 = players.get(0);
     final Player player1 = players.get(1);
 
@@ -270,7 +271,7 @@ public class TestPotBetAtPrivateHand extends TestBase {
     assertMarkersForPlayers(players);
 
     final List<Card> turnCard = Lists.newArrayList(new Card(Color.hearts, Ordinal.queen));
-    prepareTurn(turnCard);
+    prepareDraw(turnCard);
     pokerGame.setTurnToBetManager(turnCard);
     pokerGame.updateTurnForBetManager();
     decision = pokerGame.decideBet(players);
@@ -300,7 +301,7 @@ public class TestPotBetAtPrivateHand extends TestBase {
         2 * PokerGame.TOTAL_MARKERS_PER_PLAYER,
         player0.getNumberOfMarkers() + player1.getNumberOfMarkers());
 
-    final int calculatedPot = calculatePot(potRaisePerPlayerTotalRound, players, bigBlindAmount);
+    final int calculatedPot = calculatePot(potRaisePerPlayerTotalRound, players);
     assertEquals(3700, player0.getNumberOfMarkers());
     assertEquals(1300, player1.getNumberOfMarkers());
     pokerGame.resetTurn(players);
@@ -309,7 +310,7 @@ public class TestPotBetAtPrivateHand extends TestBase {
   @Test
   public void testDetectMultipleCard() {
     final List<Player> players = pokerGame.createNumberOfRobotPlayers(2, 2500);
-    players.stream().forEach(pokerGame::registerPlayer);
+    players.forEach(pokerGame::registerPlayer);
     final Player player0 = players.get(0);
     pokerGame.setPrivateHand(player0, drawPairOfNinesAtFlop());
     final Player player1 = players.get(1);
@@ -317,7 +318,7 @@ public class TestPotBetAtPrivateHand extends TestBase {
 
     pokerGame.initBlinds(players);
     try {
-      pokerGame.addToCommonHand(Arrays.asList(drawCard(Color.hearts, Ordinal.knight)));
+      pokerGame.addToCommonHand(Collections.singletonList(drawCard(Color.hearts, Ordinal.knight)));
       fail("Multiple card not detected.");
     } catch (RuntimeException e) {
       assertEquals(e.getMessage(), "Card [♡J ] is not present in the Deck!");

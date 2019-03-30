@@ -1,8 +1,8 @@
 package poker;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,7 +13,6 @@ import com.google.common.collect.Maps;
 public class BetManager {
 
   private final int blind;
-  private List<Player> playerList;
   private Map<Player, Boolean> bettingMap = Maps.newLinkedHashMap();
   private Draw draw;
   private List<Card> commonHand = Lists.newArrayList();
@@ -26,7 +25,6 @@ public class BetManager {
   public BetManager(List<Player> playerList,
                     int blind,
                     PotHandler potHandler) {
-    this.playerList = playerList;
     this.blind = blind;
     this.potHandler = potHandler;
     this.maxRaiseFromAPlayer = blind;
@@ -35,24 +33,26 @@ public class BetManager {
     logger.debug("Creating new betManager with highest raise: {{}}", maxRaiseFromAPlayer);
   }
 
-  public void addFlopCardsToCommonhand(List<Card> flopCards, Draw draw) {
-    commonHand.addAll(flopCards);
-    this.draw = draw;
+  void addFlopCardsToCommonhand(List<Card> flopCards, Draw draw) {
+    addCardsToCommonHand(flopCards, draw);
   }
 
-  public void addRiverCardToCommonHand(List<Card> riverCard, Draw draw) {
-    commonHand.addAll(riverCard);
-    this.draw = draw;
-   }
+  void addRiverCardToCommonHand(List<Card> riverCard, Draw draw) {
+    addCardsToCommonHand(riverCard, draw);
+  }
 
-  public void addTurnCardToCommonHand(List<Card> riverCard, Draw draw) {
+  void addTurnCardToCommonHand(List<Card> riverCard, Draw draw) {
+    addCardsToCommonHand(riverCard, draw);
+  }
+
+  private void addCardsToCommonHand(List<Card> riverCard, Draw draw) {
     commonHand.addAll(riverCard);
     this.draw = draw;
   }
 
   public String bet() {
     result = new StringBuffer();
-    updateTurn();
+    resetMaxRaiseThisDraw();
     Player playerWithHighestRaise = betUntilAllAreSatisfied(false);
     while (doesAnyPlayersWantToBetMore(playerWithHighestRaise)) {
       System.out.println("Bet more !");
@@ -63,21 +63,18 @@ public class BetManager {
     return result.toString();
   }
 
-  void initCreateBettingDecisionList(List<Player> playerList) {
+  private void initCreateBettingDecisionList(List<Player> playerList) {
     for (Player player : playerList) {
       bettingMap.put(player, false);
     }
   }
 
   private boolean doesAnyPlayersWantToBetMore(Player playerWithHighestRaise) {
-    if (getPlayersFromBettingMap().indexOf(playerWithHighestRaise) > 0) {
-      return true;
-    }
-    return false;
+    return getPlayersFromBettingMap().indexOf(playerWithHighestRaise) > 0;
   }
 
-  List<Player> getPlayersFromBettingMap() {
-    return bettingMap.keySet().stream().collect(Collectors.toList());
+  private List<Player> getPlayersFromBettingMap() {
+    return new ArrayList<>(bettingMap.keySet());
   }
 
   void createBettingDecisionList(Player raisingPlayer) {
@@ -101,11 +98,11 @@ public class BetManager {
   }
 
   private Player getPlayerFromOldBettingMapIndex(Map<Player, Boolean> oldBettingMap, int i) {
-    return oldBettingMap.keySet().stream().collect(Collectors.toList()).get(i);
+    return new ArrayList<>(oldBettingMap.keySet()).get(i);
   }
 
   private int getPlayerIndexFromOldBettingMap(Player raisingPlayer, Map<Player, Boolean> oldBettingList) {
-    return oldBettingList.keySet().stream().collect(Collectors.toList()).indexOf(raisingPlayer);
+    return new ArrayList<>(oldBettingList.keySet()).indexOf(raisingPlayer);
   }
 
   private void addPlayerThatShallBet(Player player, Map<Player, Boolean> oldBettingMap) {
@@ -147,7 +144,7 @@ public class BetManager {
         maxRaiseFromAPlayer = action.getAmount();
       }
       bettingMap.put(player, true);
-      result.append("Player " + player.getName() + " " + action.toString() + ". ");
+      result.append("Player ").append(player.getName()).append(" ").append(action.toString()).append(". ");
       logger.trace("Player {{}} has made a bet", player.getName());
       System.out.println("Player " + player.getName() + " decides to " + action.toString());
       if (!action.isFold()) {
@@ -190,13 +187,10 @@ public class BetManager {
   }
 
   private boolean isBeforeFlop(Draw draw) {
-    if (draw == Draw.BEFORE_FLOP) {
-      return true;
-    }
-    return false;
+    return draw == Draw.BEFORE_FLOP;
   }
 
-  public static boolean shallPayToPot(int numberOfMarkersForPlayerInPot, int maxRaiseFromAPlayer) {
+  static boolean shallPayToPot(int numberOfMarkersForPlayerInPot, int maxRaiseFromAPlayer) {
     logger.trace("Number of markers for player in pot {{}} maxRaiseFromAPlayer {{}} ", numberOfMarkersForPlayerInPot, maxRaiseFromAPlayer);
     if (numberOfMarkersForPlayerInPot < maxRaiseFromAPlayer) {
       logger.trace("Player shall pay to pot.");
@@ -214,7 +208,7 @@ public class BetManager {
     return bettingMap;
   }
 
-  public void updateTurn() {
+  void resetMaxRaiseThisDraw() {
     maxRaiseThisDraw = 0;
   }
 

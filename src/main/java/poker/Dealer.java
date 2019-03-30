@@ -1,17 +1,11 @@
 package poker;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import static java.util.Arrays.stream;
-
 
 public class Dealer {
 
@@ -80,7 +74,7 @@ public class Dealer {
     return new Card(color, ordinal);
   }
 
-  void removeCardFromDeck(Card drawnCard) {
+  private void removeCardFromDeck(Card drawnCard) {
     boolean isCardRemovedFromDeck = deck.remove(drawnCard);
     if (!isCardRemovedFromDeck) {
       throw new RuntimeException("Card was not removed from deck!");
@@ -95,26 +89,17 @@ public class Dealer {
 
   private boolean isCommonHandForFlopTest() {
     // At test common hand is already set
-    if (commonHand.size() == 3) {
-      return true;
-    }
-    return false;
+    return commonHand.size() == 3;
   }
 
   private boolean isCommonHandForTurnTest() {
     // At test common hand is already set
-    if (commonHand.size() == 4) {
-      return true;
-    }
-    return false;
+    return commonHand.size() == 4;
   }
 
   private boolean isCommonHandForRiverTest() {
     // At test common hand is already set
-    if (commonHand.size() == 5) {
-      return true;
-    }
-    return false;
+    return commonHand.size() == 5;
   }
 
   void playPrivateHand(Player player) {
@@ -126,10 +111,7 @@ public class Dealer {
 
   private boolean isTest(Player player) {
     // At test private hand is already set
-    if (player.getPrivateHand().size() == 2) {
-      return true;
-    }
-    return false;
+    return player.getPrivateHand().size() == 2;
   }
 
   void playFlop(Player player) {
@@ -140,8 +122,8 @@ public class Dealer {
     player.evaluateHand(commonHand);
   }
 
-  Map<Card, PokerResult> playRiver(Player player) {
-    return player.evaluateHand(commonHand);
+  private void playRiver(Player player) {
+    player.evaluateHand(commonHand);
   }
 
   List<Card> drawFlop() {
@@ -150,7 +132,6 @@ public class Dealer {
     }
     skipCard();
     return dealCommon(NUMBER_OF_CARD_FOR_FLOP);
-//    dealCommon(NUMBER_OF_CARD_FOR_FLOP - getEventuallyReservedCardsForFlop());
   }
 
   List<Card> drawRiver() {
@@ -191,15 +172,15 @@ public class Dealer {
     rotateDealer();
     playPrivateHands();
     drawFlop();
-    players.stream().forEach(e -> playFlop(e));
+    players.forEach(this::playFlop);
     drawTurn();
-    players.stream().forEach(e -> playTurn(e));
+    players.forEach(this::playTurn);
     drawRiver();
-    players.stream().forEach(e -> playRiver(e));
+    players.forEach(this::playRiver);
   }
 
   void playPrivateHands() {
-    players.stream().forEach(e -> playPrivateHand(e));
+    players.forEach(this::playPrivateHand);
   }
 
   private void rotateDealer() {
@@ -237,7 +218,7 @@ public class Dealer {
     return players;
   }
 
-  void putBackCardsToDeck(List<Card> cards) {
+  private void putBackCardsToDeck(List<Card> cards) {
     for (Card card : cards) {
       if (deck.contains(card)) {
         throw new RuntimeException("Deck already contains: [" +
@@ -249,11 +230,11 @@ public class Dealer {
     }
   }
 
-  List<Card> getSkippedCards() {
+  private List<Card> getSkippedCards() {
     return skippedCards;
   }
 
-  boolean isDeckFull() {
+  private boolean isDeckFull() {
     if (deck.size() == NUMBER_OF_CARDS_IN_DECK) {
       return true;
     } else {
@@ -262,20 +243,7 @@ public class Dealer {
     }
   }
 
-  Player getPlayer(String winnerName) {
-    Player requestedPlayer = null;
-    for (Player player : players) {
-      if (player.getName().equals(winnerName)) {
-        requestedPlayer = player;
-      }
-    }
-    if (requestedPlayer == null) {
-      throw new RuntimeException("Could not find player :[" + winnerName + "]");
-    }
-    return requestedPlayer;
-  }
-
-  void updateWinStatistics(Player winner, Map<Card, PokerResult> highScore) {
+  private void updateWinStatistics(Player winner, Map<Card, PokerResult> highScore) {
     List<PokerResult> pokerHands = winStatistics.get(winner);
     PokerResult pokerResult = EvaluationHandler.getResultFromCardPokerResultMap(highScore);
     pokerHands.add(pokerResult);
@@ -285,9 +253,7 @@ public class Dealer {
   void printWinStatistics() {
     Map<PokerHand, Integer> allPlayerWinStatistics = initAllPlayerWinStatistics();
     Set<Player> playerSet = winStatistics.keySet();
-    Iterator<Player> players = playerSet.iterator();
-    while (players.hasNext()) {
-      Player player = players.next();
+    for (Player player : playerSet) {
       List<PokerResult> resultStatistics = winStatistics.get(player);
       logger.info("[" + player.getName() + "] won [" + resultStatistics.size() + "] number of times on [");
       for (PokerHand pokerHand : PokerHand.values()) {
@@ -342,16 +308,12 @@ public class Dealer {
     boolean hasFoundAnotherOrdinal = true;
     do {
       randomCard = getRandomCard();
-      if (randomCard.getOrdinal() == ordinal) {
-        hasFoundAnotherOrdinal = false;
-      } else {
-        hasFoundAnotherOrdinal = true;
-      }
+      hasFoundAnotherOrdinal = randomCard.getOrdinal() != ordinal;
     } while (!hasFoundAnotherOrdinal);
     return randomCard.getOrdinal();
   }
 
-  public List<Card> getPlayerHand(String playerName) {
+  List<Card> getPlayerHand(String playerName) {
     Player player = findPlayer(playerName);
     return player.getPrivateHand();
   }
@@ -365,11 +327,11 @@ public class Dealer {
     throw new RuntimeException("Could not find player :[" + playerName + "]");
   }
 
-  public Player findTheWinner() {
-    return findTheWinner(null);
+  public void findTheWinner() {
+    findTheWinner(null);
   }
 
-  public Player findTheWinner(List<Player> playersStillInTheGame) {
+  Player findTheWinner(List<Player> playersStillInTheGame) {
     Player winner = null;
     Map<Card, PokerResult> highScore = new HashMap<Card, PokerResult>();
     highScore.put(EvaluationHandler.getLeastValueableCard(), new PokerResult(PokerHand.NO_RESULT));
@@ -386,7 +348,7 @@ public class Dealer {
     }
     dealer.updateWinStatistics(winner, highScore);
     logger.info(
-            "And the winner is:[" + winner.getName() + "] with highscore :[" + printPokerResult(highScore) + "]");
+            "And the winner is:[" + Objects.requireNonNull(winner).getName() + "] with highscore :[" + printPokerResult(highScore) + "]");
     return winner;
   }
 
@@ -394,10 +356,7 @@ public class Dealer {
     if (playersStillInTheGame == null) {
       return true;
     }
-    if (playersStillInTheGame.contains(player)) {
-      return true;
-    }
-    return false;
+    return playersStillInTheGame.contains(player);
   }
 
   private void logResult(Player player, Map<Card, PokerResult> result, Map<Card, PokerResult> highScore) {
@@ -444,11 +403,11 @@ public class Dealer {
     commonHand.addAll(drawCardsFromDeck(cards));
   }
 
-  public void increaseDraw() {
+  void increaseDraw() {
     drawManager.increaseDraw();
   }
 
-  public Draw getDraw() {
+  Draw getDraw() {
     return drawManager.getDraw();
   }
 }

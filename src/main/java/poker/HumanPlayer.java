@@ -121,7 +121,7 @@ public class HumanPlayer extends Player {
   }
 
   private int getRaiseAmount(int blind) {
-    if (!hasMarkersForAmount(blind)) {
+    if (hasMarkersForAmount(blind)) {
       System.out.println("You don't have markers to pay the blind [" + blind +"], you have to go all in. ");
       return getNumberOfMarkers();
     }
@@ -132,14 +132,11 @@ public class HumanPlayer extends Player {
       desiredRaiseAmount = Integer.parseInt(KeyboardHelper.getCharFromKeyboard(Lists.newArrayList("0", "1", "2", "3", "4", "5", "6", "7", "8", "9"), "Raise amount:"));
       hasMarkersForBlind = isDesiredRaiseAmountHigherThanBlind(desiredRaiseAmount, blind);
       hasMarkers = isDesiredRaiseAmountHigherThanNumberOfMarkers(desiredRaiseAmount);
-    } while (hasMarkersForBlind == false || hasMarkers == false);
+    } while (!hasMarkersForBlind || !hasMarkers);
     return desiredRaiseAmount;
   }
 
   private boolean isDesiredRaiseAmountHigherThanNumberOfMarkers(int desiredRaiseAmount) {
-    if (desiredRaiseAmount > getNumberOfMarkers()) {
-      return false;
-    }
-    return true;
+    return desiredRaiseAmount <= getNumberOfMarkers();
   }
 }

@@ -1,18 +1,18 @@
 package poker;
 
-public class DrawManager {
+class DrawManager {
 
   private Draw draw;
 
-  public DrawManager() {
+  DrawManager() {
     this.draw = Draw.BEFORE_FLOP;
   }
 
-  public Draw getDraw() {
+  Draw getDraw() {
     return draw;
   }
 
-  public void increaseDraw() {
+  void increaseDraw() {
     switch (draw) {
       case BEFORE_FLOP:
         draw = Draw.FLOP;

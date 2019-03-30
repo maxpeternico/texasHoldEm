@@ -8,47 +8,32 @@ public class Action {
     this.decision = decision;
   }
 
-  public void setAmount(int value) {
+  void setAmount(int value) {
     this.amount = value;
   }
 
-  public int getAmount() {
+  int getAmount() {
     return amount;
   }
 
-  public boolean isAllIn() {
-    if (decision.equals(ActionEnum.ALL_IN)) {
-      return true;
-    }
-    return false;
+  boolean isAllIn() {
+    return decision.equals(ActionEnum.ALL_IN);
   }
 
   public boolean isRaise() {
-    if (decision.equals(ActionEnum.RAISE)) {
-      return true;
-    }
-    return false;
+    return decision.equals(ActionEnum.RAISE);
   }
 
   public boolean isCheck() {
-    if (decision.equals(ActionEnum.CHECK)) {
-      return true;
-    }
-    return false;
+    return decision.equals(ActionEnum.CHECK);
   }
 
   public boolean isFold() {
-    if (decision.equals(ActionEnum.FOLD)) {
-      return true;
-    }
-    return false;
+    return decision.equals(ActionEnum.FOLD);
   }
 
   public boolean isNotDecided() {
-    if (decision.equals(ActionEnum.NOT_DECIDED)) {
-      return true;
-    }
-    return false;
+    return decision.equals(ActionEnum.NOT_DECIDED);
   }
 
   @Override

@@ -21,14 +21,13 @@ public class KeyboardHelper {
     return false;
   }
 
-  public static String askForInput(String message) {
+  static String askForInput(String message) {
     System.out.println(message);
-    Scanner keyboard = new Scanner(System.in);
-    String input = keyboard.next();
-    return input;
+    Scanner keyboard = new Scanner(System.in, "UTF-8");
+    return keyboard.next();
   }
 
-  public static String getCharFromKeyboard(List<String> allowedCharacters, String displayMessage) {
+  static String getCharFromKeyboard(List<String> allowedCharacters, String displayMessage) {
     logger.debug("Allowed characters: [" + allowedCharacters.toString() + "] displayMessage :[" + displayMessage + "]. ");
     String input = "";
     do {
@@ -36,5 +35,4 @@ public class KeyboardHelper {
     } while (!allowedCharacterIsPressed(input, allowedCharacters));
     return input;
   }
-
 }
