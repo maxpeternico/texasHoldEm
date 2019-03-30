@@ -28,6 +28,7 @@ public class BetManager {
     this.blind = blind;
     this.potHandler = potHandler;
     this.maxRaiseFromAPlayer = blind;
+    maxRaiseThisDraw = blind;
     initCreateBettingDecisionList(playerList);
     draw = Draw.BEFORE_FLOP;
     logger.debug("Creating new betManager with highest raise: {{}}", maxRaiseFromAPlayer);
@@ -55,7 +56,6 @@ public class BetManager {
     resetMaxRaiseThisDraw();
     Player playerWithHighestRaise = betUntilAllAreSatisfied(false);
     while (doesAnyPlayersWantToBetMore(playerWithHighestRaise)) {
-      System.out.println("Bet more !");
       createBettingDecisionList(playerWithHighestRaise);
       playerWithHighestRaise = betUntilAllAreSatisfied(true);
     }
@@ -172,7 +172,7 @@ public class BetManager {
 
   private boolean playerHasBet(Player player, Map<Player, Boolean> bettingMap) {
     final Boolean hasBet = bettingMap.get(player);
-    System.out.println("HasBet: " + hasBet);
+    logger.trace("HasBet: {{}}", hasBet);
     return hasBet;
   }
 

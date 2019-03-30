@@ -96,14 +96,14 @@ public class RobotPlayer extends Player {
                            int maxRaiseFromAPlayerThisRound,
                            int maxRaiseThisDraw,
                            int playersPartInPots) {
-    logger.debug("Player :[" + getName() + "] raiseAmount: [" + raiseAmount + "] maxRaiseFromAPlayerThisRound :[" + maxRaiseFromAPlayerThisRound + "]");
+    logger.debug("Player :[" + getName() + "] raiseAmount: [" + raiseAmount + "] maxRaiseFromAPlayerThisRound :[" + maxRaiseFromAPlayerThisRound + "] maxRaiseThisDraw :[" + maxRaiseThisDraw + "]");
     previousAction = getAction();
 
     // If player has no more markers player need to go all in
     if (strategy.equals(ALL_IN) || needToGoAllIn(raiseAmount)) {
       action = new Action(ActionEnum.ALL_IN);
       final int numberOfAllMarkers = getNumberOfMarkers();
-      action.setAmount(numberOfAllMarkers); // TODO: number of markers?
+      action.setAmount(numberOfAllMarkers);
       logger.trace("Set raise amount for player {{}} to {{}}", getName(), raiseAmount);
       partInPot += numberOfAllMarkers;
     } else if (raiseAmount > maxRaiseFromAPlayerThisRound) {
@@ -124,7 +124,8 @@ public class RobotPlayer extends Player {
       partInPot += maxRaiseFromAPlayerThisRound;
     } else {
       // If no one is raises there is no need to fold
-      if (noRaiseThisDraw(maxRaiseFromAPlayerThisRound, maxRaiseThisDraw)) {
+      if (noRaiseThisDraw(maxRaiseThisDraw)) {
+        logger.trace("No raise this draw. ");
         action = new Action(ActionEnum.CHECK);
       } else {
         action = new Action(ActionEnum.FOLD);
@@ -132,9 +133,9 @@ public class RobotPlayer extends Player {
     }
   }
 
-  private boolean noRaiseThisDraw(int maxRaiseFromAPlayerThisRound, int maxRaiseThisDraw) {
-    if (maxRaiseThisDraw == 0) return true;
+  private boolean noRaiseThisDraw(int maxRaiseThisDraw) {
     logger.debug("Raise this draw: {{}}", maxRaiseThisDraw);
+    if (maxRaiseThisDraw == 0) return true;
     return false;
   }
 
