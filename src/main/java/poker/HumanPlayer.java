@@ -59,8 +59,6 @@ public class HumanPlayer extends Player {
             do {
               System.out.println("Raise amount must be higher than " + amountToJoinPot);
               raiseAmount = getRaiseAmount(blindAmount);
-              System.out.println("raiseAmount: " + raiseAmount + " numberOfMarkers: " + getNumberOfMarkers() + " amountToJoinPot :" + amountToJoinPot);
-              throw new RuntimeException("Stop");
             }while (raiseAmount < amountToJoinPot);
           }
         } else {
@@ -89,14 +87,14 @@ public class HumanPlayer extends Player {
   private boolean canPlayerAffordToDoAction(int amountToJoinPot) {
     if (amountToJoinPot >= getNumberOfMarkers()) {
       System.out.println("You do not have markers enough for action, you have to go all in. ");
-      return true;
+      return false;
     }
-    return false;
+    return true;
   }
 
   @Override
   protected int calculateRaiseAmount(int blind) {
-    int raiseAmount = 0;
+    int raiseAmount;
     if (strategy.equals(ALL_IN)) {
       return getNumberOfMarkers();
     }
