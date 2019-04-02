@@ -23,7 +23,6 @@ public class BetManagerTest extends TestBase {
   @Test
   public void testBettingMap() {
     List<Player> playerList = pokerGame.createNumberOfRobotPlayers(4, 2500);
-    List<Card> commonHand = null;
     final BetManager betManager = new BetManager(playerList, 50, new PotHandler());
     betManager.createBettingDecisionList(new RobotPlayer("Jörn", 2500));
     Map<Player, Boolean> bettingMap = betManager.getBettingMap();
@@ -59,7 +58,6 @@ public class BetManagerTest extends TestBase {
   @Test
   public void testBetUntilAllAreSatisfiedNoOneRaises() {
     List<Player> playerList = pokerGame.createNumberOfRobotPlayers(4, 2500);
-    List<Card> commonHand = getBadFlop();
     final BetManager betManager = new BetManager(playerList, 50, new PotHandler());
     betManager.createBettingDecisionList(playerList.get(0));
     betManager.initResult();
@@ -88,7 +86,6 @@ public class BetManagerTest extends TestBase {
     when(player2.getAction())
       .thenReturn(new Action(ActionEnum.RAISE))
       .thenReturn(new Action(ActionEnum.CHECK));
-    List<Card> commonHand = getBadFlop();
     final BetManager betManager = new BetManager(playerList, 50, new PotHandler());
     betManager.createBettingDecisionList(playerList.get(0));
     betManager.initResult();
@@ -144,7 +141,6 @@ public class BetManagerTest extends TestBase {
     when(staffan.hasFolded()).thenReturn(false);
     when(staffan.isAllIn()).thenReturn(false);
 
-    List<Card> commonHand = getBadFlop();
     final BetManager betManager = new BetManager(playerList, 50, new PotHandler());
     String decision = betManager.bet();
     assertEquals(
@@ -204,7 +200,6 @@ public class BetManagerTest extends TestBase {
     when(staffan.isAllIn()).thenReturn(false);
     when(staffan.hasFolded()).thenReturn(false);  // ,    staffan, Peter, thomas, bosse
 
-    List<Card> commonHand = getBadFlop();
     final BetManager betManager = new BetManager(playerList, 50, new PotHandler());
     final String decision = betManager.bet();
     assertEquals(
@@ -244,7 +239,6 @@ public class BetManagerTest extends TestBase {
     when(anders.isAllIn()).thenReturn(true);
     when(anders.hasFolded()).thenReturn(false);
 
-    List<Card> commonHand = getBadFlop();
     final BetManager betManager = new BetManager(playerList, 50, new PotHandler());
     final String decision = betManager.bet();
     assertEquals(

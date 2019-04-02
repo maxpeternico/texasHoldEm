@@ -20,7 +20,7 @@ public class BetManager {
   private int maxRaiseFromAPlayer;
   private static final Logger logger = LogManager.getLogger(BetManager.class);
   private StringBuffer result = null;
-  private int maxRaiseThisDraw = 0;
+  private int maxRaiseThisDraw;
 
   public BetManager(List<Player> playerList,
                     int blind,

@@ -25,8 +25,8 @@ public class RobotPlayer extends Player {
   }
 
   @Override
-  /**
-   * Since privatePoints is compensated by the number of players there is no need to consider number of players here
+  /*
+    Since privatePoints is compensated by the number of players there is no need to consider number of players here
    */
   public void decideStrategy(Draw draw, int numberOfRemainingPlayers, List<Card> commonHand) {
     points = calculatePoints(numberOfRemainingPlayers, draw, commonHand);
@@ -97,14 +97,13 @@ public class RobotPlayer extends Player {
                            int maxRaiseThisDraw,
                            int playersPartInPots) {
     logger.debug("Player :[" + getName() + "] calculatedRaiseAmount: [" + calculatedRaiseAmount + "] maxRaiseFromAPlayerThisRound :[" + maxRaiseFromAPlayerThisRound + "] maxRaiseThisDraw :[" + maxRaiseThisDraw + "]");
-    previousAction = getAction();
 
     if (hasBlind()) {
       if (action.getAmount() > calculatedRaiseAmount) {
         calculatedRaiseAmount = action.getAmount();
       }
     }
-    int raiseAmount = 0;
+    int raiseAmount;
     // If player has no more markers player need to go all in
     if (strategy.equals(ALL_IN) || needToGoAllIn(calculatedRaiseAmount)) {
       action = new Action(ActionEnum.ALL_IN);
@@ -136,8 +135,7 @@ public class RobotPlayer extends Player {
 
   private boolean noRaiseThisDraw(int maxRaiseThisDraw) {
     logger.debug("Raise this draw: {{}}", maxRaiseThisDraw);
-    if (maxRaiseThisDraw == 0) return true;
-    return false;
+    return maxRaiseThisDraw == 0;
   }
 
   private boolean isWithin(int raiseAmount, int maxRaiseFromOtherPlayer) {
@@ -186,16 +184,6 @@ public class RobotPlayer extends Player {
     }
     logger.debug(getName() + " getAmount amount: " + individualRaiseAmount);
     return individualRaiseAmount;
-  }
-
-  private int calculateEventualBlindCost(int blind) {
-    if (hasLittleBlind()) {
-      return blind / 2;
-    }
-    if (hasBigBlind()) {
-      return blind;
-    }
-    return 0;
   }
 
   Points calculatePoints(int numberOfRemainingPlayers, Draw draw, List<Card> commonHand) {

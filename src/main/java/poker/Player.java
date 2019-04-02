@@ -14,7 +14,7 @@ public abstract class Player {
 
   private static final Logger logger = LogManager.getLogger(Player.class);
 
-  private List<Card> cardsOnHand = new ArrayList<Card>();
+  private List<Card> cardsOnHand = new ArrayList<>();
   private boolean bigBlind = false;
   private boolean littleBlind = false;
   Strategy strategy = Strategy.NOT_DECIDED;
@@ -50,7 +50,7 @@ public abstract class Player {
   }
 
   Map<Card, PokerResult> evaluateHand(List<Card> commonHand) {
-    List<Card> totalHand = new ArrayList<Card>();
+    List<Card> totalHand = new ArrayList<>();
     totalHand.addAll(cardsOnHand);
     totalHand.addAll(commonHand);
     logger.trace("[" + name + "]:s total hand is [" + EvaluationHandler.getHandAsString(totalHand) + "]");
@@ -187,12 +187,12 @@ public abstract class Player {
       return getAction().getAmount();
     }
     if (hasBlind()) {
-      logger.trace("{{}} has blind. isBeforeFlop {{}}", getName(), isBeforeFlop);
+      logger.trace("{{}} has blind. ", getName());
       if (getAction().getAmount() == 0) {
         return getBlindAmount();
       }
       if (getAction().getAmount() >= getBlindAmount()) {
-        logger.trace("Amount: {{}} blindAmount {{}}", getBlindAmount());
+        logger.trace("Amount: {{}} blindAmount {{}}", getAction().getAmount(), getBlindAmount());
         return getAction().getAmount() - getBlindAmount();
       }
       if (!getAction().isAllIn()) {

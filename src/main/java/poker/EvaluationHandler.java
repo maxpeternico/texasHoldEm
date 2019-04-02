@@ -110,7 +110,7 @@ public class EvaluationHandler {
   }
 
   static Card highestCardFromStraight(List<Card> cardsInHand) {
-    List<Integer> valueList = new ArrayList<Integer>();
+    List<Integer> valueList = new ArrayList<>();
     int highestOrdinalValue = 0;
 
     for (Card card : cardsInHand) {

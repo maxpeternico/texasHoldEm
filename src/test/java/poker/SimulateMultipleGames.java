@@ -1,13 +1,13 @@
 package poker;
 
-import java.util.*;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.After;
 import org.junit.Test;
 
-import static org.junit.Assert.assertTrue;
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.Assert.fail;
 
 public class SimulateMultipleGames {
@@ -17,7 +17,7 @@ public class SimulateMultipleGames {
   private Dealer dealer = Dealer.getInstance();
 
   @Test
-  public void simulateNormalGame() throws Exception {
+  public void simulateNormalGame() {
     dealer.registerPlayer(new RobotPlayer("Thomas", TOTAL_MARKERS_PER_PLAYER));
     dealer.registerPlayer(new RobotPlayer("Jörn", TOTAL_MARKERS_PER_PLAYER));
     dealer.registerPlayer(new RobotPlayer("Anders", TOTAL_MARKERS_PER_PLAYER));
@@ -55,7 +55,7 @@ public class SimulateMultipleGames {
   }
 
   //@Test
-  public void testWinWithTopCard() throws Exception {
+  public void testWinWithTopCard() {
     Player peter = dealer.registerPlayer(new RobotPlayer("Peter", TOTAL_MARKERS_PER_PLAYER));
 
     Player thomas = dealer.registerPlayer(new RobotPlayer("Thomas", TOTAL_MARKERS_PER_PLAYER));
@@ -108,7 +108,7 @@ public class SimulateMultipleGames {
     for (Ordinal ordinal : Ordinal.values()) {
       logger.info("Checking statistics when peter gets pair of:[" + ordinal.toString() + "]");
       for (int i = 0; i < 10000; i++) {
-        List<Card> privateHand = new ArrayList<Card>();
+        List<Card> privateHand = new ArrayList<>();
         privateHand.add(new Card(Color.hearts, ordinal));
         privateHand.add(new Card(Color.clubs, ordinal));
         dealer.setPrivateHand(peter, privateHand);
