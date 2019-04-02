@@ -444,7 +444,7 @@ public class PokerGame {
   }
 
   public void updateTurnForBetManager() {
-    betManager.updateTurn();
+    betManager.clearMaxRaiseThisDraw();
   }
 
   public void setTurnToBetManager(List<Card> turnCard) {

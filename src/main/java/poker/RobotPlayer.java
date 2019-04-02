@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.Lists;
 
+import static poker.Draw.BEFORE_FLOP;
 import static poker.Strategy.ALL_IN;
 import static poker.Strategy.JOIN;
 import static poker.Strategy.JOIN_IF_CHEAP;
@@ -92,35 +93,36 @@ public class RobotPlayer extends Player {
 
    */
   @Override
-  protected void setAction(int raiseAmount,
+  protected void setAction(int calculatedRaiseAmount,
                            int maxRaiseFromAPlayerThisRound,
                            int maxRaiseThisDraw,
                            int playersPartInPots) {
-    logger.debug("Player :[" + getName() + "] raiseAmount: [" + raiseAmount + "] maxRaiseFromAPlayerThisRound :[" + maxRaiseFromAPlayerThisRound + "]");
+    logger.debug("Player :[" + getName() + "] calculatedRaiseAmount: [" + calculatedRaiseAmount + "] maxRaiseFromAPlayerThisRound :[" + maxRaiseFromAPlayerThisRound + "]");
     previousAction = getAction();
+    int raiseAmount = 0;
 
+    if (hasBlind()) {
+      if (action.getAmount() > calculatedRaiseAmount) {
+        calculatedRaiseAmount = action.getAmount();
+      }
+    }
     // If player has no more markers player need to go all in
-    if (strategy.equals(ALL_IN) || needToGoAllIn(raiseAmount)) {
+    if (strategy.equals(ALL_IN) || needToGoAllIn(calculatedRaiseAmount)) {
       action = new Action(ActionEnum.ALL_IN);
       final int numberOfAllMarkers = getNumberOfMarkers();
-      action.setAmount(numberOfAllMarkers); // TODO: number of markers?
-      logger.trace("Set raise amount for player {{}} to {{}}", getName(), raiseAmount);
-      partInPot += numberOfAllMarkers;
-    } else if (raiseAmount > maxRaiseFromAPlayerThisRound) {
-      if (BetManager.shallPayToPot(playersPartInPots, raiseAmount)) {
+      raiseAmount = numberOfAllMarkers;
+      partInPot += raiseAmount;
+    } else if (calculatedRaiseAmount > maxRaiseFromAPlayerThisRound) {
+      if (BetManager.shallPayToPot(playersPartInPots, calculatedRaiseAmount)) {
         action = new Action(ActionEnum.RAISE);
-        action.setAmount(raiseAmount);
-        logger.trace("Set raise amount for player {{}} to {{}}", getName(), raiseAmount);
+        raiseAmount = calculatedRaiseAmount;
       } else {
         action = new Action(ActionEnum.CHECK);
-        action.setAmount(raiseAmount);
-        logger.trace("Set check amount for player {{}} to {{}}", getName(), raiseAmount);
+        raiseAmount = calculatedRaiseAmount;
       }
-      partInPot += raiseAmount;
-    } else if (isWithin(raiseAmount, maxRaiseFromAPlayerThisRound)) {
+      partInPot += calculatedRaiseAmount;
+    } else if (isWithin(calculatedRaiseAmount, maxRaiseFromAPlayerThisRound)) {
       action = new Action(ActionEnum.CHECK);
-      action.setAmount(maxRaiseFromAPlayerThisRound);
-      logger.trace("Set check amount for player {{}} to {{}}", getName(), maxRaiseFromAPlayerThisRound);
       partInPot += maxRaiseFromAPlayerThisRound;
     } else {
       // If no one is raises there is no need to fold
@@ -130,6 +132,8 @@ public class RobotPlayer extends Player {
         action = new Action(ActionEnum.FOLD);
       }
     }
+    action.setAmount(raiseAmount);
+    logger.trace("Set raise/check amount for player {{}} to {{}}", getName(), maxRaiseFromAPlayerThisRound);
   }
 
   private boolean noRaiseThisDraw(int maxRaiseFromAPlayerThisRound, int maxRaiseThisDraw) {
@@ -205,7 +209,7 @@ public class RobotPlayer extends Player {
     int privatePoints = calculatePrivatePoints(getPrivateHand());
     logger.trace(getName() + " private points: " + privatePoints);
     // privatePoints = compensatePrivateHandWithNumberOfPlayers(privatePoints, numberOfRemainingPlayers);
-    if (draw != Draw.BEFORE_FLOP) {
+    if (draw != BEFORE_FLOP) {
       commonPoints = calculateCommonPoints(numberOfRemainingPlayers, commonHand);
     }
     List<Card> totalHand = Lists.newArrayList();
