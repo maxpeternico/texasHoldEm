@@ -53,12 +53,12 @@ public class BetManager {
 
   public String bet() {
     result = new StringBuffer();
-    resetMaxRaiseThisDraw();
     Player playerWithHighestRaise = betUntilAllAreSatisfied(false);
     while (doesAnyPlayersWantToBetMore(playerWithHighestRaise)) {
       createBettingDecisionList(playerWithHighestRaise);
       playerWithHighestRaise = betUntilAllAreSatisfied(true);
     }
+    resetMaxRaiseThisDraw();
     logger.info("Players have finished betting. ");
     return result.toString();
   }

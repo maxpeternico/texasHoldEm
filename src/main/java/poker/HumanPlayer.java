@@ -22,7 +22,10 @@ public class HumanPlayer extends Player {
 
   @Override
   public void decideStrategy(Draw draw, int numberOfRemainingPlayers, List<Card> commonHand) {
-    String decision = KeyboardHelper.getCharFromKeyboard(Lists.newArrayList("A", "R", "C", "F"), "(A)ll in/(R)aise/(C)heck/(F)old:");
+    String decision = KeyboardHelper.getCharFromKeyboard(
+        Lists.newArrayList("A", "R", "C", "F"),
+        "(A)ll in/(R)aise/(C)heck/(F)old:",
+        1);
     switch (decision.charAt(0)) {
       case 'A':
         strategy = ALL_IN;
@@ -69,10 +72,10 @@ public class HumanPlayer extends Player {
         break;
       case JOIN:
         if (canPlayerAffordToDoAction(amountToJoinPot)) {
+          action = new Action(ActionEnum.CHECK);
+        } else {
           action = new Action(ActionEnum.ALL_IN);
           amountToJoinPot = getNumberOfMarkers();
-        } else {
-          action = new Action(ActionEnum.CHECK);
         }
         action.setAmount(amountToJoinPot);
         break;
@@ -127,7 +130,11 @@ public class HumanPlayer extends Player {
     boolean hasMarkers;
     int desiredRaiseAmount;
     do {
-      desiredRaiseAmount = Integer.parseInt(KeyboardHelper.getCharFromKeyboard(Lists.newArrayList("0", "1", "2", "3", "4", "5", "6", "7", "8", "9"), "Raise amount:"));
+      desiredRaiseAmount = Integer.parseInt(KeyboardHelper.getCharFromKeyboard(
+          Lists.newArrayList("0", "1", "2", "3", "4", "5", "6", "7", "8", "9"),
+          "Raise amount:",
+          null
+      ));
       hasMarkersForBlind = isDesiredRaiseAmountHigherThanBlind(desiredRaiseAmount, blind);
       hasMarkers = isDesiredRaiseAmountHigherThanNumberOfMarkers(desiredRaiseAmount);
     } while (!hasMarkersForBlind || !hasMarkers);

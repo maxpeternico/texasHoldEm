@@ -187,12 +187,12 @@ public abstract class Player {
       return getAction().getAmount();
     }
     if (hasBlind()) {
-      logger.trace("{{}} has blind. isBeforeFrop {{}}", getName(), isBeforeFlop);
+      logger.trace("{{}} has blind. isBeforeFlop {{}}", getName(), isBeforeFlop);
       if (getAction().getAmount() == 0) {
         return getBlindAmount();
       }
       if (getAction().getAmount() >= getBlindAmount()) {
-        logger.trace("Amount: {{}} blindAmount", getBlindAmount());
+        logger.trace("Amount: {{}} blindAmount {{}}", getBlindAmount());
         return getAction().getAmount() - getBlindAmount();
       }
       if (!getAction().isAllIn()) {

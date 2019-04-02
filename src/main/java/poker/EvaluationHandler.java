@@ -12,7 +12,7 @@ public class EvaluationHandler {
   private static final int NUMBER_OF_CARDS_IN_HAND = 5;
   private static final String NO_FLUSH_FOUND = "No flush found.";
 
-  private static Map<Card, Integer> drawnCardStatistics = new HashMap<Card, Integer>();
+  private static Map<Card, Integer> drawnCardStatistics = new HashMap<>();
 
   static void initDrawnCardStatistics() {
     for (Color color : Color.values()) {
@@ -23,7 +23,7 @@ public class EvaluationHandler {
   }
 
   public static Map<Card, PokerResult> evaluateHand(String name, List<Card> cardsInHand) {
-    Map<Card, PokerResult> result = new HashMap<Card, PokerResult>();
+    Map<Card, PokerResult> result = new HashMap<>();
     Card highestCard = findHighestCardByColor(cardsInHand);
     if (isRoyalStraightFlush(cardsInHand)) {
       logger.debug("[" + name + "] got a royal straight flush! [" + printCards(cardsInHand) + "]");
@@ -185,7 +185,7 @@ public class EvaluationHandler {
   private static boolean isStraight(List<Card> cardsInHand) {
     boolean isStraight = false;
     if (cardsInHand.size() >= NUMBER_OF_CARDS_IN_HAND) {
-      List<Integer> valueList = new ArrayList<Integer>();
+      List<Integer> valueList = new ArrayList<>();
       for (Card card : cardsInHand) {
         // Special handling for ace, is considered both value 1 and 14. Add one card of both
         if (card.getOrdinal() == Ordinal.ace) {
@@ -239,7 +239,7 @@ public class EvaluationHandler {
   private static Color returnFlushColor(List<Card> cardsInHand) throws Exception {
     Color flushColor = null;
     if (cardsInHand.size() >= NUMBER_OF_CARDS_IN_HAND) {
-      Map<Color, Integer> flushChecker = new HashMap<Color, Integer>();
+      Map<Color, Integer> flushChecker = new HashMap<>();
       initFlushChecker(flushChecker);
       for (Card card : cardsInHand) {
         int oldValue = flushChecker.get(card.getColor());
@@ -310,9 +310,9 @@ public class EvaluationHandler {
   }
 
   private static Map<Multiple, Integer> getMultiple(List<Card> cardsInHand) {
-    Map<Multiple, Integer> multiple = new HashMap<Multiple, Integer>();
+    Map<Multiple, Integer> multiple = new HashMap<>();
     Map<Integer, Integer> possiblePair = initPossiblePairMap(cardsInHand);
-    List<Card> restOfHand = new ArrayList<Card>(cardsInHand);
+    List<Card> restOfHand = new ArrayList<>(cardsInHand);
     for (Card card : cardsInHand) {
       boolean isSuccesful = restOfHand.remove(card);
       if (!isSuccesful) {
@@ -373,7 +373,7 @@ public class EvaluationHandler {
   }
 
   private static Map<Integer, Integer> initPossiblePairMap(List<Card> cardsInHand) {
-    Map<Integer, Integer> possiblePairMap = new HashMap<Integer, Integer>();
+    Map<Integer, Integer> possiblePairMap = new HashMap<>();
     cardsInHand.forEach(e -> possiblePairMap.put(e.getOrdinal().getValue(), 1));
     return possiblePairMap;
   }

@@ -1,9 +1,10 @@
 package poker;
 
-import java.util.*;
-
+import com.google.common.collect.Lists;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.*;
 
 import static java.util.Arrays.stream;
 
@@ -157,13 +158,6 @@ public class Dealer {
     logger.trace(" is skipped.");
   }
 
-  private int getEventuallyReservedCardsForFlop() {
-    if (commonHand.size() > 3) {
-      throw new RuntimeException("Number of reserved card for flop cannot be higher than 3. Size :[" + commonHand.size() + "]");
-    }
-    return commonHand.size();
-  }
-
   private List<Card> dealPrivateHand() {
     return dealer.dealRandomCard(NUMBER_OF_CARDS_ON_PRIVATE_HAND);
   }
@@ -272,9 +266,7 @@ public class Dealer {
 
   private void printAllPlayerStatistics(Map<PokerHand, Integer> allPlayerWinStatistics) {
     logger.info("Total game statistics for this round for all players:");
-    stream(PokerHand.values()).forEach(e -> {
-      logger.info("Number of wins on :[" + e.toString() + "] : [" + allPlayerWinStatistics.get(e) + "]");
-    });
+    stream(PokerHand.values()).forEach(e -> logger.info("Number of wins on :[" + e.toString() + "] : [" + allPlayerWinStatistics.get(e) + "]"));
   }
 
 
@@ -305,7 +297,7 @@ public class Dealer {
 
   public Ordinal getAnotherOrdinal(Ordinal ordinal) {
     Card randomCard;
-    boolean hasFoundAnotherOrdinal = true;
+    boolean hasFoundAnotherOrdinal;
     do {
       randomCard = getRandomCard();
       hasFoundAnotherOrdinal = randomCard.getOrdinal() != ordinal;
@@ -333,10 +325,11 @@ public class Dealer {
 
   Player findTheWinner(List<Player> playersStillInTheGame) {
     Player winner = null;
-    Map<Card, PokerResult> highScore = new HashMap<Card, PokerResult>();
+    Map<Card, PokerResult> highScore = new HashMap<>();
     highScore.put(EvaluationHandler.getLeastValueableCard(), new PokerResult(PokerHand.NO_RESULT));
     for (Player player : dealer.getPlayers()) {
-      if (isPlayerStillInTheGame(playersStillInTheGame, player)) {
+      if (isPlayerStillInTheGame(playersStillInTheGame, player)) {  // TODO: parameter should not be needed to this method, this check should be replaced with !hasFolded
+        System.out.println("Check if " + player.getName() + " is the winner. ");
         Map<Card, PokerResult> result = player.evaluateHand(commonHand);
         logResult(player, result, highScore);
         if (EvaluationHandler.isResultFromLatestPlayerHigherThanHighScore(result, highScore)) {
@@ -360,8 +353,12 @@ public class Dealer {
   }
 
   private void logResult(Player player, Map<Card, PokerResult> result, Map<Card, PokerResult> highScore) {
-    logger.debug("[" + player.toString() + "] got [" + EvaluationHandler.getResultFromCardPokerResultMap(result)
+    System.out.println("[" + player.toString() + "] got [" + EvaluationHandler.getResultFromCardPokerResultMap(result).getPokerHand()
             + "] with top card [" + EvaluationHandler.getTopCardFromResult(result) + "]");
+    List<Card> totalHand = Lists.newArrayList();
+    totalHand.addAll(player.getPrivateHand());
+    totalHand.addAll(commonHand);
+    System.out.println(EvaluationHandler.getHandAsString(totalHand));
     logger.trace(" from hand:[" + EvaluationHandler.getHandAsString(player.getPrivateHand()) + "]");
     logger.trace("Highscore is:[" + highScore.toString() + "]");
   }

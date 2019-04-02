@@ -26,10 +26,13 @@ public class TestPlayFullGame {
     List<Player> players = new ArrayList<>();
     players.add(jorn);
     players.add(staffan);
+    int blind = 50;
 
     pokerGame.initBlinds(players);
     do {
+      pokerGame.payBlinds(players, blind);
       pokerGame.playRound(players);
+      blind = blind * 2;
     } while (moreThanOnePlayerHasMarkers(players));
   }
 
@@ -39,10 +42,12 @@ public class TestPlayFullGame {
     for (Player player : players) {
       pokerGame.registerPlayer(player);
     }
-
+    int blind = 50;
     pokerGame.initBlinds(players);
     do {
+      pokerGame.payBlinds(players, blind);
       pokerGame.playRound(players);
+      blind = blind * 2;
     } while (moreThanOnePlayerHasMarkers(players));
   }
 

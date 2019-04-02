@@ -1,18 +1,16 @@
 package poker;
 
+import com.google.common.collect.Lists;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.google.common.collect.Lists;
 
 public class PokerGame {
 
@@ -37,10 +35,6 @@ public class PokerGame {
     return new PokerGame();
   }
 
-  private static boolean test(Player e) {
-    return !e.hasFolded();
-  }
-
   private void startGame() {
     createPlayers();
     List<Player> players = dealer.getPlayers();
@@ -51,7 +45,7 @@ public class PokerGame {
       System.out.println("Blind is: [" + blind / 2 + "] resp: [" + blind + "]");
       payBlinds(players, blind);
       playRound(playersStillInTheGame);
-      KeyboardHelper.getCharFromKeyboard(Lists.newArrayList("O"), "Press O to continue");
+      KeyboardHelper.getCharFromKeyboard(Lists.newArrayList("O"), "Press O to continue", null);
       playersStillInTheGame = playersThatCanBet(players);
     } while (!doWeHaveAWinner(playersStillInTheGame));
     final Player theWinner = playersStillInTheGame.get(0);
@@ -104,7 +98,7 @@ public class PokerGame {
     final Player theWinner = dealer.findTheWinner(getPlayersThatDidNotFold(players));
     checkTotalHand(dealer, theWinner.getName(), theWinner.getPrivateHand());
     theWinner.addMarkers(pot.getNumberOfMarkersInAllPots());
-    System.out.println("Player " + theWinner.getName() + " wins pot " + pot + " with " + pot.getNumberOfMarkersInAllPots() + " markers.");
+    System.out.println("Player " + theWinner.getName() + " wins pot with " + pot.getNumberOfMarkersInAllPots() + " markers.");
     for (Player player : players) {
       System.out.println("Number of markers for player " + player.getName() + " : " + player.getNumberOfMarkers());
     }
@@ -158,7 +152,7 @@ public class PokerGame {
   }
 
   private List<Player> getPlayersThatDidNotFold(List<Player> players) {
-    return players.stream().filter(PokerGame::test).collect(Collectors.toList());
+    return players.stream().filter(e->!e.hasFolded()).collect(Collectors.toList());
   }
 
   private boolean doWeHaveAWinner(List<Player> playersStillInTheGame) {
@@ -373,7 +367,7 @@ public class PokerGame {
 
   private void createRobotPlayers() {
     System.out.println("How many players do you want to play with?");
-    String numberOfPlayers = KeyboardHelper.getCharFromKeyboard(Lists.newArrayList("1", "2", "3", "4", "5", "6"), "[1-6]:");
+    String numberOfPlayers = KeyboardHelper.getCharFromKeyboard(Lists.newArrayList("1", "2", "3", "4", "5", "6"), "[1-6]:", 1);
     final List<Player> numberOfRobotPlayers = createNumberOfRobotPlayers(Integer.valueOf(numberOfPlayers), TOTAL_MARKERS_PER_PLAYER);
     for (Player robot : numberOfRobotPlayers) {
       dealer.registerPlayer(robot);
@@ -398,12 +392,11 @@ public class PokerGame {
     List<Card> commonHand = dealer.getCommonHand();
     List<Card> totalHand = new ArrayList<>(privateHand);
     totalHand.addAll(commonHand);
-    final String totalHandString = EvaluationHandler.getHandAsString(totalHand);
-    System.out.print(totalHandString + " ");
     printCurrentResult(playerName, totalHand);
   }
 
   private void printCurrentResult(String playerName, List<Card> totalHand) {
+    final String totalHandString = EvaluationHandler.getHandAsString(totalHand);
     final Map<Card, PokerResult> cardPokerResultMap = EvaluationHandler.evaluateHand(playerName, totalHand);
     final Set<Card> cards = cardPokerResultMap.keySet();
     for (Card card : cards) {

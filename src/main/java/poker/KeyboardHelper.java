@@ -27,12 +27,18 @@ public class KeyboardHelper {
     return keyboard.next();
   }
 
-  static String getCharFromKeyboard(List<String> allowedCharacters, String displayMessage) {
+  static String getCharFromKeyboard(List<String> allowedCharacters, String displayMessage, Integer inputLength) {
     logger.debug("Allowed characters: [" + allowedCharacters.toString() + "] displayMessage :[" + displayMessage + "]. ");
     String input = "";
     do {
       input = askForInput(displayMessage);
-    } while (!allowedCharacterIsPressed(input, allowedCharacters));
+    } while (!allowedCharacterIsPressed(input, allowedCharacters) || !hasCorrectLength(input, inputLength));
     return input;
+  }
+
+  private static boolean hasCorrectLength(String input, Integer inputLength) {
+    if (inputLength == null) return true;
+
+    return (input.length() == inputLength);
   }
 }
