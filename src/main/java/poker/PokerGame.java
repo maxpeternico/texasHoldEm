@@ -4,10 +4,7 @@ import com.google.common.collect.Lists;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -39,17 +36,36 @@ public class PokerGame {
     createPlayers();
     List<Player> players = dealer.getPlayers();
     initBlinds(players);
-    List<Player> playersStillInTheGame = Lists.newArrayList();
+    List<Player> playersStillInTheGame = Lists.newLinkedList();
+    List<Player> playersInBettingOrder = Lists.newLinkedList();
     playersStillInTheGame.addAll(players);
     do {
       System.out.println("Blind is: [" + blind / 2 + "] resp: [" + blind + "]");
       payBlinds(players, blind);
-      playRound(playersStillInTheGame);
+      playersInBettingOrder = putBigBlindLastInList(playersStillInTheGame);
+      playRound(playersInBettingOrder);
       KeyboardHelper.getCharFromKeyboard(Lists.newArrayList("O"), "Press O to continue", null);
       playersStillInTheGame = playersThatCanBet(players);
     } while (!doWeHaveAWinner(playersStillInTheGame));
     final Player theWinner = playersStillInTheGame.get(0);
     System.out.println("Player :[" + theWinner.getName() + "] is the winner and won :[" + theWinner.getNumberOfMarkers() + "] markers.");
+  }
+
+  List<Player> putBigBlindLastInList(List<Player> playersStillInTheGame) {
+    // Get index of big blind player
+    int indexOfBigBlindPlayer = 0;
+    for (Player player:playersStillInTheGame) {
+      if (player.hasBigBlind()) {
+        indexOfBigBlindPlayer = playersStillInTheGame.indexOf(player);
+        break;
+      }
+    }
+    List<Player> sortedList = Lists.newLinkedList();
+    // Player after blind player is put first in list and so on, big blind player should be last
+    for (int i=0;i<playersStillInTheGame.size();i++) {
+      sortedList.add(playersStillInTheGame.get((indexOfBigBlindPlayer + 1 + i) % playersStillInTheGame.size()));
+    }
+    return sortedList;
   }
 
   void initBlinds(List<Player> players) {

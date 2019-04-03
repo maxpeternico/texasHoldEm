@@ -1,15 +1,14 @@
 package poker;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyInt;
@@ -249,6 +248,36 @@ public class BetManagerTest extends TestBase {
       ""
       , decision2);
 
+  }
+
+  @Test
+  public void testPutBigBlindLastInList() {
+    final LinkedList<Player> playersUnsorted = Lists.newLinkedList();
+    playersUnsorted.add(new RobotPlayer("Kalle",1));
+    final RobotPlayer affe = new RobotPlayer("Affe", 1);
+    affe.setBigBlind(1);
+    playersUnsorted.add(affe);
+    playersUnsorted.add(new RobotPlayer("Olle",1));
+    playersUnsorted.add(new RobotPlayer("Pelle",1));
+
+    final List<Player> sortedPlayers = pokerGame.putBigBlindLastInList(playersUnsorted);
+    assertEquals(sortedPlayers.get(0).getName(), "Olle");
+    assertEquals(sortedPlayers.get(1).getName(), "Pelle");
+    assertEquals(sortedPlayers.get(2).getName(), "Kalle");
+    assertEquals(sortedPlayers.get(3).getName(), "Affe");
+  }
+
+  @Test
+  public void testPutBigBlindLastInListTwoPlayer() {
+    final LinkedList<Player> playersUnsorted = Lists.newLinkedList();
+    final RobotPlayer affe = new RobotPlayer("Affe", 1);
+    affe.setBigBlind(1);
+    playersUnsorted.add(affe);
+    playersUnsorted.add(new RobotPlayer("Kalle",1));
+
+    final List<Player> sortedPlayers = pokerGame.putBigBlindLastInList(playersUnsorted);
+    assertEquals(sortedPlayers.get(0).getName(), "Kalle");
+    assertEquals(sortedPlayers.get(1).getName(), "Affe");
   }
 
   @Override
