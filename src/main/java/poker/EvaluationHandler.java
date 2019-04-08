@@ -1,9 +1,16 @@
 package poker;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class EvaluationHandler {
 
@@ -52,18 +59,18 @@ public class EvaluationHandler {
     } else if (isOnePair(cardsInHand)) {
       logger.debug("[" + name + "] got a pair! [" + printCards(cardsInHand) + "]");
       result.put(highestCard,
-              new PokerResult(
-                      PokerHand.PAIR,
-                      getPokerResultPointsFromPair(cardsInHand)
-              )
+                 new PokerResult(
+                   PokerHand.PAIR,
+                   getPokerResultPointsFromPair(cardsInHand)
+                 )
       );
     } else {
       logger.debug("[" + name + "]:s hand [" + printCards(cardsInHand) + "] did not give any money");
       result.put(highestCard,
-              new PokerResult(
-                      PokerHand.NO_RESULT,
-                      getPokerResultPointsFromNoResult(highestCard)
-              )
+                 new PokerResult(
+                   PokerHand.NO_RESULT,
+                   getPokerResultPointsFromNoResult(highestCard)
+                 )
       );
     }
     return result;
@@ -90,7 +97,7 @@ public class EvaluationHandler {
 
   private static boolean isRoyalStraightFlush(List<Card> cardsInHand) {
     if (isStraightFlush(cardsInHand) && isFlushOfHearts(cardsInHand) &&
-            highestCardFromStraight(cardsInHand).equals(new Card(Color.hearts, Ordinal.ace))) {
+        highestCardFromStraight(cardsInHand).equals(new Card(Color.hearts, Ordinal.ace))) {
       return true;
     } else {
       return false;
@@ -282,7 +289,7 @@ public class EvaluationHandler {
 
   private static boolean isFullHouse(List<Card> cardsInHand) {
     return hasMultiple(cardsInHand, Multiple.THREES) && hasMultiple(cardsInHand, Multiple.PAIR)
-        && (cardsInHand.size() >= NUMBER_OF_CARDS_IN_HAND);
+           && (cardsInHand.size() >= NUMBER_OF_CARDS_IN_HAND);
   }
 
   private static boolean isTripple(List<Card> cardsInHand) {
@@ -317,7 +324,7 @@ public class EvaluationHandler {
       boolean isSuccesful = restOfHand.remove(card);
       if (!isSuccesful) {
         throw new RuntimeException(
-                "Unable to remove card:[" + card.toString() + "] from hand [" + printCards(restOfHand) + "]");
+          "Unable to remove card:[" + card.toString() + "] from hand [" + printCards(restOfHand) + "]");
       }
       for (Card restOfCard : restOfHand) {
         if (restOfCard.getOrdinal() == card.getOrdinal()) {
@@ -325,11 +332,10 @@ public class EvaluationHandler {
           possiblePair.put(card.getOrdinal().getValue(), ++totalCount);
           logger.trace("Found multiple of:[" + card.getOrdinal().getValue() + "]");
           logger.trace("putting:[" + card.getOrdinal().getValue() + "] to possiblepair, count[" + totalCount
-                  + "]");
+                       + "]");
           break; // For threes and fours we will get double hits if we continue
         }
       }
-
     }
     int ones = 0;
     int pairs = 0;
@@ -402,7 +408,8 @@ public class EvaluationHandler {
     return new Card(Color.clubs, Ordinal.two);
   }
 
-  static boolean isResultFromLatestPlayerHigherThanHighScore(Map<Card, PokerResult> result, Map<Card, PokerResult> highScore) {
+  static boolean isResultFromLatestPlayerHigherThanHighScore(Map<Card, PokerResult> result,
+                                                             Map<Card, PokerResult> highScore) {
     boolean isHigher = false;
 
     PokerResult pokerResult = getResultFromCardPokerResultMap(result);
