@@ -38,7 +38,7 @@ public class TestPlayFullGame {
 
   @Test
   public void playUntilAPlayerWinsTheGameMaxPlayers() {
-    List<Player> players = pokerGame.createNumberOfRobotPlayers(7, PokerGame.TOTAL_MARKERS_PER_PLAYER);
+    List<Player> players = pokerGame.createNumberOfRobotPlayers(PokerGame.MAX_NUMBER_OF_PLAYERS, PokerGame.TOTAL_MARKERS_PER_PLAYER);
     for (Player player : players) {
       pokerGame.registerPlayer(player);
     }

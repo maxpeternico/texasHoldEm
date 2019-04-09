@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 public class PokerGame {
 
-  private static final int MAX_NUMBER_OF_PLAYERS = 7;
+  static final int MAX_NUMBER_OF_PLAYERS = 10;
   private Dealer dealer;
   private static final Logger logger = LogManager.getLogger(PokerGame.class);
   private int blind = 50;
@@ -37,7 +37,7 @@ public class PokerGame {
     List<Player> players = dealer.getPlayers();
     initBlinds(players);
     List<Player> playersStillInTheGame = Lists.newLinkedList();
-    List<Player> playersInBettingOrder = Lists.newLinkedList();
+    List<Player> playersInBettingOrder;
     playersStillInTheGame.addAll(players);
     do {
       System.out.println("Blind is: [" + blind / 2 + "] resp: [" + blind + "]");
@@ -383,7 +383,9 @@ public class PokerGame {
 
   private void createRobotPlayers() {
     System.out.println("How many players do you want to play with?");
-    String numberOfPlayers = KeyboardHelper.getCharFromKeyboard(Lists.newArrayList("1", "2", "3", "4", "5", "6"), "[1-6]:", 1);
+    String numberOfPlayers = KeyboardHelper.getCharFromKeyboard(
+      Lists.newArrayList("1", "2", "3", "4", "5", "6", "7", "8", "9"),
+      "[1-9]:", 1);
     final List<Player> numberOfRobotPlayers = createNumberOfRobotPlayers(Integer.valueOf(numberOfPlayers), TOTAL_MARKERS_PER_PLAYER);
     for (Player robot : numberOfRobotPlayers) {
       dealer.registerPlayer(robot);
@@ -392,9 +394,9 @@ public class PokerGame {
 
   List<Player> createNumberOfRobotPlayers(int numberOfPlayers, int markersPerPlayer) {
     if (numberOfPlayers > MAX_NUMBER_OF_PLAYERS) {
-      throw new RuntimeException("Number of players should be between 1 and 7: " + numberOfPlayers);
+      throw new RuntimeException("Number of players should be between 1 and 10: " + numberOfPlayers);
     }
-    final String[] name = {"Thomas", "Jörn", "Anders", "Bosse", "Ingemar", "Staffan", "Bagarn"};
+    final String[] name = {"Thomas", "Jörn", "Anders", "Bosse", "Ingemar", "Staffan", "Bagarn", "Bobo", "Vesam", "Mr X"};
 
     List<Player> robotPlayers = Lists.newArrayList();
     for (int i = 0; i < numberOfPlayers; i++) {
