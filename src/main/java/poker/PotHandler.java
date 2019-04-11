@@ -74,7 +74,7 @@ public class PotHandler {
       }
       logger.debug("Join amount left [{}]", joinAmountLeft);
     }
-    if (newPots != null) {
+    if (!newPots.isEmpty()) {
       pots.addAll(newPots);
     }
     splitPotIfNecessary(joinAmountLeft, potToSplit);
