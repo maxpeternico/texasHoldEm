@@ -3,6 +3,7 @@ package poker;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -13,6 +14,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class EvaluationHandler {
+  private EvaluationHandler() {}
 
   private static final Logger logger = LogManager.getLogger(EvaluationHandler.class.getName());
   private static final Integer ACE_VALUE_ONE = 1;
@@ -135,7 +137,7 @@ public class EvaluationHandler {
       if (value == (oldValue + 1)) {
         straightCounter++;
         highestOrdinalValue = value;
-        logger.trace("Value:[" + value + "] could be part of a possible straight. Straight counter:[" + straightCounter + "]");
+        logger.trace("Value:{{}} could be part of a possible straight. Straight counter:{{}}", value, straightCounter);
         if (straightCounter >= NUMBER_OF_CARDS_IN_HAND) {
           logger.debug("Highest ordinal in straight:[" + value + "]");
         }
@@ -225,10 +227,8 @@ public class EvaluationHandler {
   private static boolean isFlush(List<Card> cardsInHand) {
     boolean isFlush = false;
     try {
-      Color flushColor = returnFlushColor(cardsInHand);
-      if (flushColor != null) {
-        isFlush = true;
-      }
+      returnFlushColor(cardsInHand);
+      isFlush = true;
     } catch (Exception e) {
       checkExceptionMessage(e);
     }
@@ -243,10 +243,10 @@ public class EvaluationHandler {
     }
   }
 
-  private static Color returnFlushColor(List<Card> cardsInHand) throws Exception {
+  private static Color returnFlushColor(List<Card> cardsInHand)  {
     Color flushColor = null;
     if (cardsInHand.size() >= NUMBER_OF_CARDS_IN_HAND) {
-      Map<Color, Integer> flushChecker = new HashMap<>();
+      Map<Color, Integer> flushChecker = new EnumMap<>(Color.class);
       initFlushChecker(flushChecker);
       for (Card card : cardsInHand) {
         int oldValue = flushChecker.get(card.getColor());
@@ -259,9 +259,9 @@ public class EvaluationHandler {
           logger.debug("Got a flush of:[" + color + "]");
         }
       }
-      if (flushColor == null) {
-        throw new Exception("No flush found.");
-      }
+    }
+    if (flushColor == null) {
+      throw new RuntimeException("No flush found.");
     }
     return flushColor;
   }
@@ -317,7 +317,7 @@ public class EvaluationHandler {
   }
 
   private static Map<Multiple, Integer> getMultiple(List<Card> cardsInHand) {
-    Map<Multiple, Integer> multiple = new HashMap<>();
+    Map<Multiple, Integer> multiple = new EnumMap<>(Multiple.class);
     Map<Integer, Integer> possiblePair = initPossiblePairMap(cardsInHand);
     List<Card> restOfHand = new ArrayList<>(cardsInHand);
     for (Card card : cardsInHand) {
