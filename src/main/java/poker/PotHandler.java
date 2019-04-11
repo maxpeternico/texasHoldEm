@@ -52,21 +52,15 @@ public class PotHandler {
       }
       if (isLatestPot(potIndex, numberOfPots)) {
         if (canJoinPot(joinAmountLeft, amountToJoinPot)) {
-          putMarkersToPot(pot, player, amountToJoinPot);
-          markersPaidToPot = amountToJoinPot;
-          if (joinAmountLeft > markersPaidToPot) {
-            createNewPot(player, joinAmount, joinAmountLeft, newPots, markersPaidToPot);
-          }
+          markersPaidToPot = joinLatestPot(player, joinAmount, joinAmountLeft, amountToJoinPot, newPots, pot);
         } else {
-          putMarkersToPot(pot, player, joinAmountLeft);
-          potToSplit = setPotToSplit(joinAmountLeft, amountToJoinPot, pot, player);
+          potToSplit = splitCurrentPot(player, joinAmountLeft, amountToJoinPot, pot);
           break;
         }
 
       } else {
         if (amountToJoinPot > joinAmountLeft) {
-          putMarkersToPot(pot, player, joinAmountLeft);
-          potToSplit = setPotToSplit(joinAmountLeft, amountToJoinPot, pot, player);
+          potToSplit = splitCurrentPot(player, joinAmountLeft, amountToJoinPot, pot);
           break;
         }
         if (amountToJoinPot != 0) {
@@ -83,6 +77,17 @@ public class PotHandler {
     if (newPots != null) {
       pots.addAll(newPots);
     }
+    splitPotIfNecessary(joinAmountLeft, potToSplit);
+  }
+
+  private Pot splitCurrentPot(Player player, int joinAmountLeft, int amountToJoinPot, Pot pot) {
+    Pot potToSplit;
+    putMarkersToPot(pot, player, joinAmountLeft);
+    potToSplit = setPotToSplit(joinAmountLeft, amountToJoinPot, pot, player);
+    return potToSplit;
+  }
+
+  private void splitPotIfNecessary(int joinAmountLeft, Pot potToSplit) {
     if (isPotSplit(potToSplit)) {
       int splitAmount = joinAmountLeft;
       do {
@@ -91,6 +96,21 @@ public class PotHandler {
         splitAmount = getEventualNewSplitValueFromOldPot(potToSplit);
       } while (splitAmount != 0);
     }
+  }
+
+  private int joinLatestPot(Player player,
+                            int joinAmount,
+                            int joinAmountLeft,
+                            int amountToJoinPot,
+                            List<Pot> newPots,
+                            Pot pot) {
+    int markersPaidToPot;
+    putMarkersToPot(pot, player, amountToJoinPot);
+    markersPaidToPot = amountToJoinPot;
+    if (joinAmountLeft > markersPaidToPot) {
+      createNewPot(player, joinAmount, joinAmountLeft, newPots, markersPaidToPot);
+    }
+    return markersPaidToPot;
   }
 
   private void createNewPot(Player player, int joinAmount, int joinAmountLeft, List<Pot> newPots, int markersPaidToPot) {
