@@ -129,7 +129,7 @@ public class Dealer {
 
   List<Card> drawFlop() {
     if (isCommonHandForFlopTest()) {
-      return null;
+      return Lists.newArrayList();
     }
     skipCard();
     return dealCommon(NUMBER_OF_CARD_FOR_FLOP);
@@ -137,7 +137,7 @@ public class Dealer {
 
   List<Card> drawRiver() {
     if (isCommonHandForRiverTest()) {
-      return null;
+      return Lists.newArrayList();
     }
     skipCard();
     return dealCommon(NUMBER_OF_CARD_FOR_RIVER);
@@ -145,7 +145,7 @@ public class Dealer {
 
   List<Card> drawTurn() {
     if (isCommonHandForTurnTest()) {
-      return null;
+      return Lists.newArrayList();
     }
 
     skipCard();
@@ -271,7 +271,7 @@ public class Dealer {
 
 
   private Map<PokerHand, Integer> initAllPlayerWinStatistics() {
-    Map<PokerHand, Integer> allPlayerWinStatistics = new HashMap<>();
+    Map<PokerHand, Integer> allPlayerWinStatistics = new EnumMap<>(PokerHand.class);
     stream(PokerHand.values()).forEach(e -> allPlayerWinStatistics.put(e, 0));
     return allPlayerWinStatistics;
   }
