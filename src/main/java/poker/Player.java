@@ -149,7 +149,7 @@ public abstract class Player {
       return false;
     }
     if (hasMarkersForAmount(amount)) {
-      System.out.println("You don't have makers for :[" + amount + "]");
+      System.out.println("You don't have makers for :[" + amount + "]. Number of markers :[" + numberOfMarkers + "]");
       return false;
     }
     return true;

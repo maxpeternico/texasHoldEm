@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 
 import static poker.Strategy.ALL_IN;
 import static poker.Strategy.JOIN;
+import static poker.Strategy.NOT_DECIDED;
 import static poker.Strategy.OFFENSIVE;
 import static poker.Strategy.QUIT;
 
@@ -56,18 +57,14 @@ public class HumanPlayer extends Player {
         break;
       case OFFENSIVE:
         if (canPlayerAffordToDoAction(amountToJoinPot)) {
-          if (raiseAmount > amountToJoinPot) {
-            action = new Action(ActionEnum.RAISE);
-          } else {
-            do {
-              System.out.println("Raise amount must be higher than " + amountToJoinPot);
-              raiseAmount = getRaiseAmount(blindAmount);
-            }while (raiseAmount < amountToJoinPot);
+          if (raiseAmount <= amountToJoinPot) {
+            raiseAmount = getNewRaiseAmount(amountToJoinPot);
           }
         } else {
           action = new Action(ActionEnum.ALL_IN);
           raiseAmount = getNumberOfMarkers();
         }
+        action = new Action(ActionEnum.RAISE);
         action.setAmount(raiseAmount);
         break;
       case JOIN:
@@ -87,6 +84,15 @@ public class HumanPlayer extends Player {
     }
   }
 
+  private int getNewRaiseAmount(int amountToJoinPot) {
+    int raiseAmount;
+    do {
+      System.out.println("Raise amount must be higher than " + amountToJoinPot);
+      raiseAmount = getRaiseAmount(blindAmount);
+    }while (raiseAmount < amountToJoinPot);
+    return raiseAmount;
+  }
+
   private boolean canPlayerAffordToDoAction(int amountToJoinPot) {
     if (amountToJoinPot >= getNumberOfMarkers()) {
       System.out.println("You do not have markers enough for action, you have to go all in. ");
@@ -98,6 +104,9 @@ public class HumanPlayer extends Player {
   @Override
   protected int calculateRaiseAmount(int blind) {
     int raiseAmount;
+    if (strategy.equals(NOT_DECIDED)) {
+      throw new RuntimeException("Strategy can not be NOT_DECIDED here. ");
+    }
     if (strategy.equals(ALL_IN)) {
       return getNumberOfMarkers();
     }
