@@ -2,6 +2,8 @@ package poker;
 
 class Shuffle {
 
+  private Shuffle() {}
+
   private static final int OFFSET_TWO = 2;
 
   static Ordinal getRandomOrdinal() {
@@ -36,6 +38,6 @@ class Shuffle {
 
   private static int getRandomNumberUpToValue(int limit) {
     double randomNo = Math.random() * limit;
-    return Double.valueOf(randomNo).intValue();
+    return (int)randomNo;
   }
 }
