@@ -9,13 +9,21 @@ import java.util.Scanner;
 public class KeyboardHelper {
   private static final Logger logger = LogManager.getLogger(KeyboardHelper.class);
 
+  private KeyboardHelper() {}
+
   static boolean allowedCharacterIsPressed(String input, List<String> allowedCharacters) {
     final char[] inputCharArray = input.toCharArray();
-    for (char inputChar : inputCharArray) {
-      for (String allowedCharacter : allowedCharacters) {
-        if (allowedCharacter.contains(String.valueOf(inputChar))) {
-          return true;
-        }
+    for (char inputChar : inputCharArray) {   // "D"
+      if (!isInputCharAllowed(allowedCharacters, inputChar)) return false;
+
+    }
+    return true;
+  }
+
+  private static boolean isInputCharAllowed(List<String> allowedCharacters, char inputChar) {
+    for (String allowedCharacter : allowedCharacters) { // "[A, B, C]
+      if (allowedCharacter.contains(String.valueOf(inputChar))) {
+        return true;
       }
     }
     return false;

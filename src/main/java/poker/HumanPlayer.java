@@ -139,7 +139,8 @@ public class HumanPlayer extends Player {
     boolean hasMarkers;
     int desiredRaiseAmount;
     do {
-      desiredRaiseAmount = Integer.parseInt(KeyboardHelper.getCharFromKeyboard(
+      desiredRaiseAmount = Integer.parseInt(
+        KeyboardHelper.getCharFromKeyboard(
           Lists.newArrayList("0", "1", "2", "3", "4", "5", "6", "7", "8", "9"),
           "Raise amount:",
           null
