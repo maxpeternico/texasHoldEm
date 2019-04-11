@@ -33,6 +33,7 @@ public class PokerGame {
   }
 
   private void startGame() {
+    KeyboardHelper.setKeyBoard(createRealKeyboard());
     createPlayers();
     List<Player> players = dealer.getPlayers();
     initBlinds(players);
@@ -49,6 +50,16 @@ public class PokerGame {
     } while (!doWeHaveAWinner(playersStillInTheGame));
     final Player theWinner = playersStillInTheGame.get(0);
     System.out.println("Player :[" + theWinner.getName() + "] is the winner and won :[" + theWinner.getNumberOfMarkers() + "] markers.");
+  }
+
+  private Keyboard createRealKeyboard() {
+    return new Keyboard() {
+      @Override
+      public String getCharacter() {
+        final Scanner scanner = new Scanner(System.in, "UTF-8");
+        return scanner.next();
+      }
+    };
   }
 
   List<Player> putBigBlindLastInList(List<Player> playersStillInTheGame) {
@@ -321,7 +332,7 @@ public class PokerGame {
     createRobotPlayers();
   }
 
-  private Player createHumanPlayer() {
+  Player createHumanPlayer() {
     String playerName = KeyboardHelper.askForInput("Enter your name: ");
     System.out.println("Welcome [" + playerName + "]");
     final Player humanPlayer = new HumanPlayer(playerName, TOTAL_MARKERS_PER_PLAYER);

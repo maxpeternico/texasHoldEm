@@ -1,15 +1,18 @@
 package poker;
 
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.List;
-import java.util.Scanner;
-
 public class KeyboardHelper {
+  private static Keyboard keyboard;
+
   private static final Logger logger = LogManager.getLogger(KeyboardHelper.class);
 
-  private KeyboardHelper() {}
+  public KeyboardHelper(Keyboard keyboard) {
+    this.keyboard = keyboard;
+  }
 
   static boolean allowedCharacterIsPressed(String input, List<String> allowedCharacters) {
     final char[] inputCharArray = input.toCharArray();
@@ -31,8 +34,7 @@ public class KeyboardHelper {
 
   static String askForInput(String message) {
     System.out.println(message);
-    Scanner keyboard = new Scanner(System.in, "UTF-8");
-    return keyboard.next();
+    return keyboard.getCharacter();
   }
 
   static String getCharFromKeyboard(List<String> allowedCharacters, String displayMessage, Integer inputLength) {
@@ -48,5 +50,9 @@ public class KeyboardHelper {
     if (inputLength == null) return true;
 
     return (input.length() == inputLength);
+  }
+
+  public static void setKeyBoard(Keyboard keyboard) {
+    new KeyboardHelper(keyboard);
   }
 }
