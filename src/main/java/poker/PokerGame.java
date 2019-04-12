@@ -187,7 +187,7 @@ public class PokerGame {
     if (playersStillInTheGame.size() == 1) {
       return true;
     } else if (playersStillInTheGame.isEmpty()) {
-      throw new RuntimeException("How to handle drawManager?");
+      throw new RuntimeException("Players still in the game should not be empty. ");
     }
     return false;
   }
@@ -197,17 +197,7 @@ public class PokerGame {
   }
 
   private List<Player> getPlayersWhoHasntFinishedBetting(List<Player> players) {
-    final ArrayList<Player> playersStillInTheGame = Lists.newArrayList();
-    players.forEach(e -> {
-      if (e.getAction().isAllIn()) {
-        logger.debug("Player :[" + e.getName() + "] is all in, no bet.");
-      } else if (e.hasFolded()) {
-        logger.debug("Player :[" + e.getName() + "] has folded, no bet.");
-      } else {
-        playersStillInTheGame.add(e);
-      }
-    });
-    return playersStillInTheGame;
+    return players.stream().filter(e->!e.isAllIn()).filter(Player::hasFolded).collect(Collectors.toList());
   }
 
   void payBlinds(List<Player> players, List<Player> playersStillInTheGame, int blindAmount) {

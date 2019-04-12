@@ -227,10 +227,12 @@ public abstract class Player {
   }
 
   boolean hasFolded() {
+    logger.debug("Player {{}} has folded. ", getName());
     return action.isFold();
   }
 
   public boolean isAllIn() {
+    logger.debug("Player {{}} is all in. ", getName());
     return action.isAllIn();
   }
 
