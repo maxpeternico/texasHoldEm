@@ -200,10 +200,10 @@ public class PokerGame {
     return players.stream().filter(e->!e.isAllIn()).filter(Player::hasFolded).collect(Collectors.toList());
   }
 
-  void payBlinds(List<Player> players, List<Player> playersStillInTheGame, int blindAmount) {
+  String payBlinds(List<Player> players, List<Player> playersStillInTheGame, int blindAmount) {
     if (playersStillInTheGame.size() < 2) {
       // A player has won the game, no need to continue
-      return;
+      return "Less than two players can bet, no need to continue. ";
     }
 
     System.out.println("Player to play little blind: ");
@@ -222,6 +222,7 @@ public class PokerGame {
       player -> player.setBigBlind(blindAmount),
       Player::clearBigBlind
     );
+    return "";
   }
 
   private void payBlind(Function<List<Player>, Player> getPlayerWithBlind,

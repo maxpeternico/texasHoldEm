@@ -210,14 +210,9 @@ public class TestBlinds {
     players.get(1).decreaseMarkers(2500);
     players.get(2).decreaseMarkers(2500);
 
-    pokerGame.payBlinds(players, pokerGame.playersThatCanBet(players), 50);
+    final String result = pokerGame.payBlinds(players, pokerGame.playersThatCanBet(players), 50);
 
-    assertEquals(3, getIndexOfBlind(players, Player::hasLittleBlind));
-    assertFalse(players.get(0).hasBlind());
-    assertFalse(players.get(1).hasBlind());
-    assertFalse(players.get(2).hasBlind());
-
-    pokerGame.clearGameForTests();
+    assertEquals("Less than two players can bet, no need to continue. ", result);
   }
 
   @Test
@@ -230,12 +225,8 @@ public class TestBlinds {
     players.get(2).decreaseMarkers(2500);
     players.get(3).decreaseMarkers(2500);
 
-    pokerGame.payBlinds(players, pokerGame.playersThatCanBet(players), 50);
-
-    assertFalse(players.get(0).hasBlind());
-    assertFalse(players.get(1).hasBlind());
-    assertFalse(players.get(2).hasBlind());
-    assertFalse(players.get(3).hasBlind());
+    final String result = pokerGame.payBlinds(players, pokerGame.playersThatCanBet(players), 50);
+    assertEquals("Less than two players can bet, no need to continue. ", result);
 
     pokerGame.clearGameForTests();
   }
