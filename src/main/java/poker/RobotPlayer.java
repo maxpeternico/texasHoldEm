@@ -133,11 +133,6 @@ public class RobotPlayer extends Player {
     partInPot += raiseAmount;
   }
 
-  private boolean noRaiseThisDraw(int maxRaiseThisDraw) {
-    logger.debug("Raise this draw: {{}}", maxRaiseThisDraw);
-    return maxRaiseThisDraw == 0;
-  }
-
   private boolean isWithin(int raiseAmount, int maxRaiseFromOtherPlayer) {
     int raiseAmountIncludingBlind = calculateRaiseAmountIncludingBlind(raiseAmount);
     if (raiseAmountIncludingBlind >= maxRaiseFromOtherPlayer * 0.9) {
@@ -177,6 +172,8 @@ public class RobotPlayer extends Player {
         if (blind <= 50) {
           individualRaiseAmount = blind;
         }
+        break;
+      default:
         break;
     }
     if (individualRaiseAmount > getNumberOfMarkers()) {

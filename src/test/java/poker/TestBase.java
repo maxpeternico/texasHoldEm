@@ -48,7 +48,7 @@ public abstract class TestBase {
                                    int blindAmount,
                                    List<List<Card>> privateHands) {
     getPokerGame().initBlinds(players);
-    getPokerGame().payBlinds(players, blindAmount);
+    getPokerGame().payBlinds(players, getPokerGame().playersThatCanBet(players), blindAmount);
     for (int i=0;i < players.size();i++) {
       getPokerGame().setPrivateHand(players.get(i), privateHands.get(i));
     }

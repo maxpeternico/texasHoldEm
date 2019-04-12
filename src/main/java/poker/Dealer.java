@@ -13,7 +13,7 @@ public class Dealer {
   private static final Logger logger = LogManager.getLogger(Dealer.class.getName());
   private static final Dealer dealer = new Dealer();
   private DrawManager drawManager = new DrawManager();
-  private List<Player> players = new ArrayList<>();
+  private List<Player> players = new LinkedList<>();
   private List<Card> deck = new ArrayList<>();
   private final Color[] colors = {Color.hearts, Color.spades, Color.clubs, Color.diamonds};
   private final Ordinal[] ordinals = {Ordinal.two, Ordinal.three, Ordinal.four, Ordinal.five, Ordinal.six,

@@ -30,7 +30,7 @@ public class TestPlayFullGame {
 
     pokerGame.initBlinds(players);
     do {
-      pokerGame.payBlinds(players, blind);
+      pokerGame.payBlinds(players, pokerGame.playersThatCanBet(players), blind);
       pokerGame.playRound(players);
       blind = blind * 2;
     } while (moreThanOnePlayerHasMarkers(players));
@@ -45,7 +45,7 @@ public class TestPlayFullGame {
     int blind = 50;
     pokerGame.initBlinds(players);
     do {
-      pokerGame.payBlinds(players, blind);
+      pokerGame.payBlinds(players, pokerGame.playersThatCanBet(players), blind);
       pokerGame.playRound(players);
       blind = blind * 2;
     } while (moreThanOnePlayerHasMarkers(players));

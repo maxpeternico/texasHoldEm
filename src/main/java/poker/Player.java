@@ -139,7 +139,7 @@ public abstract class Player {
   }
 
   public boolean hasAnyMarkers() {
-    logger.trace("Player {{}} has {{}}} number of markers. ", getName(), numberOfMarkers);
+    logger.trace("Player {{}} has {{}} number of markers. ", getName(), numberOfMarkers);
     return numberOfMarkers > 0;
   }
 
@@ -213,6 +213,11 @@ public abstract class Player {
                                     int maxRaiseFromAPlayer,
                                     int maxRaiseThisDraw,
                                     int playersPartInPots);
+
+  protected boolean noRaiseThisDraw(int maxRaiseThisDraw) {
+    logger.debug("Raise this draw: {{}}", maxRaiseThisDraw);
+    return maxRaiseThisDraw == 0;
+  }
 
   protected abstract int calculateRaiseAmount(int blind);
 

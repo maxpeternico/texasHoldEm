@@ -77,7 +77,17 @@ public class HumanPlayer extends Player {
         action.setAmount(amountToJoinPot);
         break;
       case QUIT:
-        action = new Action(ActionEnum.FOLD);
+        if (!BetManager.shallPayToPot(playersPartInPots, maxRaiseThisDraw)) {
+          System.out.println("You don't have to pay to the pot, there is no need to fold. You check. ");
+          action = new Action(ActionEnum.CHECK);
+        } else if (noRaiseThisDraw(maxRaiseThisDraw)) {
+          logger.trace("No raise this draw. ");
+          System.out.println("You don't need to fold, there is no raise this draw. You check. ");
+          action = new Action(ActionEnum.CHECK);
+        } else {
+          action = new Action(ActionEnum.FOLD);
+        }
+        action.setAmount(0);
         break;
       default:
         throw new RuntimeException("This should not happen. strategy:[" + strategy + "]");

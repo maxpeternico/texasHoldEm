@@ -31,7 +31,7 @@ public class TestBetting {
     playerList.add(staffan);
 
     pokerGame.initBlinds(playerList);
-    pokerGame.payBlinds(playerList, 50);
+    pokerGame.payBlinds(playerList, pokerGame.playersThatCanBet(playerList), 50);
     List<Card> emptyCommonhand = new ArrayList<>();
     final Points jornsPoints = jorn.calculatePoints(2, Draw.BEFORE_FLOP, emptyCommonhand);
     final Points staffansPoints = staffan.calculatePoints(2, Draw.BEFORE_FLOP, emptyCommonhand);
@@ -69,7 +69,7 @@ public class TestBetting {
     players.add(thomas);
 
     pokerGame.initBlinds(players);
-    pokerGame.payBlinds(players, 50);
+    pokerGame.payBlinds(players, pokerGame.playersThatCanBet(players), 50);
 
     BetManager betManager = new BetManager(players, 50, pokerGame.getPotHandler());
     pokerGame.setBetManager(betManager);
@@ -99,7 +99,7 @@ public class TestBetting {
     players.add(peter);
     players.add(thomas);
     pokerGame.initBlinds(players);
-    pokerGame.payBlinds(players, 50);
+    pokerGame.payBlinds(players, pokerGame.playersThatCanBet(players), 50);
 
     BetManager betManager = new BetManager(players, 50, pokerGame.getPotHandler());
     pokerGame.setBetManager(betManager);
@@ -129,7 +129,7 @@ public class TestBetting {
     players.add(thomas);
 
     pokerGame.initBlinds(players);
-    pokerGame.payBlinds(players, 50);
+    pokerGame.payBlinds(players, pokerGame.playersThatCanBet(players), 50);
 
     BetManager betManager = new BetManager(players, 50, pokerGame.getPotHandler());
     pokerGame.setBetManager(betManager);
