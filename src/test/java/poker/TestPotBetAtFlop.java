@@ -51,7 +51,7 @@ public class TestPotBetAtFlop extends TestBase {
     assertMarkersForPlayers(players);
 
     final List<Card> turnCard = Lists.newArrayList(new Card(Color.spades, Ordinal.five));
-    prepareDraw(turnCard);
+    prepareTurn(turnCard);
     pokerGame.setTurnToBetManager(turnCard);
     pokerGame.updateTurnForBetManager();
     decision = pokerGame.decideBet(players);

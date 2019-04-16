@@ -21,6 +21,7 @@ public class BetManager {
   private static final Logger logger = LogManager.getLogger(BetManager.class);
   private StringBuilder result = null;
   private int maxRaiseThisDraw;
+  private List<Player> playersThatHaveBet = Lists.newArrayList();
 
   BetManager(List<Player> playerList,
              int blind,
@@ -156,7 +157,7 @@ public class BetManager {
   }
 
   private void payToPot(Player player, Action action) {
-    final int raiseOrCheckValue = player.getActionAmount(isBeforeFlop(draw));
+    final int raiseOrCheckValue = player.getActionAmount(hasBlindAndIsFirstBetInGame(draw, player));
     System.out.println("Player " + player.getName() + " puts " + raiseOrCheckValue + " markers to the pot. ");
     potHandler.joinPot(player, raiseOrCheckValue);
     player.decreaseMarkers(raiseOrCheckValue);
@@ -164,6 +165,26 @@ public class BetManager {
     if (action.getAmount() > maxRaiseThisDraw) {
       maxRaiseThisDraw = action.getAmount();
     }
+  }
+
+  private boolean hasBlindAndIsFirstBetInGame(Draw draw, Player player) {
+    if (!player.hasBlind()) return false;
+
+    if (isBeforeFlop(draw) && isFirstBet(player)) {
+      logger.debug("First bet in game for {{}} compensate for blind", player.getName());
+      return true;
+    }
+    return false;
+  }
+
+  /*
+    Players with blind are already added to playersThatHaveBet in constructor
+   */
+  private boolean isFirstBet(Player player) {
+    if (playersThatHaveBet.contains(player)) return false;
+
+    playersThatHaveBet.add(player);
+    return true;
   }
 
   private boolean isNotFirstBettingRound(boolean firstPlayerAlreadyBet, Player player) {

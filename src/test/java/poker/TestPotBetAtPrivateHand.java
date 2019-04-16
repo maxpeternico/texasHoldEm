@@ -1,6 +1,5 @@
 package poker;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -85,7 +84,7 @@ public class TestPotBetAtPrivateHand extends TestBase {
 
 
     final List<Card> turnCard = Lists.newArrayList(new Card(Color.hearts, Ordinal.queen));
-    prepareDraw(turnCard);
+    prepareTurn(turnCard);
     pokerGame.setTurnToBetManager(turnCard);
     pokerGame.updateTurnForBetManager();
     decision = pokerGame.decideBet(players);
@@ -148,7 +147,7 @@ public class TestPotBetAtPrivateHand extends TestBase {
     assertEquals(2450, player1.getNumberOfMarkers());
 
     final List<Card> turnCard = Lists.newArrayList(new Card(Color.hearts, Ordinal.queen));
-    prepareDraw(turnCard);
+    prepareTurn(turnCard);
     pokerGame.setTurnToBetManager(turnCard);
     pokerGame.updateTurnForBetManager();
     decision = pokerGame.decideBet(players);
@@ -208,7 +207,7 @@ public class TestPotBetAtPrivateHand extends TestBase {
     assertEquals(2400, player1.getNumberOfMarkers());
 
     final List<Card> turnCard = Lists.newArrayList(new Card(Color.hearts, Ordinal.queen));
-    prepareDraw(turnCard);
+    prepareTurn(turnCard);
     pokerGame.setTurnToBetManager(turnCard);
     pokerGame.updateTurnForBetManager();
     decision = pokerGame.decideBet(players);
@@ -271,7 +270,7 @@ public class TestPotBetAtPrivateHand extends TestBase {
     assertMarkersForPlayers(players);
 
     final List<Card> turnCard = Lists.newArrayList(new Card(Color.hearts, Ordinal.queen));
-    prepareDraw(turnCard);
+    prepareTurn(turnCard);
     pokerGame.setTurnToBetManager(turnCard);
     pokerGame.updateTurnForBetManager();
     decision = pokerGame.decideBet(players);

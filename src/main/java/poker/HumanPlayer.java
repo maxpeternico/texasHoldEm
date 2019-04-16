@@ -24,9 +24,9 @@ public class HumanPlayer extends Player {
   @Override
   public void decideStrategy(Draw draw, int numberOfRemainingPlayers, List<Card> commonHand) {
     String decision = KeyboardHelper.getCharFromKeyboard(
-        Lists.newArrayList("A", "R", "C", "F"),
-        "(A)ll in/(R)aise/(C)heck/(F)old:",
-        1);
+      Lists.newArrayList("A", "R", "C", "F"),
+      "(A)ll in/(R)aise/(C)heck/(F)old:",
+      1);
     switch (decision.charAt(0)) {
       case 'A':
         strategy = ALL_IN;
@@ -70,6 +70,7 @@ public class HumanPlayer extends Player {
       case JOIN:
         if (canPlayerAffordToDoAction(amountToJoinPot)) {
           action = new Action(ActionEnum.CHECK);
+          amountToJoinPot -= playersPartInPots;
         } else {
           action = new Action(ActionEnum.ALL_IN);
           amountToJoinPot = getNumberOfMarkers();
@@ -92,14 +93,15 @@ public class HumanPlayer extends Player {
       default:
         throw new RuntimeException("This should not happen. strategy:[" + strategy + "]");
     }
+    partInPot += action.getAmount();
   }
 
   private int getNewRaiseAmount(int amountToJoinPot) {
     int raiseAmount;
     do {
       System.out.println("Raise amount must be higher than " + amountToJoinPot);
-      raiseAmount = getRaiseAmount(blindAmount);
-    }while (raiseAmount < amountToJoinPot);
+      raiseAmount = (int)getRaiseAmount(blindAmount);
+    } while (raiseAmount < amountToJoinPot);
     return raiseAmount;
   }
 
@@ -127,7 +129,7 @@ public class HumanPlayer extends Player {
       return 0;
     }
     try {
-      raiseAmount = getRaiseAmount(blind);
+      raiseAmount = (int)getRaiseAmount(blind);
     } catch (Exception e) {
       logger.warn(e.getMessage());
       strategy = QUIT;
@@ -140,28 +142,30 @@ public class HumanPlayer extends Player {
     return raiseAmount;
   }
 
-  private int getRaiseAmount(int blind) {
-    if (hasMarkersForAmount(blind)) {
-      System.out.println("You don't have markers to pay the blind [" + blind +"], you have to go all in. ");
+  private long getRaiseAmount(int raiseAmount) {
+    if (hasMarkersForAmount(raiseAmount)) {
+      System.out.println("You don't have markers to pay [" + raiseAmount + "], you have to go all in. ");
       return getNumberOfMarkers();
     }
     boolean hasMarkersForBlind;
     boolean hasMarkers;
-    int desiredRaiseAmount;
+    long desiredRaiseAmount;
     do {
-      desiredRaiseAmount = Integer.parseInt(
+      desiredRaiseAmount = Long.parseLong(
+
         KeyboardHelper.getCharFromKeyboard(
           Lists.newArrayList("0", "1", "2", "3", "4", "5", "6", "7", "8", "9"),
           "Raise amount:",
           null
-      ));
-      hasMarkersForBlind = isDesiredRaiseAmountHigherThanBlind(desiredRaiseAmount, blind);
+        )
+      );
+      hasMarkersForBlind = isDesiredRaiseAmountHigherThanBlind(desiredRaiseAmount, raiseAmount);
       hasMarkers = isDesiredRaiseAmountHigherThanNumberOfMarkers(desiredRaiseAmount);
     } while (!hasMarkersForBlind || !hasMarkers);
     return desiredRaiseAmount;
   }
 
-  private boolean isDesiredRaiseAmountHigherThanNumberOfMarkers(int desiredRaiseAmount) {
+  private boolean isDesiredRaiseAmountHigherThanNumberOfMarkers(long desiredRaiseAmount) {
     return desiredRaiseAmount <= getNumberOfMarkers();
   }
 }

@@ -64,7 +64,7 @@ public abstract class TestBase {
     prepareDraw(riverCard.get(0).getColor(), riverCard.get(0).getOrdinal());
   }
 
-  void prepareDraw(List<Card> turnCard) {
+  void prepareTurn(List<Card> turnCard) {
     getPokerGame().increaseDrawForTest();
     prepareDraw(turnCard.get(0).getColor(), turnCard.get(0).getOrdinal());
   }

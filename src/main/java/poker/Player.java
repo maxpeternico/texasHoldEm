@@ -143,7 +143,7 @@ public abstract class Player {
     return numberOfMarkers > 0;
   }
 
-  boolean isDesiredRaiseAmountHigherThanBlind(int amount, int blind) {
+  boolean isDesiredRaiseAmountHigherThanBlind(long amount, int blind) {
     if (amount < blind) {
       System.out.println("You must raise more than blind");
       return false;
@@ -155,7 +155,7 @@ public abstract class Player {
     return true;
   }
 
-  boolean hasMarkersForAmount(int amount) {
+  boolean hasMarkersForAmount(long amount) {
     return amount > numberOfMarkers;
   }
 
@@ -202,7 +202,7 @@ public abstract class Player {
     if (getAction().isFold()) {
       return 0;
     }
-    return getAction().getAmount();
+    return getAction().getAmount() - partInPot;
   }
 
   private int getBlindAmount() {

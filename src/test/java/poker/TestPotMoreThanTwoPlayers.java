@@ -1,10 +1,11 @@
 package poker;
 
-import com.google.common.collect.Lists;
+import java.util.List;
+
 import org.junit.After;
 import org.junit.Test;
 
-import java.util.List;
+import com.google.common.collect.Lists;
 
 import static org.junit.Assert.assertEquals;
 
@@ -62,7 +63,7 @@ public class TestPotMoreThanTwoPlayers extends TestBase {
     assertMarkersForPlayers(players);
 
     final List<Card> turnCard = Lists.newArrayList(new Card(Color.spades, Ordinal.two));
-    prepareDraw(turnCard);
+    prepareTurn(turnCard);
     pokerGame.setTurnToBetManager(turnCard);
     pokerGame.updateTurnForBetManager();
     decision = pokerGame.decideBet(players);
@@ -79,13 +80,13 @@ public class TestPotMoreThanTwoPlayers extends TestBase {
     pokerGame.getTheWinner(getPokerGame().getPotHandler(), players);
 
     assertEquals(createMarkersDisappearErrorMessage(players),
-        3 * PokerGame.TOTAL_MARKERS_PER_PLAYER,
-        player0.getNumberOfMarkers() + player1.getNumberOfMarkers() + player2.getNumberOfMarkers());
+                 3 * PokerGame.TOTAL_MARKERS_PER_PLAYER,
+                 player0.getNumberOfMarkers() + player1.getNumberOfMarkers() + player2.getNumberOfMarkers());
 
     final int calculatedPot = calculatePot(potRaisePerPlayerTotalRound, players);
     assertEquals(createIncorrectNumberOfMarkersForWinnerMessage(potRaisePerPlayerTotalRound, calculatedPot, player0),
-        player0NumberOfMarkersAfterRound + calculatedPot,
-        player0.getNumberOfMarkers());
+                 player0NumberOfMarkersAfterRound + calculatedPot,
+                 player0.getNumberOfMarkers());
     assertEquals(player1NumberOfMarkersAfterRound, player1.getNumberOfMarkers());
     assertEquals(player2NumberOfMarkersAfterRound, player2.getNumberOfMarkers());
     pokerGame.resetTurn(players);

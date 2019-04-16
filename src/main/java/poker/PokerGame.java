@@ -376,7 +376,7 @@ public class PokerGame {
     return false;
   }
 
-  private void createRobotPlayers() {
+  void createRobotPlayers() {
     System.out.println("How many players do you want to play with?");
     String numberOfPlayers = KeyboardHelper.getCharFromKeyboard(
       Lists.newArrayList("1", "2", "3", "4", "5", "6", "7", "8", "9"),
@@ -463,5 +463,9 @@ public class PokerGame {
 
   void increaseDrawForTest() {
     dealer.increaseDraw();
+  }
+
+  List<Player> getRegisteredPlayers() {
+    return dealer.getPlayers();
   }
 }
