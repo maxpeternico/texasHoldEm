@@ -227,13 +227,19 @@ public abstract class Player {
   }
 
   boolean hasFolded() {
-    logger.debug("Player {{}} has folded. ", getName());
-    return action.isFold();
+    if (action.isFold()) {
+      logger.debug("Player {{}} has folded. ", getName());
+      return true;
+    }
+    return false;
   }
 
   public boolean isAllIn() {
-    logger.debug("Player {{}} is all in. ", getName());
-    return action.isAllIn();
+    if (action.isAllIn()) {
+      logger.debug("Player {{}} is all in. ", getName());
+      return true;
+    }
+    return false;
   }
 
   boolean hasNotDecided() {

@@ -197,7 +197,7 @@ public class PokerGame {
   }
 
   private List<Player> getPlayersWhoHasntFinishedBetting(List<Player> players) {
-    return players.stream().filter(e->!e.isAllIn()).filter(Player::hasFolded).collect(Collectors.toList());
+    return players.stream().filter(e->!e.isAllIn()).filter(e->!e.hasFolded()).collect(Collectors.toList());
   }
 
   String payBlinds(List<Player> players, List<Player> playersStillInTheGame, int blindAmount) {
