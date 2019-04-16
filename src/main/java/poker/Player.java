@@ -183,9 +183,13 @@ public abstract class Player {
     if (getAction().isAllIn()) {
       return getAction().getAmount();
     }
+    if (getAction().isFold()) {
+      return 0;
+    }
     if (!isBeforeFlop) {
       return getAction().getAmount();
     }
+    // TODO: This is already compensated at BetManager.payToPot(). Should not be done in two places
     if (hasBlind()) {
       logger.trace("{{}} has blind. ", getName());
       if (getAction().getAmount() == 0) {
@@ -198,9 +202,6 @@ public abstract class Player {
       if (!getAction().isAllIn()) {
         throw new RuntimeException("Action amount [" + getAction().getAmount() + " must be higher than big blind amount [" + getBlindAmount() + "]");
       }
-    }
-    if (getAction().isFold()) {
-      return 0;
     }
     return getAction().getAmount() - partInPot;
   }
