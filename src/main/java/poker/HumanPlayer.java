@@ -46,36 +46,35 @@ public class HumanPlayer extends Player {
   }
 
   @Override
-  protected void setAction(int raiseAmount,
+  protected void setAction(int calculatedRaiseAmount,
                            int amountToJoinPot,
                            int maxRaiseThisDraw,
                            int playersPartInPots) {
+    int finalRaiseAmount = 0;
     switch (strategy) {
       case ALL_IN:
         action = new Action(ActionEnum.ALL_IN);
-        action.setAmount(raiseAmount);
+        finalRaiseAmount = calculatedRaiseAmount;
         break;
       case OFFENSIVE:
         if (canPlayerAffordToDoAction(amountToJoinPot)) {
-          if (raiseAmount <= amountToJoinPot) {
-            raiseAmount = getNewRaiseAmount(amountToJoinPot);
+          if (calculatedRaiseAmount <= amountToJoinPot) {
+            finalRaiseAmount = getNewRaiseAmount(amountToJoinPot);
           }
         } else {
           action = new Action(ActionEnum.ALL_IN);
-          raiseAmount = getNumberOfMarkers();
+          finalRaiseAmount = getNumberOfMarkers();
         }
         action = new Action(ActionEnum.RAISE);
-        action.setAmount(raiseAmount);
         break;
       case JOIN:
         if (canPlayerAffordToDoAction(amountToJoinPot)) {
           action = new Action(ActionEnum.CHECK);
-          amountToJoinPot -= playersPartInPots;
+          finalRaiseAmount = amountToJoinPot - playersPartInPots;
         } else {
           action = new Action(ActionEnum.ALL_IN);
-          amountToJoinPot = getNumberOfMarkers();
+          finalRaiseAmount = getNumberOfMarkers();
         }
-        action.setAmount(amountToJoinPot);
         break;
       case QUIT:
         if (!BetManager.shallPayToPot(playersPartInPots, maxRaiseThisDraw)) {
@@ -88,11 +87,13 @@ public class HumanPlayer extends Player {
         } else {
           action = new Action(ActionEnum.FOLD);
         }
-        action.setAmount(0);
+        finalRaiseAmount = 0;
         break;
       default:
         throw new RuntimeException("This should not happen. strategy:[" + strategy + "]");
     }
+    logger.trace("Set raise amount for player {{}} to {{}}", getName(), finalRaiseAmount);
+    action.setAmount(finalRaiseAmount);
     partInPot += action.getAmount();
   }
 

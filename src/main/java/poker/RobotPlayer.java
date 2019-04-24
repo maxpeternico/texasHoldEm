@@ -103,21 +103,21 @@ public class RobotPlayer extends Player {
         calculatedRaiseAmount = action.getAmount();
       }
     }
-    int raiseAmount;
+    int finalRaiseAmount;
     // If player has no more markers player need to go all in
     if (strategy.equals(ALL_IN) || needToGoAllIn(calculatedRaiseAmount)) {
       action = new Action(ActionEnum.ALL_IN);
-      raiseAmount = getNumberOfMarkers();
+      finalRaiseAmount = getNumberOfMarkers();
     } else if (calculatedRaiseAmount > maxRaiseFromAPlayerThisRound) {
       if (BetManager.shallPayToPot(playersPartInPots, calculatedRaiseAmount)) {
         action = new Action(ActionEnum.RAISE);
       } else {
         action = new Action(ActionEnum.CHECK);
       }
-      raiseAmount = calculatedRaiseAmount;
+      finalRaiseAmount = calculatedRaiseAmount;
     } else if (isWithin(calculatedRaiseAmount, maxRaiseFromAPlayerThisRound)) {
       action = new Action(ActionEnum.CHECK);
-      raiseAmount = maxRaiseFromAPlayerThisRound;
+      finalRaiseAmount = maxRaiseFromAPlayerThisRound;
     } else {
       // If no one is raises there is no need to fold
       if (noRaiseThisDraw(maxRaiseThisDraw)) {
@@ -126,11 +126,11 @@ public class RobotPlayer extends Player {
       } else {
         action = new Action(ActionEnum.FOLD);
       }
-      raiseAmount = 0;
+      finalRaiseAmount = 0;
     }
-    action.setAmount(raiseAmount);
-    logger.trace("Set raise amount for player {{}} to {{}}", getName(), calculatedRaiseAmount);
-    partInPot += raiseAmount;
+    logger.trace("Set raise amount for player {{}} to {{}}", getName(), finalRaiseAmount);
+    action.setAmount(finalRaiseAmount);
+    partInPot += finalRaiseAmount;
   }
 
   private boolean isWithin(int raiseAmount, int maxRaiseFromOtherPlayer) {
