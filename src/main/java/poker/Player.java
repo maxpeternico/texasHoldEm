@@ -159,7 +159,7 @@ public abstract class Player {
     return amount > numberOfMarkers;
   }
 
-  boolean needToGoAllIn(int amount) {
+  boolean doPlayerNeedToGoAllIn(int amount) {
     return amount >= numberOfMarkers;
   }
 
@@ -210,11 +210,13 @@ public abstract class Player {
     return blindAmount;
   }
 
-  protected void setAction(int raiseAmount,
-                                     int maxRaiseFromAPlayer,
+  protected void setAction(int desiredRaiseAmount,
+                                     int maxRaiseFromAPlayerThisRound,
                                      int maxRaiseThisDraw,
                                      int playersPartInPots) {
-    int finalRaiseAmount = setAction2(raiseAmount, maxRaiseFromAPlayer, maxRaiseThisDraw, playersPartInPots);
+    logger.debug("Player :[" + getName() + "] desiredRaiseAmount: [" + desiredRaiseAmount + "] maxRaiseFromAPlayerThisRound :[" + maxRaiseFromAPlayerThisRound + "] maxRaiseThisDraw :[" + maxRaiseThisDraw + "]");
+
+    int finalRaiseAmount = setAction2(desiredRaiseAmount, maxRaiseFromAPlayerThisRound, maxRaiseThisDraw, playersPartInPots);
     logger.trace("Set raise amount for player {{}} to {{}}", getName(), finalRaiseAmount);
     action.setAmount(finalRaiseAmount);
     partInPot += action.getAmount();

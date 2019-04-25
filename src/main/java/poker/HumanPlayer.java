@@ -57,7 +57,7 @@ public class HumanPlayer extends Player {
         finalRaiseAmount = calculatedRaiseAmount;
         break;
       case OFFENSIVE:
-        if (canPlayerAffordToDoAction(amountToJoinPot)) {
+        if (doPlayerNeedToGoAllIn(amountToJoinPot)) {
           if (calculatedRaiseAmount <= amountToJoinPot) {
             finalRaiseAmount = getNewRaiseAmount(amountToJoinPot);
           }
@@ -68,7 +68,7 @@ public class HumanPlayer extends Player {
         action = new Action(ActionEnum.RAISE);
         break;
       case JOIN:
-        if (canPlayerAffordToDoAction(amountToJoinPot)) {
+        if (doPlayerNeedToGoAllIn(amountToJoinPot)) {
           action = new Action(ActionEnum.CHECK);
           finalRaiseAmount = amountToJoinPot - playersPartInPots;
         } else {
@@ -102,14 +102,6 @@ public class HumanPlayer extends Player {
       raiseAmount = (int)getRaiseAmount(blindAmount);
     } while (raiseAmount < amountToJoinPot);
     return raiseAmount;
-  }
-
-  private boolean canPlayerAffordToDoAction(int amountToJoinPot) {
-    if (amountToJoinPot >= getNumberOfMarkers()) {
-      System.out.println("You do not have markers enough for action, you have to go all in. ");
-      return false;
-    }
-    return true;
   }
 
   @Override

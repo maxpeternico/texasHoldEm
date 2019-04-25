@@ -96,7 +96,6 @@ public class RobotPlayer extends Player {
                            int maxRaiseFromAPlayerThisRound,
                            int maxRaiseThisDraw,
                            int playersPartInPots) {
-    logger.debug("Player :[" + getName() + "] calculatedRaiseAmount: [" + calculatedRaiseAmount + "] maxRaiseFromAPlayerThisRound :[" + maxRaiseFromAPlayerThisRound + "] maxRaiseThisDraw :[" + maxRaiseThisDraw + "]");
 
     if (hasBlind()) {
       if (action.getAmount() > calculatedRaiseAmount) {
@@ -105,7 +104,7 @@ public class RobotPlayer extends Player {
     }
     int finalRaiseAmount;
     // If player has no more markers player need to go all in
-    if (strategy.equals(ALL_IN) || needToGoAllIn(calculatedRaiseAmount)) {
+    if (strategy.equals(ALL_IN) || doPlayerNeedToGoAllIn(calculatedRaiseAmount)) {
       action = new Action(ActionEnum.ALL_IN);
       finalRaiseAmount = getNumberOfMarkers();
     } else if (calculatedRaiseAmount > maxRaiseFromAPlayerThisRound) {
