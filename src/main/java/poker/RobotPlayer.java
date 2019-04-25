@@ -92,7 +92,7 @@ public class RobotPlayer extends Player {
 
    */
   @Override
-  protected void setAction(int calculatedRaiseAmount,
+  protected int setAction2(int calculatedRaiseAmount,
                            int maxRaiseFromAPlayerThisRound,
                            int maxRaiseThisDraw,
                            int playersPartInPots) {
@@ -128,9 +128,7 @@ public class RobotPlayer extends Player {
       }
       finalRaiseAmount = 0;
     }
-    logger.trace("Set raise amount for player {{}} to {{}}", getName(), finalRaiseAmount);
-    action.setAmount(finalRaiseAmount);
-    partInPot += finalRaiseAmount;
+    return finalRaiseAmount;
   }
 
   private boolean isWithin(int raiseAmount, int maxRaiseFromOtherPlayer) {

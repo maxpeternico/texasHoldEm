@@ -46,7 +46,7 @@ public class HumanPlayer extends Player {
   }
 
   @Override
-  protected void setAction(int calculatedRaiseAmount,
+  protected int setAction2(int calculatedRaiseAmount,
                            int amountToJoinPot,
                            int maxRaiseThisDraw,
                            int playersPartInPots) {
@@ -92,9 +92,7 @@ public class HumanPlayer extends Player {
       default:
         throw new RuntimeException("This should not happen. strategy:[" + strategy + "]");
     }
-    logger.trace("Set raise amount for player {{}} to {{}}", getName(), finalRaiseAmount);
-    action.setAmount(finalRaiseAmount);
-    partInPot += action.getAmount();
+    return finalRaiseAmount;
   }
 
   private int getNewRaiseAmount(int amountToJoinPot) {

@@ -19,7 +19,7 @@ public abstract class Player {
   private boolean littleBlind = false;
   Strategy strategy = Strategy.NOT_DECIDED;
   protected Action action = new Action(ActionEnum.NOT_DECIDED);
-  int partInPot = 0;
+  protected int partInPot = 0;
   Action previousAction = new Action(ActionEnum.NOT_DECIDED);
   int blindAmount = 0;
 
@@ -210,7 +210,17 @@ public abstract class Player {
     return blindAmount;
   }
 
-  protected abstract void setAction(int raiseAmount,
+  protected void setAction(int raiseAmount,
+                                     int maxRaiseFromAPlayer,
+                                     int maxRaiseThisDraw,
+                                     int playersPartInPots) {
+    int finalRaiseAmount = setAction2(raiseAmount, maxRaiseFromAPlayer, maxRaiseThisDraw, playersPartInPots);
+    logger.trace("Set raise amount for player {{}} to {{}}", getName(), finalRaiseAmount);
+    action.setAmount(finalRaiseAmount);
+    partInPot += action.getAmount();
+  }
+
+  protected abstract int setAction2(int raiseAmount,
                                     int maxRaiseFromAPlayer,
                                     int maxRaiseThisDraw,
                                     int playersPartInPots);
