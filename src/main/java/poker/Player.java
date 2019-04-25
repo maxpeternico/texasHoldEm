@@ -7,6 +7,8 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import static poker.Strategy.ALL_IN;
+
 public abstract class Player {
 
   private String name;
@@ -159,10 +161,6 @@ public abstract class Player {
     return amount > numberOfMarkers;
   }
 
-  boolean doPlayerNeedToGoAllIn(int amount) {
-    return amount >= numberOfMarkers;
-  }
-
   public abstract void decideStrategy(Draw draw, int numberOfRemainingPlayers, List<Card> commonHand);
 
   public Action decideAction(Draw draw,
@@ -253,6 +251,21 @@ public abstract class Player {
       return true;
     }
     return false;
+  }
+
+  boolean hasToGoAllIn(int calculatedRaiseAmount) {
+    return strategy.equals(ALL_IN) || doPlayerNeedToGoAllIn(calculatedRaiseAmount);
+  }
+
+  private boolean doPlayerNeedToGoAllIn(int amount) {
+    return amount >= numberOfMarkers;
+  }
+
+  int goAllIn() {
+    int finalRaiseAmount;
+    action = new Action(ActionEnum.ALL_IN);
+    finalRaiseAmount = getNumberOfMarkers();
+    return finalRaiseAmount;
   }
 
   boolean hasNotDecided() {

@@ -93,30 +93,25 @@ public class RobotPlayer extends Player {
    */
   @Override
   protected int setAction2(int calculatedRaiseAmount,
-                           int maxRaiseFromAPlayerThisRound,
+                           int amountToJoinPot,
                            int maxRaiseThisDraw,
                            int playersPartInPots) {
 
-    if (hasBlind()) {
-      if (action.getAmount() > calculatedRaiseAmount) {
-        calculatedRaiseAmount = action.getAmount();
-      }
-    }
+    calculatedRaiseAmount = hasPlayerBlindAndIsDesiredRaiseHigher(calculatedRaiseAmount);
     int finalRaiseAmount;
     // If player has no more markers player need to go all in
-    if (strategy.equals(ALL_IN) || doPlayerNeedToGoAllIn(calculatedRaiseAmount)) {
-      action = new Action(ActionEnum.ALL_IN);
-      finalRaiseAmount = getNumberOfMarkers();
-    } else if (calculatedRaiseAmount > maxRaiseFromAPlayerThisRound) {
+    if (hasToGoAllIn(calculatedRaiseAmount)) {
+      finalRaiseAmount = goAllIn();
+    } else if (calculatedRaiseAmount > amountToJoinPot) {
       if (BetManager.shallPayToPot(playersPartInPots, calculatedRaiseAmount)) {
         action = new Action(ActionEnum.RAISE);
       } else {
         action = new Action(ActionEnum.CHECK);
       }
       finalRaiseAmount = calculatedRaiseAmount;
-    } else if (isWithin(calculatedRaiseAmount, maxRaiseFromAPlayerThisRound)) {
+    } else if (isWithin(calculatedRaiseAmount, amountToJoinPot)) {
       action = new Action(ActionEnum.CHECK);
-      finalRaiseAmount = maxRaiseFromAPlayerThisRound;
+      finalRaiseAmount = amountToJoinPot;
     } else {
       // If no one is raises there is no need to fold
       if (noRaiseThisDraw(maxRaiseThisDraw)) {
@@ -128,6 +123,15 @@ public class RobotPlayer extends Player {
       finalRaiseAmount = 0;
     }
     return finalRaiseAmount;
+  }
+
+  private int hasPlayerBlindAndIsDesiredRaiseHigher(int calculatedRaiseAmount) {
+    if (hasBlind()) {
+      if (action.getAmount() > calculatedRaiseAmount) {
+        calculatedRaiseAmount = action.getAmount();
+      }
+    }
+    return calculatedRaiseAmount;
   }
 
   private boolean isWithin(int raiseAmount, int maxRaiseFromOtherPlayer) {

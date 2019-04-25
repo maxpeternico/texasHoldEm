@@ -197,6 +197,7 @@ public class BetManager {
 
   private void getEventualNewMaxRaiseFromAPlayer(Action action) {
     if (action.getAmount() > maxRaiseFromAPlayer) {
+      logger.debug("New maxRaise {{}}",maxRaiseFromAPlayer);
       maxRaiseFromAPlayer = action.getAmount();
     }
   }

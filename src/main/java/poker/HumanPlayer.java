@@ -51,46 +51,29 @@ public class HumanPlayer extends Player {
                            int maxRaiseThisDraw,
                            int playersPartInPots) {
     int finalRaiseAmount = 0;
-    switch (strategy) {
-      case ALL_IN:
-        action = new Action(ActionEnum.ALL_IN);
-        finalRaiseAmount = calculatedRaiseAmount;
-        break;
-      case OFFENSIVE:
-        if (doPlayerNeedToGoAllIn(amountToJoinPot)) {
-          if (calculatedRaiseAmount <= amountToJoinPot) {
-            finalRaiseAmount = getNewRaiseAmount(amountToJoinPot);
-          }
-        } else {
-          action = new Action(ActionEnum.ALL_IN);
-          finalRaiseAmount = getNumberOfMarkers();
-        }
-        action = new Action(ActionEnum.RAISE);
-        break;
-      case JOIN:
-        if (doPlayerNeedToGoAllIn(amountToJoinPot)) {
-          action = new Action(ActionEnum.CHECK);
-          finalRaiseAmount = amountToJoinPot - playersPartInPots;
-        } else {
-          action = new Action(ActionEnum.ALL_IN);
-          finalRaiseAmount = getNumberOfMarkers();
-        }
-        break;
-      case QUIT:
-        if (!BetManager.shallPayToPot(playersPartInPots, maxRaiseThisDraw)) {
-          System.out.println("You don't have to pay to the pot, there is no need to fold. You check. ");
-          action = new Action(ActionEnum.CHECK);
-        } else if (noRaiseThisDraw(maxRaiseThisDraw)) {
-          logger.trace("No raise this draw. ");
-          System.out.println("You don't need to fold, there is no raise this draw. You check. ");
-          action = new Action(ActionEnum.CHECK);
-        } else {
-          action = new Action(ActionEnum.FOLD);
-        }
-        finalRaiseAmount = 0;
-        break;
-      default:
-        throw new RuntimeException("This should not happen. strategy:[" + strategy + "]");
+
+    if (hasToGoAllIn(amountToJoinPot)) {
+      finalRaiseAmount = goAllIn();
+    } else if (strategy.equals(OFFENSIVE)) {
+      if (calculatedRaiseAmount <= amountToJoinPot) {
+        finalRaiseAmount = getNewRaiseAmount(amountToJoinPot);
+      }
+      action = new Action(ActionEnum.RAISE);
+    } else if (strategy.equals(JOIN)) {
+      action = new Action(ActionEnum.ALL_IN);
+      finalRaiseAmount = getNumberOfMarkers();
+    } else if (strategy.equals(QUIT)) {
+      if (!BetManager.shallPayToPot(playersPartInPots, maxRaiseThisDraw)) {
+        System.out.println("You don't have to pay to the pot, there is no need to fold. You check. ");
+        action = new Action(ActionEnum.CHECK);
+      } else if (noRaiseThisDraw(maxRaiseThisDraw)) {
+        logger.trace("No raise this draw. ");
+        System.out.println("You don't need to fold, there is no raise this draw. You check. ");
+        action = new Action(ActionEnum.CHECK);
+      } else {
+        action = new Action(ActionEnum.FOLD);
+      }
+      finalRaiseAmount = 0;
     }
     return finalRaiseAmount;
   }
@@ -99,7 +82,7 @@ public class HumanPlayer extends Player {
     int raiseAmount;
     do {
       System.out.println("Raise amount must be higher than " + amountToJoinPot);
-      raiseAmount = (int)getRaiseAmount(blindAmount);
+      raiseAmount = (int) getRaiseAmount(blindAmount);
     } while (raiseAmount < amountToJoinPot);
     return raiseAmount;
   }
@@ -120,7 +103,7 @@ public class HumanPlayer extends Player {
       return 0;
     }
     try {
-      raiseAmount = (int)getRaiseAmount(blind);
+      raiseAmount = (int) getRaiseAmount(blind);
     } catch (Exception e) {
       logger.warn(e.getMessage());
       strategy = QUIT;
