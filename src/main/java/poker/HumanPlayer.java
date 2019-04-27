@@ -46,6 +46,14 @@ public class HumanPlayer extends Player {
   }
 
   @Override
+  /*
+    This is handled by getRaiseAmount for human player
+  */
+  protected int hasPlayerBlindAndIsDesiredRaiseHigher(int desiredRaiseAmount) {
+    return desiredRaiseAmount;
+  }
+
+  @Override
   protected int setAction2(int desiredRaiseAmount,
                            int maxRaiseFromAPlayer,
                            int maxRaiseThisDraw,
@@ -65,10 +73,7 @@ public class HumanPlayer extends Player {
       action = new Action(ActionEnum.CHECK);
       finalRaiseAmount = maxRaiseFromAPlayer;
     } else if (strategy.equals(QUIT)) {
-      if (!BetManager.shallPayToPot(playersPartInPots, maxRaiseThisDraw)) {
-        System.out.println("You don't have to pay to the pot, there is no need to fold. You check. ");
-        action = new Action(ActionEnum.CHECK);
-      } else if (noRaiseThisDraw(maxRaiseThisDraw)) {
+       if (noRaiseThisDraw(maxRaiseThisDraw)) {
         logger.trace("No raise this draw. ");
         System.out.println("You don't need to fold, there is no raise this draw. You check. ");
         action = new Action(ActionEnum.CHECK);
@@ -78,6 +83,15 @@ public class HumanPlayer extends Player {
       finalRaiseAmount = 0;
     }
     return finalRaiseAmount;
+  }
+
+  @Override
+  protected boolean isCheckSelected(int desiredRaiseAmount, int maxRaiseFromAPlayerThisRound) {
+    if (strategy.equals(JOIN)) {
+      action = new Action(ActionEnum.CHECK);
+      return true;
+    }
+    return false;
   }
 
   private int getNewRaiseAmount(int amountToJoinPot) {

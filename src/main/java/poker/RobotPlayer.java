@@ -84,6 +84,11 @@ public class RobotPlayer extends Player {
     logger.debug("Player " + getName() + " has strategy " + strategy + ". ");
   }
 
+  @Override
+  protected int hasPlayerBlindAndIsDesiredRaiseHigher(int desiredRaiseAmount) {
+    return hasPlayerBlindAndIsDesiredRaiseHigher2(desiredRaiseAmount);
+  }
+
   /*
 
   Thomas raises with 100, jörn checks wiht 100. maxRaiseFromAnotherPlayer = 0
@@ -97,41 +102,23 @@ public class RobotPlayer extends Player {
                            int maxRaiseThisDraw,
                            int playersPartInPots) {
 
-    desiredRaiseAmount = hasPlayerBlindAndIsDesiredRaiseHigher(desiredRaiseAmount);
-    int finalRaiseAmount;
-    // If player has no more markers player need to go all in
-    if (hasToGoAllIn(desiredRaiseAmount)) {
-      finalRaiseAmount = goAllIn();
-    } else if (desiredRaiseAmount > maxRaiseFromAPlayer) {
-      if (BetManager.shallPayToPot(playersPartInPots, desiredRaiseAmount)) {
-        action = new Action(ActionEnum.RAISE);
-      } else {
-        action = new Action(ActionEnum.CHECK);
-      }
-      finalRaiseAmount = desiredRaiseAmount;
-    } else if (isWithin(desiredRaiseAmount, maxRaiseFromAPlayer)) {
-      action = new Action(ActionEnum.CHECK);
-      finalRaiseAmount = maxRaiseFromAPlayer;
-    } else {
-      // If no one is raises there is no need to fold
-      if (noRaiseThisDraw(maxRaiseThisDraw)) {
-        logger.trace("No raise this draw. ");
-        action = new Action(ActionEnum.CHECK);
-      } else {
-        action = new Action(ActionEnum.FOLD);
-      }
-      finalRaiseAmount = 0;
-    }
+    desiredRaiseAmount = hasPlayerBlindAndIsDesiredRaiseHigher2(desiredRaiseAmount);
+    int finalRaiseAmount = 0;
     return finalRaiseAmount;
   }
 
-  private int hasPlayerBlindAndIsDesiredRaiseHigher(int calculatedRaiseAmount) {
+  @Override
+  protected boolean isCheckSelected(int desiredRaiseAmount, int maxRaiseFromAPlayerThisRound) {
+    return isWithin(desiredRaiseAmount, maxRaiseFromAPlayerThisRound);
+  }
+
+  private int hasPlayerBlindAndIsDesiredRaiseHigher2(int desiredRaiseAmount) {
     if (hasBlind()) {
-      if (action.getAmount() > calculatedRaiseAmount) {
-        calculatedRaiseAmount = action.getAmount();
+      if (action.getAmount() > desiredRaiseAmount) {
+        desiredRaiseAmount = action.getAmount();
       }
     }
-    return calculatedRaiseAmount;
+    return desiredRaiseAmount;
   }
 
   private boolean isWithin(int raiseAmount, int maxRaiseFromOtherPlayer) {

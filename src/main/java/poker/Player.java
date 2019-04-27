@@ -213,12 +213,39 @@ public abstract class Player {
                                      int maxRaiseThisDraw,
                                      int playersPartInPots) {
     logger.debug("Player :[" + getName() + "] desiredRaiseAmount: [" + desiredRaiseAmount + "] maxRaiseFromAPlayerThisRound :[" + maxRaiseFromAPlayerThisRound + "] maxRaiseThisDraw :[" + maxRaiseThisDraw + "]");
+    int finalRaiseAmount;
+    desiredRaiseAmount = hasPlayerBlindAndIsDesiredRaiseHigher(desiredRaiseAmount);
+    if (hasToGoAllIn(desiredRaiseAmount)) {
+      finalRaiseAmount = goAllIn();
+    } else if (desiredRaiseAmount > maxRaiseFromAPlayerThisRound) {
+      if (BetManager.shallPayToPot(playersPartInPots, desiredRaiseAmount)) {
+        action = new Action(ActionEnum.RAISE);
+      } else {
+        action = new Action(ActionEnum.CHECK);
+      }
+      finalRaiseAmount = desiredRaiseAmount;
+    } else if (isCheckSelected(desiredRaiseAmount, maxRaiseFromAPlayerThisRound)) {
+      action = new Action(ActionEnum.CHECK);
+      finalRaiseAmount = maxRaiseFromAPlayerThisRound;
+    } else {
+      // If no one is raises there is no need to fold
+      if (noRaiseThisDraw(maxRaiseThisDraw)) {
+        logger.trace("No raise this draw. ");
+        action = new Action(ActionEnum.CHECK);
+      } else {
+        action = new Action(ActionEnum.FOLD);
+      }
+      finalRaiseAmount = 0;
+    }
 
-    int finalRaiseAmount = setAction2(desiredRaiseAmount, maxRaiseFromAPlayerThisRound, maxRaiseThisDraw, playersPartInPots);
     logger.trace("Set raise amount for player {{}} to {{}}", getName(), finalRaiseAmount);
     action.setAmount(finalRaiseAmount);
     partInPot += action.getAmount();
   }
+
+  protected abstract int hasPlayerBlindAndIsDesiredRaiseHigher(int desiredRaiseAmount);
+
+  protected abstract boolean isCheckSelected(int desiredRaiseAmount, int maxRaiseFromAPlayerThisRound);
 
   protected abstract int setAction2(int raiseAmount,
                                     int maxRaiseFromAPlayer,
@@ -253,6 +280,7 @@ public abstract class Player {
     return false;
   }
 
+  // If player has no more markers player need to go all in
   boolean hasToGoAllIn(int calculatedRaiseAmount) {
     return strategy.equals(ALL_IN) || doPlayerNeedToGoAllIn(calculatedRaiseAmount);
   }
