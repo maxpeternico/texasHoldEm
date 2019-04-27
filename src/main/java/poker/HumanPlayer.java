@@ -46,22 +46,24 @@ public class HumanPlayer extends Player {
   }
 
   @Override
-  protected int setAction2(int calculatedRaiseAmount,
-                           int amountToJoinPot,
+  protected int setAction2(int desiredRaiseAmount,
+                           int maxRaiseFromAPlayer,
                            int maxRaiseThisDraw,
                            int playersPartInPots) {
     int finalRaiseAmount = 0;
 
-    if (hasToGoAllIn(amountToJoinPot)) {
+    if (hasToGoAllIn(desiredRaiseAmount)) {
       finalRaiseAmount = goAllIn();
-    } else if (strategy.equals(OFFENSIVE)) {
-      if (calculatedRaiseAmount <= amountToJoinPot) {
-        finalRaiseAmount = getNewRaiseAmount(amountToJoinPot);
+    } else if (desiredRaiseAmount > maxRaiseFromAPlayer) {
+      if (BetManager.shallPayToPot(playersPartInPots, desiredRaiseAmount)) {
+        action = new Action(ActionEnum.RAISE);
+      } else {
+        action = new Action(ActionEnum.CHECK);
       }
-      action = new Action(ActionEnum.RAISE);
+      finalRaiseAmount = desiredRaiseAmount;
     } else if (strategy.equals(JOIN)) {
-      action = new Action(ActionEnum.ALL_IN);
-      finalRaiseAmount = getNumberOfMarkers();
+      action = new Action(ActionEnum.CHECK);
+      finalRaiseAmount = maxRaiseFromAPlayer;
     } else if (strategy.equals(QUIT)) {
       if (!BetManager.shallPayToPot(playersPartInPots, maxRaiseThisDraw)) {
         System.out.println("You don't have to pay to the pot, there is no need to fold. You check. ");

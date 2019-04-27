@@ -92,26 +92,26 @@ public class RobotPlayer extends Player {
 
    */
   @Override
-  protected int setAction2(int calculatedRaiseAmount,
-                           int amountToJoinPot,
+  protected int setAction2(int desiredRaiseAmount,
+                           int maxRaiseFromAPlayer,
                            int maxRaiseThisDraw,
                            int playersPartInPots) {
 
-    calculatedRaiseAmount = hasPlayerBlindAndIsDesiredRaiseHigher(calculatedRaiseAmount);
+    desiredRaiseAmount = hasPlayerBlindAndIsDesiredRaiseHigher(desiredRaiseAmount);
     int finalRaiseAmount;
     // If player has no more markers player need to go all in
-    if (hasToGoAllIn(calculatedRaiseAmount)) {
+    if (hasToGoAllIn(desiredRaiseAmount)) {
       finalRaiseAmount = goAllIn();
-    } else if (calculatedRaiseAmount > amountToJoinPot) {
-      if (BetManager.shallPayToPot(playersPartInPots, calculatedRaiseAmount)) {
+    } else if (desiredRaiseAmount > maxRaiseFromAPlayer) {
+      if (BetManager.shallPayToPot(playersPartInPots, desiredRaiseAmount)) {
         action = new Action(ActionEnum.RAISE);
       } else {
         action = new Action(ActionEnum.CHECK);
       }
-      finalRaiseAmount = calculatedRaiseAmount;
-    } else if (isWithin(calculatedRaiseAmount, amountToJoinPot)) {
+      finalRaiseAmount = desiredRaiseAmount;
+    } else if (isWithin(desiredRaiseAmount, maxRaiseFromAPlayer)) {
       action = new Action(ActionEnum.CHECK);
-      finalRaiseAmount = amountToJoinPot;
+      finalRaiseAmount = maxRaiseFromAPlayer;
     } else {
       // If no one is raises there is no need to fold
       if (noRaiseThisDraw(maxRaiseThisDraw)) {
