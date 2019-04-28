@@ -134,8 +134,7 @@ public abstract class Player {
   public void decreaseMarkers(int markers) {
     numberOfMarkers = numberOfMarkers - markers;
     if (numberOfMarkers < 0) {
-      logger.debug("Player :[" + getName() + "] is broke!");
-      numberOfMarkers = 0;
+      throw new RuntimeException("Number of markers cannot be negative. ");
     }
     logger.debug("Decrease [" + markers + "] for :[" + getName() + "]. Total number of markers :[" + numberOfMarkers + "]");
   }
@@ -267,7 +266,9 @@ public abstract class Player {
   private boolean noRaiseThisDraw(int maxRaiseThisDraw) {
     logger.debug("Raise this draw: {{}}", maxRaiseThisDraw);
     if (maxRaiseThisDraw == 0) return true;
+
     if (partInPot == maxRaiseThisDraw) return true;
+
     return false;
   }
 

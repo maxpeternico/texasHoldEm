@@ -55,46 +55,12 @@ public class HumanPlayer extends Player {
 
   @Override
   protected boolean isPlayerChecking(int desiredRaiseAmount, int maxRaiseFromAPlayerThisRound) {
-
-    // TODO: How can maxRaiseFromAPlayerThisRound be different to maxRaiseFromAPlayerThisRound but strategy JOIN?
+    // Human player already made choice
     if (strategy.equals(JOIN)) {
       action = new Action(ActionEnum.CHECK);
       return true;
     }
     return false;
-  }
-
-  protected int calculateRaiseAmount2(int blind) {
-    int individualRaiseAmount = 0;
-    if (strategy.equals(NOT_DECIDED)) {
-      throw new RuntimeException("Strategy can not be NOT_DECIDED here. ");
-    }
-    if (strategy.equals(ALL_IN)) {
-      individualRaiseAmount =  getNumberOfMarkers();
-    }
-    if (strategy.equals(OFFENSIVE)) {
-      try {
-        individualRaiseAmount = (int) getRaiseAmount(blind);
-      } catch (Exception e) {
-        logger.warn(e.getMessage());
-        strategy = QUIT;
-        individualRaiseAmount = 0;
-      }
-    }
-    if (strategy.equals(JOIN)) {
-      logger.info("{{}} has strategy JOIN, numberOfMarkers {{}} and blind {{}}", getName(), getNumberOfMarkers(), blind);
-      individualRaiseAmount = getNumberOfMarkers();
-    }
-    if (strategy.equals(QUIT)) {
-      individualRaiseAmount = 0;
-    }
-    if (individualRaiseAmount >= getNumberOfMarkers()) {
-      System.out.println("You have no markers left. You have to go all-in. ");
-      strategy = ALL_IN;
-      individualRaiseAmount = getNumberOfMarkers();
-    }
-    logger.debug(getName() + " getAmount amount: " + individualRaiseAmount);
-    return individualRaiseAmount;
   }
 
   @Override
@@ -104,9 +70,7 @@ public class HumanPlayer extends Player {
       try {
         individualRaiseAmount = (int) getRaiseAmount(blind);
       } catch (Exception e) {
-        logger.warn(e.getMessage());
-        strategy = QUIT;
-        individualRaiseAmount = 0;
+        throw new RuntimeException("Exception received from reading input. ");
       }
     }
     return individualRaiseAmount;
