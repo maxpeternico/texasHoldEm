@@ -86,39 +86,17 @@ public class RobotPlayer extends Player {
 
   @Override
   protected int hasPlayerBlindAndIsDesiredRaiseHigher(int desiredRaiseAmount) {
-    return hasPlayerBlindAndIsDesiredRaiseHigher2(desiredRaiseAmount);
-  }
-
-  /*
-
-  Thomas raises with 100, jörn checks wiht 100. maxRaiseFromAnotherPlayer = 0
-  Thomas checks. maxraise still 100. check value should be 0.
-  Jörn checks. maxRaise still 100. check value should be 0.
-
-   */
-  @Override
-  protected int setAction2(int desiredRaiseAmount,
-                           int maxRaiseFromAPlayer,
-                           int maxRaiseThisDraw,
-                           int playersPartInPots) {
-
-    desiredRaiseAmount = hasPlayerBlindAndIsDesiredRaiseHigher2(desiredRaiseAmount);
-    int finalRaiseAmount = 0;
-    return finalRaiseAmount;
-  }
-
-  @Override
-  protected boolean isCheckSelected(int desiredRaiseAmount, int maxRaiseFromAPlayerThisRound) {
-    return isWithin(desiredRaiseAmount, maxRaiseFromAPlayerThisRound);
-  }
-
-  private int hasPlayerBlindAndIsDesiredRaiseHigher2(int desiredRaiseAmount) {
     if (hasBlind()) {
       if (action.getAmount() > desiredRaiseAmount) {
         desiredRaiseAmount = action.getAmount();
       }
     }
     return desiredRaiseAmount;
+  }
+
+  @Override
+  protected boolean isPlayerChecking(int desiredRaiseAmount, int maxRaiseFromAPlayerThisRound) {
+    return isWithin(desiredRaiseAmount, maxRaiseFromAPlayerThisRound);
   }
 
   private boolean isWithin(int raiseAmount, int maxRaiseFromOtherPlayer) {

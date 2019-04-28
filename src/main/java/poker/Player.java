@@ -1,11 +1,11 @@
 package poker;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import static poker.Strategy.ALL_IN;
 
@@ -21,7 +21,7 @@ public abstract class Player {
   private boolean littleBlind = false;
   Strategy strategy = Strategy.NOT_DECIDED;
   protected Action action = new Action(ActionEnum.NOT_DECIDED);
-  protected int partInPot = 0;
+  private int partInPot = 0;
   Action previousAction = new Action(ActionEnum.NOT_DECIDED);
   int blindAmount = 0;
 
@@ -127,8 +127,8 @@ public abstract class Player {
     bigBlind = false;
   }
 
-  boolean canPay(int pot) {
-    return numberOfMarkers - pot >= 0;
+  boolean canPay(int amount) {
+    return numberOfMarkers - amount >= 0;
   }
 
   public void decreaseMarkers(int markers) {
@@ -208,23 +208,24 @@ public abstract class Player {
     return blindAmount;
   }
 
-  protected void setAction(int desiredRaiseAmount,
+  private void setAction(int desiredRaiseAmount,
                                      int maxRaiseFromAPlayerThisRound,
                                      int maxRaiseThisDraw,
                                      int playersPartInPots) {
     logger.debug("Player :[" + getName() + "] desiredRaiseAmount: [" + desiredRaiseAmount + "] maxRaiseFromAPlayerThisRound :[" + maxRaiseFromAPlayerThisRound + "] maxRaiseThisDraw :[" + maxRaiseThisDraw + "]");
     int finalRaiseAmount;
     desiredRaiseAmount = hasPlayerBlindAndIsDesiredRaiseHigher(desiredRaiseAmount);
-    if (hasToGoAllIn(desiredRaiseAmount)) {
-      finalRaiseAmount = goAllIn();
-    } else if (desiredRaiseAmount > maxRaiseFromAPlayerThisRound) {
+    if (isPlayerGoingAllIn(desiredRaiseAmount)) {
+      action = new Action(ActionEnum.ALL_IN);
+      finalRaiseAmount = getNumberOfMarkers();
+    } else if (isPlayerRaising(desiredRaiseAmount, maxRaiseFromAPlayerThisRound)) {
       if (BetManager.shallPayToPot(playersPartInPots, desiredRaiseAmount)) {
         action = new Action(ActionEnum.RAISE);
       } else {
         action = new Action(ActionEnum.CHECK);
       }
       finalRaiseAmount = desiredRaiseAmount;
-    } else if (isCheckSelected(desiredRaiseAmount, maxRaiseFromAPlayerThisRound)) {
+    } else if (isPlayerChecking(desiredRaiseAmount, maxRaiseFromAPlayerThisRound)) {
       action = new Action(ActionEnum.CHECK);
       finalRaiseAmount = maxRaiseFromAPlayerThisRound;
     } else {
@@ -243,14 +244,13 @@ public abstract class Player {
     partInPot += action.getAmount();
   }
 
+  private boolean isPlayerRaising(int desiredRaiseAmount, int maxRaiseFromAPlayerThisRound) {
+    return desiredRaiseAmount > maxRaiseFromAPlayerThisRound;
+  }
+
   protected abstract int hasPlayerBlindAndIsDesiredRaiseHigher(int desiredRaiseAmount);
 
-  protected abstract boolean isCheckSelected(int desiredRaiseAmount, int maxRaiseFromAPlayerThisRound);
-
-  protected abstract int setAction2(int raiseAmount,
-                                    int maxRaiseFromAPlayer,
-                                    int maxRaiseThisDraw,
-                                    int playersPartInPots);
+  protected abstract boolean isPlayerChecking(int desiredRaiseAmount, int maxRaiseFromAPlayerThisRound);
 
   protected boolean noRaiseThisDraw(int maxRaiseThisDraw) {
     logger.debug("Raise this draw: {{}}", maxRaiseThisDraw);
@@ -274,26 +274,25 @@ public abstract class Player {
 
   public boolean isAllIn() {
     if (action.isAllIn()) {
-      logger.debug("Player {{}} is all in. ", getName());
+      logger.debug("Player {{}} is ALL IN. ", getName());
       return true;
     }
     return false;
   }
 
   // If player has no more markers player need to go all in
-  boolean hasToGoAllIn(int calculatedRaiseAmount) {
-    return strategy.equals(ALL_IN) || doPlayerNeedToGoAllIn(calculatedRaiseAmount);
+  private boolean isPlayerGoingAllIn(int calculatedRaiseAmount) {
+    if (strategy.equals(ALL_IN) || doPlayerNeedToGoAllIn(calculatedRaiseAmount)) {
+      logger.debug("Player {{}} goes ALL_IN", getName());
+      return true;
+    }
+    return false;
   }
 
   private boolean doPlayerNeedToGoAllIn(int amount) {
-    return amount >= numberOfMarkers;
-  }
+    logger.trace("Player {{}} has {{}} markers and considers amount {{}}", getName(), numberOfMarkers, amount);
 
-  int goAllIn() {
-    int finalRaiseAmount;
-    action = new Action(ActionEnum.ALL_IN);
-    finalRaiseAmount = getNumberOfMarkers();
-    return finalRaiseAmount;
+    return amount >= numberOfMarkers;
   }
 
   boolean hasNotDecided() {
