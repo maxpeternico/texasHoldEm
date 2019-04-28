@@ -171,8 +171,8 @@ public abstract class Player {
                              int maxRaiseThisDraw,
                              int playersPartInPots) {
     decideStrategy(draw, numberOfRemainingPlayers, commonHand);
-    int individualRaiseAmount = calculateRaiseAmount(blind);
-    setAction(individualRaiseAmount, maxRaiseFromAPlayer, maxRaiseThisDraw, playersPartInPots);
+    int valuedHandInMarkers = valueHandToMarkers(blind);
+    setAction(valuedHandInMarkers, maxRaiseFromAPlayer, maxRaiseThisDraw, playersPartInPots);
     logger.debug("Player " + getName() + " decides to :[" + getAction() + "]");
     return getAction();
   }
@@ -208,26 +208,39 @@ public abstract class Player {
     return blindAmount;
   }
 
-  private void setAction(int desiredRaiseAmount,
-                                     int maxRaiseFromAPlayerThisRound,
-                                     int maxRaiseThisDraw,
-                                     int playersPartInPots) {
-    logger.debug("Player :[" + getName() + "] desiredRaiseAmount: [" + desiredRaiseAmount + "] maxRaiseFromAPlayerThisRound :[" + maxRaiseFromAPlayerThisRound + "] maxRaiseThisDraw :[" + maxRaiseThisDraw + "]");
+  private void setAction(int valuedHandInMarkers,
+                         int maxRaiseFromAPlayerThisRound,
+                         int maxRaiseThisDraw,
+                         int playersPartInPots) {
+    logger.debug(
+        "Player :{{}} strategy {{}} valuedHandInMarkers: {{}} maxRaiseFromAPlayerThisRound {{}} maxRaiseThisDraw :{{}}",
+        getName(),
+        strategy.name(),
+        valuedHandInMarkers,
+        valuedHandInMarkers,
+        maxRaiseThisDraw);
+
     int finalRaiseAmount;
-    desiredRaiseAmount = hasPlayerBlindAndIsDesiredRaiseHigher(desiredRaiseAmount);
-    if (isPlayerGoingAllIn(desiredRaiseAmount)) {
+    valuedHandInMarkers = hasPlayerBlindAndIsDesiredRaiseHigher(valuedHandInMarkers);
+    if (isPlayerGoingAllIn(valuedHandInMarkers)) {
       action = new Action(ActionEnum.ALL_IN);
       finalRaiseAmount = getNumberOfMarkers();
-    } else if (isPlayerRaising(desiredRaiseAmount, maxRaiseFromAPlayerThisRound)) {
-      if (BetManager.shallPayToPot(playersPartInPots, desiredRaiseAmount)) {
+    } else if (isPlayerRaising(valuedHandInMarkers, maxRaiseFromAPlayerThisRound)) {
+      if (BetManager.shallPayToPot(playersPartInPots, valuedHandInMarkers)) {
         action = new Action(ActionEnum.RAISE);
       } else {
         action = new Action(ActionEnum.CHECK);
       }
-      finalRaiseAmount = desiredRaiseAmount;
-    } else if (isPlayerChecking(desiredRaiseAmount, maxRaiseFromAPlayerThisRound)) {
+      finalRaiseAmount = valuedHandInMarkers;
+    } else if (isPlayerChecking(valuedHandInMarkers, maxRaiseFromAPlayerThisRound)) {
       action = new Action(ActionEnum.CHECK);
-      finalRaiseAmount = maxRaiseFromAPlayerThisRound;
+      if (maxRaiseFromAPlayerThisRound > getNumberOfMarkers()) {
+        System.out.println("Player {" + getName() + "} cannot afford check, has to go ALL IN. ");
+        action = new Action(ActionEnum.ALL_IN);
+        finalRaiseAmount = getNumberOfMarkers();
+      } else {
+        finalRaiseAmount = maxRaiseFromAPlayerThisRound;
+      }
     } else {
       // If no one is raises there is no need to fold
       if (noRaiseThisDraw(maxRaiseThisDraw)) {
@@ -238,26 +251,61 @@ public abstract class Player {
       }
       finalRaiseAmount = 0;
     }
-
     logger.trace("Set raise amount for player {{}} to {{}}", getName(), finalRaiseAmount);
     action.setAmount(finalRaiseAmount);
     partInPot += action.getAmount();
   }
 
-  private boolean isPlayerRaising(int desiredRaiseAmount, int maxRaiseFromAPlayerThisRound) {
-    return desiredRaiseAmount > maxRaiseFromAPlayerThisRound;
+  private boolean isPlayerRaising(int valuedHandInMarkers, int maxRaiseFromAPlayerThisRound) {
+    return valuedHandInMarkers > maxRaiseFromAPlayerThisRound;
   }
 
   protected abstract int hasPlayerBlindAndIsDesiredRaiseHigher(int desiredRaiseAmount);
 
   protected abstract boolean isPlayerChecking(int desiredRaiseAmount, int maxRaiseFromAPlayerThisRound);
 
-  protected boolean noRaiseThisDraw(int maxRaiseThisDraw) {
+  private boolean noRaiseThisDraw(int maxRaiseThisDraw) {
     logger.debug("Raise this draw: {{}}", maxRaiseThisDraw);
-    return maxRaiseThisDraw == 0;
+    if (maxRaiseThisDraw == 0) return true;
+    if (partInPot == maxRaiseThisDraw) return true;
+    return false;
   }
 
-  protected abstract int calculateRaiseAmount(int blind);
+  private int valueHandToMarkers(int blind) {
+    int individualRaiseAmount = 0;
+
+    // Depending on strategy, pot and blind
+    // low blind, offensive raises more, the rest joins
+    // medium blind, offensive raises more, join joins, join if cheap drops
+    // high blind offensive sets rise as blind, rest folds
+    switch (strategy) {
+      case ALL_IN:
+        individualRaiseAmount = getNumberOfMarkers();
+        break;
+      case OFFENSIVE:
+        individualRaiseAmount = setOffensiveRaiseAmount(blind);
+        break;
+      case JOIN:
+        individualRaiseAmount = setJoinRaiseAmount(blind);
+        break;
+      case JOIN_IF_CHEAP:
+        individualRaiseAmount = setJoinIfCheapRaiseAmount(blind);
+        break;
+      default:
+        break;
+    }
+    if (individualRaiseAmount > getNumberOfMarkers()) {
+      individualRaiseAmount = getNumberOfMarkers();
+    }
+    logger.debug(getName() + " getAmount amount: " + individualRaiseAmount);
+    return individualRaiseAmount;
+  }
+
+  protected abstract int setJoinIfCheapRaiseAmount(int blind);
+
+  protected abstract int setJoinRaiseAmount(int blind);
+
+  protected abstract int setOffensiveRaiseAmount(int blind);
 
   void addMarkers(int markers) {
     numberOfMarkers = numberOfMarkers + markers;

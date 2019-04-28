@@ -55,6 +55,8 @@ public class HumanPlayer extends Player {
 
   @Override
   protected boolean isPlayerChecking(int desiredRaiseAmount, int maxRaiseFromAPlayerThisRound) {
+
+    // TODO: How can maxRaiseFromAPlayerThisRound be different to maxRaiseFromAPlayerThisRound but strategy JOIN?
     if (strategy.equals(JOIN)) {
       action = new Action(ActionEnum.CHECK);
       return true;
@@ -62,17 +64,7 @@ public class HumanPlayer extends Player {
     return false;
   }
 
-  private int getNewRaiseAmount(int amountToJoinPot) {
-    int raiseAmount;
-    do {
-      System.out.println("Raise amount must be higher than " + amountToJoinPot);
-      raiseAmount = (int) getRaiseAmount(blindAmount);
-    } while (raiseAmount < amountToJoinPot);
-    return raiseAmount;
-  }
-
-  @Override
-  protected int calculateRaiseAmount(int blind) {
+  protected int calculateRaiseAmount2(int blind) {
     int individualRaiseAmount = 0;
     if (strategy.equals(NOT_DECIDED)) {
       throw new RuntimeException("Strategy can not be NOT_DECIDED here. ");
@@ -103,6 +95,31 @@ public class HumanPlayer extends Player {
     }
     logger.debug(getName() + " getAmount amount: " + individualRaiseAmount);
     return individualRaiseAmount;
+  }
+
+  @Override
+  protected int setOffensiveRaiseAmount(int blind) {
+    int individualRaiseAmount = 0;
+    if (strategy.equals(OFFENSIVE)) {
+      try {
+        individualRaiseAmount = (int) getRaiseAmount(blind);
+      } catch (Exception e) {
+        logger.warn(e.getMessage());
+        strategy = QUIT;
+        individualRaiseAmount = 0;
+      }
+    }
+    return individualRaiseAmount;
+  }
+
+  @Override
+  protected int setJoinIfCheapRaiseAmount(int blind) {
+    return setJoinRaiseAmount(blind);
+  }
+
+  @Override
+  protected int setJoinRaiseAmount(int blind) {
+    return blind;
   }
 
   private long getRaiseAmount(int raiseAmount) {

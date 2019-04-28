@@ -99,6 +99,33 @@ public class RobotPlayer extends Player {
     return isWithin(desiredRaiseAmount, maxRaiseFromAPlayerThisRound);
   }
 
+  @Override
+  protected int setJoinIfCheapRaiseAmount(int blind) {
+    if (blind <= 50) {
+      return blind;
+    }
+    return 0;
+  }
+
+  @Override
+  protected int setJoinRaiseAmount(int blind) {
+    return blind * 2;
+  }
+
+  @Override
+  protected int setOffensiveRaiseAmount(int blind) {
+    // TODO: Set percentage of number of markers instead
+    int individualRaiseAmount = 0;
+    if (points.totalPoints > 113) { // Pair of aces and higher
+      individualRaiseAmount = blind * 4;
+    } else if (points.totalPoints > 100) {
+      individualRaiseAmount = blind * 2;
+    } else if (points.totalPoints > 5) {
+      individualRaiseAmount = blind;
+    }
+    return individualRaiseAmount;
+  }
+
   private boolean isWithin(int raiseAmount, int maxRaiseFromOtherPlayer) {
     int raiseAmountIncludingBlind = calculateRaiseAmountIncludingBlind(raiseAmount);
     if (raiseAmountIncludingBlind >= maxRaiseFromOtherPlayer * 0.9) {
@@ -107,8 +134,7 @@ public class RobotPlayer extends Player {
     return Math.abs(raiseAmountIncludingBlind - maxRaiseFromOtherPlayer) <= 25;
   }
 
-  @Override
-  protected int calculateRaiseAmount(int blind) {
+  protected int calculateRaiseAmount2(int blind) {
     int individualRaiseAmount = 0;
 
     // Depending on strategy, pot and blind
