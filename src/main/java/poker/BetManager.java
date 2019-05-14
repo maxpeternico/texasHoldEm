@@ -31,8 +31,19 @@ public class BetManager {
     this.maxRaiseFromAPlayer = blind;
     maxRaiseThisDraw = blind;
     initCreateBettingDecisionList(playerList);
+    setPartInPotForEachPlayer(playerList, blind);
     draw = Draw.BEFORE_FLOP;
     logger.debug("Creating new betManager with highest raise: {{}}", maxRaiseFromAPlayer);
+  }
+
+  private void setPartInPotForEachPlayer(List<Player> playerList, int blind) {
+    for (Player player:playerList) {
+      if (player.hasLittleBlind()) {
+        player.setPartInPot(blind/2);
+      } else if (player.hasBigBlind()) {
+        player.setPartInPot(blind);
+      }
+    }
   }
 
   void addFlopCardsToCommonhand(List<Card> flopCards, Draw draw) {

@@ -21,7 +21,7 @@ public abstract class Player {
   private boolean littleBlind = false;
   Strategy strategy = Strategy.NOT_DECIDED;
   protected Action action = new Action(ActionEnum.NOT_DECIDED);
-  protected int partInPot = 0;
+  private int partInPot = 0;
   Action previousAction = new Action(ActionEnum.NOT_DECIDED);
   int blindAmount = 0;
 
@@ -187,21 +187,11 @@ public abstract class Player {
     if (!isBeforeFlop) {
       return getAction().getAmount();
     }
-    // TODO: This is already compensated at BetManager.payToPot(). Should not be done in two places
-    if (hasBlind()) {
-      logger.trace("{{}} has blind. ", getName());
-      if (getAction().getAmount() == 0) {
-        return getBlindAmount();
-      }
-      if (getAction().getAmount() >= getBlindAmount()) {
-        logger.trace("Amount: {{}} blindAmount {{}}", getAction().getAmount(), getBlindAmount());
-        return getAction().getAmount() - getBlindAmount();
-      }
-      if (!getAction().isAllIn()) {
-        throw new RuntimeException("Action amount [" + getAction().getAmount() + " must be higher than big blind amount [" + getBlindAmount() + "]");
-      }
-    }
-    return getAction().getAmount() - partInPot;
+    logger.debug("Amount {{}} partInPot {{}}", getAction().getAmount(), partInPot);
+    final int amountToPot = getAction().getAmount() - partInPot;
+    partInPot += action.getAmount();
+
+    return amountToPot;
   }
 
   private int getBlindAmount() {
@@ -217,7 +207,6 @@ public abstract class Player {
     int finalRaiseAmount = setAction2(desiredRaiseAmount, maxRaiseFromAPlayerThisRound, maxRaiseThisDraw, playersPartInPots);
     logger.trace("Set raise amount for player {{}} to {{}}", getName(), finalRaiseAmount);
     action.setAmount(finalRaiseAmount);
-    partInPot += action.getAmount();
   }
 
   protected abstract int setAction2(int raiseAmount,
@@ -292,6 +281,10 @@ public abstract class Player {
 
   void removeCardsFromHand() {
     cardsOnHand.clear();
+  }
+
+  public void setPartInPot(int amount) {
+    partInPot = amount;
   }
 }
 
