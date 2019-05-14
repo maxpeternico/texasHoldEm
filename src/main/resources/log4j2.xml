@@ -15,6 +15,9 @@
         <Logger name="poker.RobotPlayer" level="off" additivity="false">
             <AppenderRef ref="Console" />
         </Logger>
+        <Logger name="poker.HumanPlayer" level="off" additivity="false">
+            <AppenderRef ref="Console" />
+        </Logger>
         <Logger name="poker.Player" level="off" additivity="false">
             <AppenderRef ref="Console" />
         </Logger>

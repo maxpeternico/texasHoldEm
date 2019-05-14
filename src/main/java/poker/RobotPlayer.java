@@ -84,54 +84,46 @@ public class RobotPlayer extends Player {
     logger.debug("Player " + getName() + " has strategy " + strategy + ". ");
   }
 
-  /*
-
-  Thomas raises with 100, jörn checks wiht 100. maxRaiseFromAnotherPlayer = 0
-  Thomas checks. maxraise still 100. check value should be 0.
-  Jörn checks. maxRaise still 100. check value should be 0.
-
-   */
   @Override
-  protected int setAction2(int calculatedRaiseAmount,
-                           int amountToJoinPot,
-                           int maxRaiseThisDraw,
-                           int playersPartInPots) {
-
-    calculatedRaiseAmount = hasPlayerBlindAndIsDesiredRaiseHigher(calculatedRaiseAmount);
-    int finalRaiseAmount;
-    // If player has no more markers player need to go all in
-    if (hasToGoAllIn(calculatedRaiseAmount)) {
-      finalRaiseAmount = goAllIn();
-    } else if (calculatedRaiseAmount > amountToJoinPot) {
-      if (BetManager.shallPayToPot(playersPartInPots, calculatedRaiseAmount)) {
-        action = new Action(ActionEnum.RAISE);
-      } else {
-        action = new Action(ActionEnum.CHECK);
+  protected int hasPlayerBlindAndIsDesiredRaiseHigher(int desiredRaiseAmount) {
+    if (hasBlind()) {
+      if (action.getAmount() > desiredRaiseAmount) {
+        desiredRaiseAmount = action.getAmount();
       }
-      finalRaiseAmount = calculatedRaiseAmount;
-    } else if (isWithin(calculatedRaiseAmount, amountToJoinPot)) {
-      action = new Action(ActionEnum.CHECK);
-      finalRaiseAmount = amountToJoinPot;
-    } else {
-      // If no one is raises there is no need to fold
-      if (noRaiseThisDraw(maxRaiseThisDraw)) {
-        logger.trace("No raise this draw. ");
-        action = new Action(ActionEnum.CHECK);
-      } else {
-        action = new Action(ActionEnum.FOLD);
-      }
-      finalRaiseAmount = 0;
     }
-    return finalRaiseAmount;
+    return desiredRaiseAmount;
   }
 
-  private int hasPlayerBlindAndIsDesiredRaiseHigher(int calculatedRaiseAmount) {
-    if (hasBlind()) {
-      if (action.getAmount() > calculatedRaiseAmount) {
-        calculatedRaiseAmount = action.getAmount();
-      }
+  @Override
+  protected boolean isPlayerChecking(int desiredRaiseAmount, int maxRaiseFromAPlayerThisRound) {
+    return isWithin(desiredRaiseAmount, maxRaiseFromAPlayerThisRound);
+  }
+
+  @Override
+  protected int setJoinIfCheapRaiseAmount(int blind) {
+    if (blind <= 50) {
+      return blind;
     }
-    return calculatedRaiseAmount;
+    return 0;
+  }
+
+  @Override
+  protected int setJoinRaiseAmount(int blind) {
+    return blind * 2;
+  }
+
+  @Override
+  protected int setOffensiveRaiseAmount(int blind) {
+    // TODO: Set percentage of number of markers instead
+    int individualRaiseAmount = 0;
+    if (points.totalPoints > 113) { // Pair of aces and higher
+      individualRaiseAmount = blind * 4;
+    } else if (points.totalPoints > 100) {
+      individualRaiseAmount = blind * 2;
+    } else if (points.totalPoints > 5) {
+      individualRaiseAmount = blind;
+    }
+    return individualRaiseAmount;
   }
 
   private boolean isWithin(int raiseAmount, int maxRaiseFromOtherPlayer) {
@@ -142,8 +134,7 @@ public class RobotPlayer extends Player {
     return Math.abs(raiseAmountIncludingBlind - maxRaiseFromOtherPlayer) <= 25;
   }
 
-  @Override
-  protected int calculateRaiseAmount(int blind) {
+  protected int calculateRaiseAmount2(int blind) {
     int individualRaiseAmount = 0;
 
     // Depending on strategy, pot and blind

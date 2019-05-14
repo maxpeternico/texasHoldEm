@@ -46,74 +46,44 @@ public class HumanPlayer extends Player {
   }
 
   @Override
-  protected int setAction2(int calculatedRaiseAmount,
-                           int amountToJoinPot,
-                           int maxRaiseThisDraw,
-                           int playersPartInPots) {
-    int finalRaiseAmount = 0;
-
-    if (hasToGoAllIn(amountToJoinPot)) {
-      finalRaiseAmount = goAllIn();
-    } else if (strategy.equals(OFFENSIVE)) {
-      if (calculatedRaiseAmount <= amountToJoinPot) {
-        finalRaiseAmount = getNewRaiseAmount(amountToJoinPot);
-      }
-      action = new Action(ActionEnum.RAISE);
-    } else if (strategy.equals(JOIN)) {
-      action = new Action(ActionEnum.ALL_IN);
-      finalRaiseAmount = getNumberOfMarkers();
-    } else if (strategy.equals(QUIT)) {
-      if (!BetManager.shallPayToPot(playersPartInPots, maxRaiseThisDraw)) {
-        System.out.println("You don't have to pay to the pot, there is no need to fold. You check. ");
-        action = new Action(ActionEnum.CHECK);
-      } else if (noRaiseThisDraw(maxRaiseThisDraw)) {
-        logger.trace("No raise this draw. ");
-        System.out.println("You don't need to fold, there is no raise this draw. You check. ");
-        action = new Action(ActionEnum.CHECK);
-      } else {
-        action = new Action(ActionEnum.FOLD);
-      }
-      finalRaiseAmount = 0;
-    }
-    return finalRaiseAmount;
-  }
-
-  private int getNewRaiseAmount(int amountToJoinPot) {
-    int raiseAmount;
-    do {
-      System.out.println("Raise amount must be higher than " + amountToJoinPot);
-      raiseAmount = (int) getRaiseAmount(blindAmount);
-    } while (raiseAmount < amountToJoinPot);
-    return raiseAmount;
+  /*
+    This is handled by getRaiseAmount for human player
+  */
+  protected int hasPlayerBlindAndIsDesiredRaiseHigher(int desiredRaiseAmount) {
+    return desiredRaiseAmount;
   }
 
   @Override
-  protected int calculateRaiseAmount(int blind) {
-    int raiseAmount;
-    if (strategy.equals(NOT_DECIDED)) {
-      throw new RuntimeException("Strategy can not be NOT_DECIDED here. ");
-    }
-    if (strategy.equals(ALL_IN)) {
-      return getNumberOfMarkers();
-    }
+  protected boolean isPlayerChecking(int desiredRaiseAmount, int maxRaiseFromAPlayerThisRound) {
+    // Human player already made choice
     if (strategy.equals(JOIN)) {
-      return blind;
+      action = new Action(ActionEnum.CHECK);
+      return true;
     }
-    if (strategy.equals(QUIT)) {
-      return 0;
+    return false;
+  }
+
+  @Override
+  protected int setOffensiveRaiseAmount(int blind) {
+    int individualRaiseAmount = 0;
+    if (strategy.equals(OFFENSIVE)) {
+      try {
+        individualRaiseAmount = (int) getRaiseAmount(blind);
+      } catch (Exception e) {
+        throw new RuntimeException("Exception received from reading input. ");
+      }
     }
-    try {
-      raiseAmount = (int) getRaiseAmount(blind);
-    } catch (Exception e) {
-      logger.warn(e.getMessage());
-      strategy = QUIT;
-      return 0;
-    }
-    if (raiseAmount == getNumberOfMarkers()) {
-      System.out.println("You have no markers left. You have to go all-in. ");
-      strategy = ALL_IN;
-    }
-    return raiseAmount;
+    return individualRaiseAmount;
+  }
+
+  @Override
+  protected int setJoinIfCheapRaiseAmount(int blind) {
+    return setJoinRaiseAmount(blind);
+  }
+
+  @Override
+  protected int setJoinRaiseAmount(int blind) {
+    return blind;
   }
 
   private long getRaiseAmount(int raiseAmount) {
