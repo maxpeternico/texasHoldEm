@@ -176,20 +176,19 @@ public abstract class Player {
     return getAction();
   }
 
-  int getActionAmount(boolean isBeforeFlop) {
+  int getActionAmount(boolean hasBlindAndIsFirstBetInGame) {
+    int amountToPot;
     if (getAction().isAllIn()) {
-      return getAction().getAmount();
+      amountToPot = getAction().getAmount();
+    } else if (getAction().isFold()) {
+      amountToPot = 0;
+    } else if (hasBlindAndIsFirstBetInGame) {
+      amountToPot = getAction().getAmount() - partInPot;
+    } else {
+      amountToPot = getAction().getAmount();
     }
-    if (getAction().isFold()) {
-      return 0;
-    }
-    if (!isBeforeFlop) {
-      return getAction().getAmount();
-    }
+    partInPot += amountToPot;
     logger.debug("Amount {{}} partInPot {{}}", getAction().getAmount(), partInPot);
-    final int amountToPot = getAction().getAmount() - partInPot;
-    partInPot += action.getAmount();
-
     return amountToPot;
   }
 
@@ -359,7 +358,7 @@ public abstract class Player {
     cardsOnHand.clear();
   }
 
-  public void setPartInPot(int amount) {
+  void setPartInPot(int amount) {
     partInPot = amount;
   }
 }
